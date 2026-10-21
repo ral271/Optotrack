@@ -951,9 +951,22 @@
       return state.includeCurrentMonthInAverages ? curMonthIdx : Math.max(0, curMonthIdx - 1);
     }
 
+    // Determine the latest active month index in a given year (for same-period slicing)
+    function getLastActiveMonthIndex(yearStr) {
+      const months = state.years[yearStr] || [];
+      let lastIdx = -1;
+      months.forEach((m, idx) => {
+        const c = calculateMonth(m, state.settings, 'recon');
+        if (c.isActive) lastIdx = idx;
+      });
+      return lastIdx >= 0 ? lastIdx : getAverageCutoffIndex(yearStr);
+    }
+
     function getYearMetrics(yearStr, maxMonthIdxOverride = null) {
       const months = state.years[yearStr] || [];
-      const cutoffIdx = maxMonthIdxOverride !== null ? maxMonthIdxOverride : getAverageCutoffIndex(yearStr);
+      const isPeriodSliced = maxMonthIdxOverride !== null;
+      const avgCutoffIdx = isPeriodSliced ? maxMonthIdxOverride : getAverageCutoffIndex(yearStr);
+      const ytdCutoffIdx = isPeriodSliced ? maxMonthIdxOverride : 11;
       const extras = (state.yearPaidExtras && state.yearPaidExtras[yearStr]) || { health: 0, bonusPaid: 0 };
 
       let ytdGross = 0, ytdReci = 0, ytdOhip = 0, ytdTotalOhip = 0, ytdRecd = 0, ytdNet = 0, ytdBasePaid = 0, ytdTarget = 0, ytdDiff = 0;
@@ -966,20 +979,22 @@
       months.forEach((m, idx) => {
         const c = calculateMonth(m, state.settings, 'recon');
         if (c.isActive) {
-          activeYtdMonths++;
-          ytdGross += c.gross;
-          ytdReci += c.reci;
-          ytdOhip += c.ohip;
-          ytdTotalOhip += c.totalOhip;
-          ytdRecd += c.totalRecd;
-          ytdNet += c.net;
-          ytdBasePaid += c.paid;
-          ytdTarget += c.target;
-          ytdDiff += c.diff;
-          ytdDaysWorked += c.daysWorked;
-          ytdPatients += c.patients;
+          if (idx <= ytdCutoffIdx) {
+            activeYtdMonths++;
+            ytdGross += c.gross;
+            ytdReci += c.reci;
+            ytdOhip += c.ohip;
+            ytdTotalOhip += c.totalOhip;
+            ytdRecd += c.totalRecd;
+            ytdNet += c.net;
+            ytdBasePaid += c.paid;
+            ytdTarget += c.target;
+            ytdDiff += c.diff;
+            ytdDaysWorked += c.daysWorked;
+            ytdPatients += c.patients;
+          }
 
-          if (idx <= cutoffIdx) {
+          if (idx <= avgCutoffIdx) {
             avgScopeMonths++;
             sumDailyAvgs += c.dailyAvg;
             sumRevPerPts += c.revPerPt;
@@ -1001,11 +1016,35 @@
         }
       });
 
-      const ytdTotalPaid = ytdBasePaid + (Number(extras.health) || 0) + (Number(extras.bonusPaid) || 0);
+      // When slicing to a partial-year period (e.g. Jan-Oct in previous year),
+      // only include confirmed bonuses from quarters completed within that period rather than full year's Dec bonus
+      let effectiveBonusPaid = Number(extras.bonusPaid) || 0;
+      if (isPeriodSliced && ytdCutoffIdx < 11) {
+        const qEndMonth = { Q1: 2, Q2: 5, Q3: 8, Q4: 11 };
+        const qConfYear = state.quarterConfirmations?.[yearStr] || {};
+        let slicedBonus = 0;
+        let anyConfirmedFound = false;
+        ['Q1', 'Q2', 'Q3', 'Q4'].forEach(qk => {
+          // Include quarter if its months fall within or up to the cutoff quarter
+          if (qEndMonth[qk] <= ytdCutoffIdx || (qk === 'Q3' && ytdCutoffIdx >= 8)) {
+            const qc = qConfYear[qk];
+            if (qc && qc.actualBonus !== null && qc.actualBonus !== undefined && qc.actualBonus !== '') {
+              slicedBonus += Number(qc.actualBonus) || 0;
+              anyConfirmedFound = true;
+            }
+          }
+        });
+        if (anyConfirmedFound) {
+          effectiveBonusPaid = slicedBonus;
+        }
+      }
+
+      const effectiveHealthPaid = Number(extras.health) || 0;
+      const ytdTotalPaid = ytdBasePaid + effectiveHealthPaid + effectiveBonusPaid;
 
       return {
         ytdGross, ytdReci, ytdOhip, ytdTotalOhip, ytdRecd, ytdNet, ytdBasePaid, ytdTotalPaid,
-        healthPaid: Number(extras.health) || 0, bonusPaid: Number(extras.bonusPaid) || 0,
+        healthPaid: effectiveHealthPaid, bonusPaid: effectiveBonusPaid,
         ytdTarget, ytdDiff, ytdDaysWorked, ytdPatients, activeYtdMonths,
         avgScopeMonths,
         avgDailyNet: avgScopeMonths > 0 ? sumDailyAvgs / avgScopeMonths : 0,
@@ -1059,11 +1098,11 @@
     function getBenchmarkComparisonMetrics() {
       const mode = state.benchmarkMode || 'prev_year';
       const curYear = state.currentYear;
-      let compareYear = mode === 'prev_year' ? String(Number(curYear) - 1) : mode;
+      const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
       if (mode === 'all_time') {
-        const m25 = getYearMetrics('2025', 11);
-        const m26 = getYearMetrics('2026', 11);
+        const m25 = getYearMetrics('2025', null);
+        const m26 = getYearMetrics('2026', null);
         return {
           label: 'All-Time Peak',
           ytdNet: Math.max(m25.ytdNet, m26.ytdNet),
@@ -1079,10 +1118,36 @@
         };
       }
 
-      if (!state.years[compareYear]) compareYear = '2025';
-      const cutoff = getAverageCutoffIndex(curYear);
-      const bm = getYearMetrics(compareYear, cutoff);
-      return { label: `${compareYear} (Same Period)`, ...bm };
+      if (mode === 'prev_year') {
+        let compareYear = String(Number(curYear) - 1);
+        if (!state.years[compareYear]) compareYear = '2025';
+        // Determine the exact month cutoff for "Same Period":
+        // Uses the current year's last active month (or average scope cutoff)
+        const ytdPeriodCutoff = getLastActiveMonthIndex(curYear);
+        const avgPeriodCutoff = getAverageCutoffIndex(curYear);
+
+        const bmYtd = getYearMetrics(compareYear, ytdPeriodCutoff);
+        const bmAvg = getYearMetrics(compareYear, avgPeriodCutoff);
+
+        return {
+          label: `${compareYear} (Jan–${monthNames[ytdPeriodCutoff]})`,
+          ytdNet: bmYtd.ytdNet,
+          ytdGross: bmYtd.ytdGross,
+          ytdTotalPaid: bmYtd.ytdTotalPaid,
+          ytdDaysWorked: bmYtd.ytdDaysWorked,
+          ytdPatients: bmYtd.ytdPatients,
+          avgDailyNet: bmAvg.avgDailyNet,
+          avgRevPerPt: bmAvg.avgRevPerPt,
+          avgDaysPerMth: bmAvg.avgDaysPerMth,
+          avgPtsPerDay: bmAvg.avgPtsPerDay,
+          avgPtsPerMth: bmAvg.avgPtsPerMth
+        };
+      }
+
+      // Specific Year Selected ('2025' or '2026'): compare against full year actuals
+      const targetYear = state.years[mode] ? mode : '2025';
+      const bmFull = getYearMetrics(targetYear, null);
+      return { label: `${targetYear} Full Year`, ...bmFull };
     }
 
     function renderKPIs() {
