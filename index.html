@@ -1,0 +1,1688 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OptoTrack — Production & Bonus PWA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] }
+        }
+      }
+    };
+  </script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.3); border-radius: 9999px; }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-200">
+
+  <!-- Notification Toast Banner -->
+  <div id="toastBanner" class="fixed bottom-5 right-5 z-[100] hidden max-w-sm bg-slate-900 dark:bg-slate-800 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-700 flex items-center gap-3 text-xs font-medium">
+    <i data-lucide="info" class="w-4 h-4 text-sky-400 shrink-0"></i>
+    <span id="toastMessage">Saved!</span>
+  </div>
+
+  <!-- Top Navigation Header -->
+  <header class="sticky top-0 z-30 backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-sky-500/20">
+          <i data-lucide="eye" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-extrabold text-base sm:text-lg tracking-tight">OptoTrack</h1>
+            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800">Associate Suite</span>
+          </div>
+          <p id="syncStatusText" class="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+            <span id="syncDot" class="w-2 h-2 rounded-full bg-amber-400 inline-block"></span>
+            <span>Ready (Session Mode)</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Year Selector -->
+        <select id="yearSelect" onchange="window.switchYear(this.value)" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-sky-500">
+          <option value="2025">2025</option>
+          <option value="2026" selected>2026</option>
+          <option value="2027">2027</option>
+        </select>
+
+        <!-- Log Clinic Day CTA -->
+        <button onclick="window.openDailyLogModal()" class="px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs flex items-center gap-1.5 shadow-sm transition">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i>
+          <span>Log Clinic Day</span>
+        </button>
+
+        <!-- Cloud Sync Button -->
+        <button onclick="window.openCloudModal()" class="relative p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition" title="Cloud Sync & Account">
+          <i data-lucide="cloud" class="w-4 h-4"></i>
+          <span id="cloudBadgeDot" class="w-2 h-2 rounded-full bg-amber-400 absolute top-1.5 right-1.5"></span>
+        </button>
+
+        <!-- Settings Button -->
+        <button onclick="window.openSettingsModal()" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition" title="Target Rates & Settings">
+          <i data-lucide="sliders" class="w-4 h-4"></i>
+        </button>
+
+        <!-- Dark Mode Toggle -->
+        <button onclick="window.toggleTheme()" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition" title="Toggle Theme">
+          <i data-lucide="moon" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+
+    <!-- All-Time Daily Gross Production Record Banner -->
+    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-rose-500/10 dark:from-amber-500/15 dark:via-orange-500/10 dark:to-rose-500/10 border border-amber-300/60 dark:border-amber-700/50 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="flex items-start sm:items-center gap-3.5">
+        <div class="w-11 h-11 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-lg shadow-amber-500/30 shrink-0">
+          <i data-lucide="trophy" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">All-Time Personal Daily Gross High</span>
+            <span id="recordDateBadge" class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-amber-200/70 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200">25/08/26</span>
+          </div>
+          <div class="flex items-baseline gap-3 mt-0.5">
+            <span id="recordAmountText" class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">$7,965.82</span>
+            <span id="recordNoteText" class="text-xs text-slate-600 dark:text-slate-400">Single-day gross clinic production benchmark</span>
+          </div>
+        </div>
+      </div>
+      <button onclick="window.openRecordModal()" class="self-start sm:self-center px-3 py-1.5 rounded-xl bg-white/80 dark:bg-slate-900/80 hover:bg-white dark:hover:bg-slate-900 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700/70 text-xs font-semibold flex items-center gap-1.5 transition shrink-0">
+        <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+        <span>Update Record</span>
+      </button>
+    </div>
+
+    <!-- Averages Scope & Comparative Benchmark Control Bar -->
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-sm">
+      <div class="flex flex-wrap items-center gap-3">
+        <div class="flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-300">
+          <i data-lucide="calendar-check" class="w-4 h-4 text-sky-500"></i>
+          <span>Averages Scope:</span>
+          <span id="avgScopeBadge" class="px-2 py-0.5 rounded-md bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 font-bold">Jan – Sep (Completed Months)</span>
+        </div>
+        <label class="inline-flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400 cursor-pointer select-none">
+          <input type="checkbox" id="chkIncludeCurrentMonth" onchange="window.toggleIncludeCurrentMonth(this.checked)" class="rounded border-slate-300 text-sky-600 focus:ring-sky-500">
+          <span>Include in-progress month (Oct)</span>
+        </label>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Compare vs:</span>
+        <select id="benchmarkSelect" onchange="window.setBenchmarkMode(this.value)" class="px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold focus:outline-none">
+          <option value="prev_year">Previous Year (Same Period)</option>
+          <option value="2025">2025 Baseline</option>
+          <option value="2026">2026 Baseline</option>
+          <option value="all_time">All-Time Peak Pace</option>
+        </select>
+      </div>
+    </div>
+
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <!-- Card 1: YTD Net Cut (24%) -->
+      <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">YTD Net Cut (24%)</span>
+            <span id="trendNetCut"></span>
+          </div>
+          <div id="kpiYtdNet" class="text-2xl font-extrabold mt-1 text-slate-900 dark:text-white">$0.00</div>
+        </div>
+        <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+          <span>Gross: <strong id="kpiYtdGross" class="text-slate-700 dark:text-slate-200">$0.00</strong></span>
+          <span id="trendGross"></span>
+        </div>
+      </div>
+
+      <!-- Card 2: Total Paid (Draw + Bonus + Health) -->
+      <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Paid YTD</span>
+            <span id="trendTotalPaid"></span>
+          </div>
+          <div id="kpiTotalPaid" class="text-2xl font-extrabold mt-1 text-emerald-600 dark:text-emerald-400">$0.00</div>
+        </div>
+        <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+          <span id="kpiPaidBreakdown">Draws + Bonus + Health</span>
+          <span id="kpiHealthBadge" class="px-1.5 py-0.5 rounded bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 font-semibold">HSA: $0/$1,000</span>
+        </div>
+      </div>
+
+      <!-- Card 3: Avg Daily Net & Days Worked -->
+      <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Avg Daily Net</span>
+            <span id="trendAvgDaily"></span>
+          </div>
+          <div id="kpiAvgDaily" class="text-2xl font-extrabold mt-1 text-sky-600 dark:text-sky-400">$0.00</div>
+        </div>
+        <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800/80 space-y-1 text-[11px] text-slate-500 dark:text-slate-400">
+          <div class="flex items-center justify-between">
+            <span>Days Worked: <strong id="kpiTotalDays" class="text-slate-700 dark:text-slate-200">181</strong></span>
+            <span id="trendTotalDays"></span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span>Avg Days/Mth: <strong id="kpiAvgDaysMth" class="text-slate-700 dark:text-slate-200">18.1</strong></span>
+            <span id="trendAvgDaysMth"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4: Rev / Pt & Patient Volume -->
+      <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Rev / Patient</span>
+            <span id="trendRevPt"></span>
+          </div>
+          <div id="kpiRevPt" class="text-2xl font-extrabold mt-1 text-indigo-600 dark:text-indigo-400">$0.00</div>
+        </div>
+        <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800/80 space-y-1 text-[11px] text-slate-500 dark:text-slate-400">
+          <div class="flex items-center justify-between">
+            <span>Total Pts: <strong id="kpiTotalPts" class="text-slate-700 dark:text-slate-200">0</strong></span>
+            <span id="trendTotalPts"></span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span>Pts/Day: <strong id="kpiPtsDay" class="text-slate-700 dark:text-slate-200">0.0</strong> <span class="text-slate-400">|</span> Mth: <strong id="kpiAvgPtsMth" class="text-slate-700 dark:text-slate-200">0</strong></span>
+            <span class="flex items-center gap-1"><span id="trendPtsDay"></span><span id="trendAvgPtsMth"></span></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 class="text-base font-bold flex items-center gap-2">
+            <i data-lucide="award" class="w-4 h-4 text-sky-500"></i>
+            <span>Quarterly Bonus Estimator & Reconciliation</span>
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Click any quarter card to record confirmed actual production and bonus payout</p>
+        </div>
+
+        <!-- Toggle between OHIP Reconciled vs Total OHIP for Estimate Calculations -->
+        <div class="flex items-center gap-2 self-start sm:self-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs">
+          <button id="btnOhipReconMode" onclick="window.setQuarterOhipMode('recon')" class="px-3 py-1 rounded-lg font-semibold transition bg-white dark:bg-slate-900 text-sky-600 dark:text-sky-400 shadow-sm">
+            Use OHIP Recon
+          </button>
+          <button id="btnOhipTotalMode" onclick="window.setQuarterOhipMode('total')" class="px-3 py-1 rounded-lg font-semibold transition text-slate-600 dark:text-slate-400">
+            Use Total OHIP
+          </button>
+        </div>
+      </div>
+
+      <div id="quarterCardsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Populated dynamically by renderQuarterCards() -->
+      </div>
+    </section>
+
+    <section class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+      <div class="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 class="text-base font-bold flex items-center gap-2">
+            <i data-lucide="table" class="w-4 h-4 text-sky-500"></i>
+            <span>Monthly Production Ledger</span>
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Click any month row to edit figures or set a manual target override</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="window.exportCSV()" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-semibold flex items-center gap-1.5 transition">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+            <span>CSV</span>
+          </button>
+          <button onclick="window.exportBackupJSON()" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-semibold flex items-center gap-1.5 transition">
+            <i data-lucide="save" class="w-3.5 h-3.5"></i>
+            <span>Backup JSON</span>
+          </button>
+          <label class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer">
+            <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+            <span>Restore JSON</span>
+            <input type="file" accept=".json" onchange="window.importBackupJSON(event)" class="hidden" />
+          </label>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto custom-scrollbar">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="bg-slate-50 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 uppercase text-[10px] tracking-wider font-bold">
+              <th class="py-3 px-3">Month</th>
+              <th class="py-3 px-2 text-center"># M-T</th>
+              <th class="py-3 px-2 text-center"># F</th>
+              <th class="py-3 px-3 text-right">Gross</th>
+              <th class="py-3 px-3 text-right">Acct Rec'd</th>
+              <th class="py-3 px-3 text-right">OHIP Recon</th>
+              <th class="py-3 px-3 text-right">Total OHIP</th>
+              <th class="py-3 px-3 text-right">Received</th>
+              <th class="py-3 px-3 text-right text-sky-600 dark:text-sky-400">Net (24%)</th>
+              <th class="py-3 px-3 text-right">Paid</th>
+              <th class="py-3 px-3 text-right">Target</th>
+              <th class="py-3 px-3 text-right">Diff</th>
+              <th class="py-3 px-3 text-right">Daily Avg</th>
+              <th class="py-3 px-3 text-right">Rev/Pt</th>
+              <th class="py-3 px-2 text-center">Days</th>
+              <th class="py-3 px-2 text-center">Total Pts</th>
+              <th class="py-3 px-2 text-right">Pts/Day</th>
+            </tr>
+          </thead>
+          <tbody id="ledgerTableBody" class="divide-y divide-slate-200/70 dark:divide-slate-800/70">
+            <!-- Dynamically rendered -->
+          </tbody>
+          <tfoot id="ledgerTableFoot" class="bg-slate-50/90 dark:bg-slate-800/50 border-t-2 border-slate-300 dark:border-slate-700 font-semibold">
+            <!-- Dynamically rendered Health, Bonus, Total, Average rows -->
+          </tfoot>
+        </table>
+      </div>
+    </section>
+
+    <section class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-base font-bold flex items-center gap-2">
+            <i data-lucide="calendar-clock" class="w-4 h-4 text-sky-500"></i>
+            <span>Daily Clinic Shift Logs</span>
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Logged via Month-to-Date EMR difference calculation</p>
+        </div>
+        <button onclick="window.openDailyLogModal()" class="px-3 py-1.5 rounded-xl bg-sky-50 dark:bg-sky-950/60 hover:bg-sky-100 text-sky-600 dark:text-sky-400 font-semibold text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+          <span>Add Daily Log</span>
+        </button>
+      </div>
+      <div id="dailyLogsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        <!-- Populated dynamically -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= MODALS ================= -->
+
+  <!-- 1. Month Editor Modal -->
+  <div id="monthModal" class="fixed inset-0 z-50 hidden bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-lg w-full border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+        <h3 id="monthModalTitle" class="font-bold text-base">Edit Month</h3>
+        <button onclick="window.closeMonthModal()" class="p-1 rounded-lg text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <form onsubmit="window.saveMonthModal(event)" class="p-5 space-y-4 text-xs max-h-[80vh] overflow-y-auto">
+        <input type="hidden" id="editMonthIndex" />
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="block font-semibold mb-1 text-slate-600 dark:text-slate-300"># M-T Shifts</label>
+            <input type="number" step="0.5" id="inpMtDays" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" required />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1 text-slate-600 dark:text-slate-300"># Fri Shifts</label>
+            <input type="number" step="0.5" id="inpFDays" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" required />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1 text-slate-600 dark:text-slate-300">Days Worked</label>
+            <input type="number" step="0.5" id="inpDaysWorked" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" required />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold mb-1 text-slate-600 dark:text-slate-300">Gross Production ($)</label>
+            <input type="number" step="0.01" id="inpGross" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1 text-slate-600 dark:text-slate-300">Accounts Rec'd ($)</label>
+            <input type="number" step="0.01" id="inpReci" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1 text-slate-600 dark:text-slate-300">OHIP Recon ($)</label>
+            <input type="number" step="0.01" id="inpOhip" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1 text-slate-600 dark:text-slate-300">Total OHIP (Col U) ($)</label>
+            <input type="number" step="0.01" id="inpTotalOhip" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1 text-slate-600 dark:text-slate-300">Paid Base Draw ($)</label>
+            <input type="number" step="0.01" id="inpPaid" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1 text-slate-600 dark:text-slate-300">Total Patients Seen</label>
+            <input type="number" step="1" id="inpPatients" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" />
+          </div>
+        </div>
+
+        <div class="p-3 rounded-xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 space-y-2">
+          <div class="flex items-center justify-between">
+            <label class="font-bold text-amber-800 dark:text-amber-300">Manual Target Override ($)</label>
+            <button type="button" onclick="document.getElementById('inpCustomTarget').value = ''" class="text-[11px] font-semibold text-sky-600 hover:underline">Use Formula Default</button>
+          </div>
+          <input type="number" step="0.01" id="inpCustomTarget" placeholder="Leave blank for standard M-T & Fri formula" class="w-full px-3 py-2 rounded-lg border border-amber-300 dark:border-amber-700 bg-white dark:bg-slate-800" />
+          <p class="text-[10px] text-slate-500">Use this when you worked half-days (e.g., Sep = $12,510.00).</p>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="window.closeMonthModal()" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 font-semibold">Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-semibold">Save Month</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Quarter Reconciliation Modal -->
+  <div id="quarterModal" class="fixed inset-0 z-50 hidden bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+        <h3 id="quarterModalTitle" class="font-bold text-base">Quarter Reconciliation</h3>
+        <button onclick="window.closeQuarterModal()" class="p-1 rounded-lg text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <form onsubmit="window.saveQuarterModal(event)" class="p-5 space-y-4 text-xs">
+        <input type="hidden" id="editQuarterKey" />
+        <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800/70 space-y-1">
+          <div class="flex justify-between"><span>Ledger Estimated Net (24%):</span><strong id="qModalEstNet">$0.00</strong></div>
+          <div class="flex justify-between"><span>Quarter Target Baseline:</span><strong id="qModalTarget">$0.00</strong></div>
+          <div class="flex justify-between text-sky-600 dark:text-sky-400"><span>Ledger Est. Bonus Surplus:</span><strong id="qModalEstBonus">$0.00</strong></div>
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-1">Confirmed Actual 24% Net Production ($)</label>
+          <input type="number" step="0.01" id="inpQActualNet" placeholder="Leave blank to use ledger estimate" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" />
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="font-semibold">Confirmed Actual Bonus Paid Out ($)</label>
+            <button type="button" onclick="window.calcQuarterBonusFromNet()" class="text-[10px] font-semibold text-sky-600 hover:underline">Calc from Net - Target</button>
+          </div>
+          <input type="number" step="0.01" id="inpQActualBonus" placeholder="Actual bonus payout received" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" />
+        </div>
+
+        <label class="flex items-center gap-2 cursor-pointer pt-1">
+          <input type="checkbox" id="chkQConfirmed" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+          <span class="font-semibold text-emerald-700 dark:text-emerald-400">Mark Quarter as Confirmed (switches label from Est. to Confirmed)</span>
+        </label>
+
+        <div class="flex justify-end gap-2 pt-3">
+          <button type="button" onclick="window.closeQuarterModal()" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 font-semibold">Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">Save Quarter</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. Log Clinic Day Modal (MTD EMR Input) -->
+  <div id="dailyLogModal" class="fixed inset-0 z-50 hidden bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-lg w-full border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+        <div>
+          <h3 class="font-bold text-base">Log Clinic Day (EMR Month-to-Date)</h3>
+          <p class="text-[11px] text-slate-500">Enter your current MTD totals; today's shift is calculated by subtracting previous ledger numbers.</p>
+        </div>
+        <button onclick="window.closeDailyLogModal()" class="p-1 rounded-lg text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <form onsubmit="window.saveDailyLogModal(event)" class="p-5 space-y-4 text-xs max-h-[82vh] overflow-y-auto">
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="block font-semibold mb-1">Date</label>
+            <input type="date" id="logDate" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" required />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Ledger Month</label>
+            <select id="logMonthIdx" onchange="window.onLogMonthChange()" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"></select>
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Day Increment</label>
+            <select id="logDayWeight" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+              <option value="1">+1.0 Full Day</option>
+              <option value="0.5">+0.5 Half Day</option>
+              <option value="0">+0 Days (Update Only)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <div class="flex justify-between mb-1"><label class="font-semibold">MTD Gross ($)</label><span id="prevGrossHint" class="text-[10px] text-slate-400">Prev: $0</span></div>
+            <input type="number" step="0.01" id="logMtdGross" oninput="window.updateDailyLogDeltaPreview()" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" required />
+          </div>
+          <div>
+            <div class="flex justify-between mb-1"><label class="font-semibold">MTD Acct Rec'd ($)</label><span id="prevReciHint" class="text-[10px] text-slate-400">Prev: $0</span></div>
+            <input type="number" step="0.01" id="logMtdReci" oninput="window.updateDailyLogDeltaPreview()" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" required />
+          </div>
+          <div>
+            <div class="flex justify-between mb-1"><label class="font-semibold">MTD OHIP Recon ($)</label><span id="prevOhipHint" class="text-[10px] text-slate-400">Prev: $0</span></div>
+            <input type="number" step="0.01" id="logMtdOhip" oninput="window.updateDailyLogDeltaPreview()" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" required />
+          </div>
+          <div>
+            <div class="flex justify-between mb-1"><label class="font-semibold">MTD Total OHIP ($)</label><span id="prevTotalOhipHint" class="text-[10px] text-slate-400">Prev: $0</span></div>
+            <input type="number" step="0.01" id="logMtdTotalOhip" oninput="window.updateDailyLogDeltaPreview()" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" required />
+          </div>
+          <div>
+            <div class="flex justify-between mb-1"><label class="font-semibold">MTD Paid Base ($)</label><span id="prevPaidHint" class="text-[10px] text-slate-400">Prev: $0</span></div>
+            <input type="number" step="0.01" id="logMtdPaid" oninput="window.updateDailyLogDeltaPreview()" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" required />
+          </div>
+          <div>
+            <div class="flex justify-between mb-1"><label class="font-semibold">MTD Total Patients</label><span id="prevPtsHint" class="text-[10px] text-slate-400">Prev: 0</span></div>
+            <input type="number" step="1" id="logMtdPts" oninput="window.updateDailyLogDeltaPreview()" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" required />
+          </div>
+        </div>
+
+        <!-- Live Calculated Delta Preview -->
+        <div class="p-3.5 rounded-xl bg-sky-50/80 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800/70 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-sky-800 dark:text-sky-300">Calculated Today's Clinic Delta</span>
+            <span id="newRecordAlertBadge" class="hidden px-2 py-0.5 rounded-full bg-amber-500 text-white font-bold text-[10px]">★ New All-Time Gross Record!</span>
+          </div>
+          <div class="grid grid-cols-4 gap-2 text-center pt-1">
+            <div class="bg-white dark:bg-slate-900 p-2 rounded-lg">
+              <div class="text-[10px] text-slate-400">Today Gross</div>
+              <div id="deltaGrossPreview" class="font-bold text-slate-900 dark:text-white">$0.00</div>
+            </div>
+            <div class="bg-white dark:bg-slate-900 p-2 rounded-lg">
+              <div class="text-[10px] text-slate-400">Today 24% Net</div>
+              <div id="deltaNetPreview" class="font-bold text-sky-600 dark:text-sky-400">$0.00</div>
+            </div>
+            <div class="bg-white dark:bg-slate-900 p-2 rounded-lg">
+              <div class="text-[10px] text-slate-400">Today Pts</div>
+              <div id="deltaPtsPreview" class="font-bold text-slate-900 dark:text-white">0</div>
+            </div>
+            <div class="bg-white dark:bg-slate-900 p-2 rounded-lg">
+              <div class="text-[10px] text-slate-400">OHIP Delta</div>
+              <div id="deltaOhipPreview" class="font-bold text-slate-900 dark:text-white">$0.00</div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-1">Shift Note (Optional)</label>
+          <input type="text" id="logNote" placeholder="e.g., Busy clinic, 3 full exams added" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" />
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="window.closeDailyLogModal()" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 font-semibold">Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-semibold">Save & Update Ledger</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. Edit Single Daily Log Modal -->
+  <div id="editSingleLogModal" class="fixed inset-0 z-50 hidden bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+        <h3 class="font-bold text-base">Edit Logged Clinic Shift</h3>
+        <button onclick="document.getElementById('editSingleLogModal').classList.add('hidden')" class="p-1 rounded-lg text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <form onsubmit="window.saveEditSingleLog(event)" class="p-5 space-y-3 text-xs">
+        <input type="hidden" id="editLogId" />
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold mb-1">Date</label>
+            <input type="date" id="editLogDate" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" required />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Daily Gross ($)</label>
+            <input type="number" step="0.01" id="editLogGross" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" required />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Daily 24% Net ($)</label>
+            <input type="number" step="0.01" id="editLogNet" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" required />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Patients Seen</label>
+            <input type="number" step="1" id="editLogPts" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" required />
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold mb-1">Note</label>
+          <input type="text" id="editLogNote" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" />
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="document.getElementById('editSingleLogModal').classList.add('hidden')" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 font-semibold">Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-semibold">Update Log</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 5. Update All-Time Record Modal -->
+  <div id="recordModal" class="fixed inset-0 z-50 hidden bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-sm w-full border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+        <h3 class="font-bold text-base">All-Time Daily Gross High</h3>
+        <button onclick="document.getElementById('recordModal').classList.add('hidden')" class="p-1 rounded-lg text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <form onsubmit="window.saveRecordModal(event)" class="p-5 space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold mb-1">Record Gross Amount ($)</label>
+          <input type="number" step="0.01" id="inpRecordAmount" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" required />
+        </div>
+        <div>
+          <label class="block font-semibold mb-1">Date Achieved</label>
+          <input type="text" id="inpRecordDate" placeholder="25/08/26" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" required />
+        </div>
+        <div>
+          <label class="block font-semibold mb-1">Note</label>
+          <input type="text" id="inpRecordNote" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" />
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="document.getElementById('recordModal').classList.add('hidden')" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 font-semibold">Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-semibold">Save Record</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 6. Health & Bonus Row Extras Modal -->
+  <div id="extrasModal" class="fixed inset-0 z-50 hidden bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-sm w-full border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+        <h3 class="font-bold text-base">Health Reimbursement & Bonus Paid</h3>
+        <button onclick="document.getElementById('extrasModal').classList.add('hidden')" class="p-1 rounded-lg text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <form onsubmit="window.saveExtrasModal(event)" class="p-5 space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold mb-1">Health Spending Claimed ($ out of $1,000 cap)</label>
+          <input type="number" step="0.01" max="1000" id="inpHealthPaid" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" required />
+        </div>
+        <div>
+          <label class="block font-semibold mb-1">Manual Bonus Paid Override ($)</label>
+          <input type="number" step="0.01" id="inpManualBonusPaid" placeholder="Leave blank to auto-sum Confirmed Quarters" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" />
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="document.getElementById('extrasModal').classList.add('hidden')" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 font-semibold">Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-semibold">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 7. Settings Modal -->
+  <div id="settingsModal" class="fixed inset-0 z-50 hidden bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-sm w-full border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+        <h3 class="font-bold text-base">Formula & Target Settings</h3>
+        <button onclick="document.getElementById('settingsModal').classList.add('hidden')" class="p-1 rounded-lg text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <form onsubmit="window.saveSettingsModal(event)" class="p-5 space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold mb-1">M–T Daily Target Rate ($)</label>
+          <input type="number" step="1" id="inpRateMT" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" required />
+        </div>
+        <div>
+          <label class="block font-semibold mb-1">Friday Daily Target Rate ($)</label>
+          <input type="number" step="1" id="inpRateF" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" required />
+        </div>
+        <div>
+          <label class="block font-semibold mb-1">Associate Net Cut (%)</label>
+          <input type="number" step="0.1" id="inpNetPct" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" required />
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="document.getElementById('settingsModal').classList.add('hidden')" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 font-semibold">Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-semibold">Save Settings</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 8. Cloud Sync & Custom Firebase Modal (Always displays Custom Firebase Config) -->
+  <div id="cloudModal" class="fixed inset-0 z-50 hidden bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="cloud" class="w-5 h-5 text-sky-500"></i>
+          <h3 class="font-bold text-base">Cloud Sync & Firebase Setup</h3>
+        </div>
+        <button onclick="window.closeCloudModal()" class="p-1 rounded-lg text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+
+      <div class="p-5 space-y-4 text-xs max-h-[82vh] overflow-y-auto">
+        <!-- Active Status Box -->
+        <div class="p-3.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 flex items-center justify-between">
+          <div>
+            <div class="text-[10px] uppercase font-bold text-slate-400">Current Connection</div>
+            <div id="cloudModalUserStatus" class="font-bold text-slate-800 dark:text-slate-100 mt-0.5">Not signed in to personal cloud</div>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="window.forceManualCloudSync()" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-lg font-semibold transition">Sync Now</button>
+            <button id="btnSignOut" onclick="window.handleSignOut()" class="px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 rounded-lg font-semibold transition">Sign Out</button>
+          </div>
+        </div>
+
+        <!-- Sign In Options -->
+        <div class="space-y-2.5">
+          <div class="font-bold text-slate-700 dark:text-slate-300">Step 2: Sign In to Sync Across Devices</div>
+          <button onclick="window.handleGoogleSignIn()" class="w-full py-2.5 px-4 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 font-bold flex items-center justify-center gap-2 shadow-sm transition">
+            <i data-lucide="log-in" class="w-4 h-4 text-sky-500"></i>
+            <span>Sign in with Google (1-Tap)</span>
+          </button>
+
+          <div class="grid grid-cols-2 gap-2 pt-1">
+            <input type="email" id="authEmail" placeholder="Email address" class="px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" />
+            <input type="password" id="authPass" placeholder="Password" class="px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" />
+          </div>
+          <div class="flex gap-2">
+            <button onclick="window.handleEmailAuth('signin')" class="flex-1 py-2 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 font-semibold transition">Email Sign In</button>
+            <button onclick="window.handleEmailAuth('signup')" class="flex-1 py-2 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 font-semibold transition">Create Account</button>
+          </div>
+        </div>
+
+        <!-- ALWAYS VISIBLE CUSTOM FIREBASE CONFIG FIELD -->
+        <div class="pt-3 border-t border-slate-200 dark:border-slate-800 space-y-2">
+          <div class="flex items-center justify-between">
+            <label class="font-bold text-slate-700 dark:text-slate-200">Step 1: Custom Firebase Config (JSON)</label>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold">Always Available</span>
+          </div>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+            Paste your Firebase Web App <code class="px-1 py-0.5 rounded bg-slate-100 dark:bg-slate-800">{ "apiKey": "...", ... }</code> object below to link your personal Firebase project.
+          </p>
+          <textarea id="inpCustomFirebaseConfig" rows="4" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-[11px] font-mono" placeholder='{"apiKey": "AIzaSy...", "authDomain": "...", "projectId": "...", "appId": "..."}'></textarea>
+          <button type="button" onclick="window.saveCustomFirebaseConfig()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold transition shadow-sm">
+            Connect My Firebase Config
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+    function createDefaultState() {
+      return {
+        currentYear: "2026",
+        includeCurrentMonthInAverages: false,
+        benchmarkMode: "prev_year",
+        quarterOhipMode: "recon",
+        settings: {
+          mtRate: 780,
+          fRate: 630,
+          netPercent: 24,
+          healthCap: 1000
+        },
+        allTimeRecord: {
+          amount: 7965.82,
+          date: "25/08/26",
+          note: "Single-day gross clinic production benchmark"
+        },
+        years: {
+          "2025": {
+            healthPaid: 705.01,
+            manualBonusPaid: 20723.45,
+            quarters: {
+              Q1: { confirmed: true, actualNet: null, actualBonus: 0 },
+              Q2: { confirmed: true, actualNet: null, actualBonus: 0 },
+              Q3: { confirmed: true, actualNet: null, actualBonus: 6033.69 },
+              Q4: { confirmed: true, actualNet: null, actualBonus: 14689.76 }
+            },
+            months: [
+              { month: "Jan", mtDays: 0, fDays: 0, daysWorked: 0, gross: 0, reci: 0, ohip: 0, totalOhip: 0, paid: 0, patients: 0, customTarget: null },
+              { month: "Feb", mtDays: 0, fDays: 0, daysWorked: 0, gross: 0, reci: 0, ohip: 0, totalOhip: 0, paid: 0, patients: 0, customTarget: null },
+              { month: "Mar", mtDays: 0, fDays: 0, daysWorked: 0, gross: 0, reci: 0, ohip: 0, totalOhip: 0, paid: 0, patients: 0, customTarget: null },
+              { month: "Apr", mtDays: 0, fDays: 0, daysWorked: 0, gross: 0, reci: 0, ohip: 0, totalOhip: 0, paid: 0, patients: 0, customTarget: null },
+              { month: "May", mtDays: 0, fDays: 0, daysWorked: 0, gross: 0, reci: 0, ohip: 0, totalOhip: 0, paid: 0, patients: 0, customTarget: null },
+              { month: "Jun", mtDays: 12, fDays: 3, daysWorked: 15, gross: 31974.30, reci: 24881.79, ohip: 0, totalOhip: 0, paid: 5300, patients: 129, customTarget: 7950 },
+              { month: "Jul", mtDays: 14, fDays: 4, daysWorked: 18, gross: 68247.22, reci: 59979.71, ohip: 0, totalOhip: 0, paid: 11250, patients: 220, customTarget: 11700 },
+              { month: "Aug", mtDays: 15, fDays: 4, daysWorked: 19, gross: 71925.20, reci: 70007.95, ohip: 0, totalOhip: 0, paid: 10470, patients: 266, customTarget: 14220 },
+              { month: "Sep", mtDays: 17, fDays: 3, daysWorked: 20, gross: 94044.37, reci: 76961.75, ohip: 0, totalOhip: 0, paid: 14220, patients: 289, customTarget: 15150 },
+              { month: "Oct", mtDays: 17, fDays: 4, daysWorked: 21, gross: 82381.75, reci: 93221.55, ohip: 0, totalOhip: 0, paid: 20460, patients: 334, customTarget: 15780 },
+              { month: "Nov", mtDays: 16, fDays: 4, daysWorked: 20, gross: 69567.53, reci: 71625.60, ohip: 0, totalOhip: 0, paid: 15000, patients: 276, customTarget: 15000 },
+              { month: "Dec", mtDays: 13, fDays: 2, daysWorked: 15, gross: 74636.97, reci: 71127.68, ohip: 0, totalOhip: 0, paid: 14850, patients: 214, customTarget: 11400 }
+            ],
+            dailyLogs: []
+          },
+          "2026": {
+            healthPaid: 0,
+            manualBonusPaid: null,
+            quarters: {
+              Q1: { confirmed: true, actualNet: null, actualBonus: 1859.06 },
+              Q2: { confirmed: true, actualNet: null, actualBonus: 15796.61 },
+              Q3: { confirmed: true, actualNet: null, actualBonus: 19617.63 },
+              Q4: { confirmed: false, actualNet: null, actualBonus: null }
+            },
+            months: [
+              { month: "Jan", mtDays: 16, fDays: 3, daysWorked: 19, gross: 61615.55, reci: 54757.80, ohip: 7143.35, totalOhip: 7818.25, paid: 6870, patients: 224, customTarget: null },
+              { month: "Feb", mtDays: 14, fDays: 4, daysWorked: 18, gross: 64422.83, reci: 45008.40, ohip: 8349.15, totalOhip: 9016.05, paid: 15000, patients: 231, customTarget: null },
+              { month: "Mar", mtDays: 17, fDays: 4, daysWorked: 21, gross: 74463.57, reci: 65682.32, ohip: 7907.40, totalOhip: 8533.15, paid: 20160, patients: 269, customTarget: null },
+              { month: "Apr", mtDays: 16, fDays: 3, daysWorked: 19, gross: 75321.85, reci: 63588.75, ohip: 9981.30, totalOhip: 10351.75, paid: 13590, patients: 276, customTarget: null },
+              { month: "May", mtDays: 15, fDays: 5, daysWorked: 20, gross: 86564.30, reci: 73649.60, ohip: 11204.90, totalOhip: 11833.50, paid: 13440, patients: 303, customTarget: null },
+              { month: "Jun", mtDays: 18, fDays: 2, daysWorked: 20, gross: 75380.99, reci: 81584.46, ohip: 8980.20, totalOhip: 10042.35, paid: 14370, patients: 287, customTarget: 15630 },
+              { month: "Jul", mtDays: 16, fDays: 4, daysWorked: 20, gross: 95663.78, reci: 79769.90, ohip: 9198.00, totalOhip: 9483.90, paid: 11880, patients: 296, customTarget: null },
+              { month: "Aug", mtDays: 14, fDays: 2, daysWorked: 16, gross: 87989.01, reci: 77191.24, ohip: 8919.95, totalOhip: 9336.70, paid: 11400, patients: 240, customTarget: null },
+              { month: "Sep", mtDays: 14, fDays: 3, daysWorked: 17, gross: 73288.10, reci: 60336.50, ohip: 5704.15, totalOhip: 10926.50, paid: 18450, patients: 256, customTarget: 12510 },
+              { month: "Oct", mtDays: 16, fDays: 4, daysWorked: 11, gross: 47779.15, reci: 45474.93, ohip: 0, totalOhip: 6249.55, paid: 7500, patients: 165, customTarget: null },
+              { month: "Nov", mtDays: 15, fDays: 4, daysWorked: 0, gross: 0, reci: 0, ohip: 0, totalOhip: 0, paid: 0, patients: 0, customTarget: null },
+              { month: "Dec", mtDays: 14, fDays: 3, daysWorked: 0, gross: 0, reci: 0, ohip: 0, totalOhip: 0, paid: 0, patients: 0, customTarget: null }
+            ],
+            dailyLogs: []
+          },
+          "2027": {
+            healthPaid: 0,
+            manualBonusPaid: null,
+            quarters: {
+              Q1: { confirmed: false, actualNet: null, actualBonus: null },
+              Q2: { confirmed: false, actualNet: null, actualBonus: null },
+              Q3: { confirmed: false, actualNet: null, actualBonus: null },
+              Q4: { confirmed: false, actualNet: null, actualBonus: null }
+            },
+            months: MONTHS.map(m => ({ month: m, mtDays: 16, fDays: 4, daysWorked: 0, gross: 0, reci: 0, ohip: 0, totalOhip: 0, paid: 0, patients: 0, customTarget: null })),
+            dailyLogs: []
+          }
+        }
+      };
+    }
+
+    const USER_FIREBASE_CONFIG = {
+      apiKey: "AIzaSyCpMwKu9d4cjp0GTpTxzOL4HIU0_q1Iz5k",
+      authDomain: "optotrack-tracker.firebaseapp.com",
+      projectId: "optotrack-tracker",
+      storageBucket: "optotrack-tracker.firebasestorage.app",
+      messagingSenderId: "551535439217",
+      appId: "1:551535439217:web:f51f8fdf5379f892231ad0"
+    };
+
+    let state = createDefaultState();
+    let customFirebaseCfgInMemory = USER_FIREBASE_CONFIG;
+    let db = null;
+    let auth = null;
+    let currentUser = null;
+    let unsubscribeSnapshot = null;
+
+    // Formatting Helpers
+    const fmtCurrency = (v) => {
+      const n = Number(v) || 0;
+      return (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    };
+    const fmtNum = (v, dec = 1) => (Number(v) || 0).toLocaleString("en-US", { minimumFractionDigits: dec, maximumFractionDigits: dec });
+
+    function showToast(msg) {
+      const el = document.getElementById("toastBanner");
+      const txt = document.getElementById("toastMessage");
+      if (!el || !txt) return;
+      txt.textContent = msg;
+      el.classList.remove("hidden");
+      setTimeout(() => el.classList.add("hidden"), 3200);
+    }
+
+    function calculateMonth(m, useTotalOhip = false) {
+      const mt = Number(m.mtDays) || 0;
+      const f = Number(m.fDays) || 0;
+      const days = Number(m.daysWorked) || 0;
+      const gross = Number(m.gross) || 0;
+      const reci = Number(m.reci) || 0;
+      const ohip = Number(m.ohip) || 0;
+      const totalOhip = Number(m.totalOhip) || 0;
+      const paid = Number(m.paid) || 0;
+      const patients = Number(m.patients) || 0;
+
+      const chosenOhip = useTotalOhip ? totalOhip : ohip;
+      const totalRecd = reci + chosenOhip;
+      const net = totalRecd * ((state.settings.netPercent || 24) / 100);
+      const formulaTarget = (mt * (state.settings.mtRate || 780)) + (f * (state.settings.fRate || 630));
+      const isCustomTarget = m.customTarget !== null && m.customTarget !== "" && !isNaN(Number(m.customTarget));
+      const target = isCustomTarget ? Number(m.customTarget) : formulaTarget;
+      const diff = net - target;
+      const dailyAvg = days > 0 ? net / days : 0;
+      const revPt = patients > 0 ? net / patients : 0;
+      const ptsDay = days > 0 ? patients / days : 0;
+
+      return { ...m, mt, f, days, gross, reci, ohip, totalOhip, totalRecd, net, paid, target, isCustomTarget, diff, dailyAvg, revPt, ptsDay, patients };
+    }
+
+    function getYearPaidExtras(yearKey) {
+      const yr = state.years[yearKey];
+      if (!yr) return { healthPaid: 0, bonusPaid: 0 };
+      const healthPaid = Number(yr.healthPaid) || 0;
+      let bonusPaid = 0;
+      if (yr.manualBonusPaid !== null && yr.manualBonusPaid !== "" && !isNaN(Number(yr.manualBonusPaid))) {
+        bonusPaid = Number(yr.manualBonusPaid);
+      } else {
+        ["Q1", "Q2", "Q3", "Q4"].forEach(qKey => {
+          const q = yr.quarters?.[qKey];
+          if (q && q.confirmed && q.actualBonus !== null && !isNaN(Number(q.actualBonus))) {
+            bonusPaid += Number(q.actualBonus);
+          }
+        });
+      }
+      return { healthPaid, bonusPaid };
+    }
+
+    function getActiveCutoffIndex(yearKey) {
+      if (yearKey === "2026") {
+        // Current month is October (index 9). Completed months = Jan-Sep (index 8)
+        return state.includeCurrentMonthInAverages ? 9 : 8;
+      }
+      return 11;
+    }
+
+    function computeMetricsForYear(yearKey, maxMonthIdx = 11) {
+      const yr = state.years[yearKey];
+      if (!yr) return null;
+
+      let ytdGross = 0, ytdNet = 0, ytdDraws = 0, ytdDays = 0, ytdPts = 0;
+      let activeMonthsForAvg = [];
+
+      yr.months.forEach((m, idx) => {
+        const c = calculateMonth(m, false);
+        const hasActivity = c.gross > 0 || c.totalRecd > 0 || c.patients > 0;
+        if (hasActivity && idx <= maxMonthIdx) {
+          ytdGross += c.gross;
+          ytdNet += c.net;
+          ytdDraws += c.paid;
+          ytdDays += c.days;
+          ytdPts += c.patients;
+          activeMonthsForAvg.push(c);
+        }
+      });
+
+      const count = activeMonthsForAvg.length;
+      const avgDailyNet = count > 0 ? activeMonthsForAvg.reduce((s, x) => s + x.dailyAvg, 0) / count : 0;
+      const avgRevPt = count > 0 ? activeMonthsForAvg.reduce((s, x) => s + x.revPt, 0) / count : 0;
+      const avgPtsDay = count > 0 ? activeMonthsForAvg.reduce((s, x) => s + x.ptsDay, 0) / count : 0;
+      const avgDaysMth = count > 0 ? activeMonthsForAvg.reduce((s, x) => s + x.days, 0) / count : 0;
+      const avgPtsMth = count > 0 ? activeMonthsForAvg.reduce((s, x) => s + x.patients, 0) / count : 0;
+
+      const extras = getYearPaidExtras(yearKey);
+      const totalPaid = ytdDraws + extras.healthPaid + extras.bonusPaid;
+
+      return { ytdGross, ytdNet, ytdDraws, totalPaid, ytdDays, ytdPts, avgDailyNet, avgRevPt, avgPtsDay, avgDaysMth, avgPtsMth, extras };
+    }
+
+    function makeDiffPill(curr, base) {
+      if (!base || base === 0) return `<span class="text-[10px] text-slate-400">—</span>`;
+      const pct = ((curr - base) / Math.abs(base)) * 100;
+      const isUp = pct >= 0;
+      const color = isUp
+        ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
+        : "bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30";
+      const arrow = isUp ? "▲" : "▼";
+      return `<span class="px-1.5 py-0.5 rounded-md border text-[10px] font-bold ${color}">${arrow} ${isUp ? "+" : ""}${pct.toFixed(1)}%</span>`;
+    }
+
+    function renderAll() {
+      document.getElementById("yearSelect").value = state.currentYear;
+      document.getElementById("chkIncludeCurrentMonth").checked = state.includeCurrentMonthInAverages;
+      document.getElementById("benchmarkSelect").value = state.benchmarkMode;
+
+      // Record Banner
+      document.getElementById("recordAmountText").textContent = fmtCurrency(state.allTimeRecord.amount);
+      document.getElementById("recordDateBadge").textContent = state.allTimeRecord.date;
+      document.getElementById("recordNoteText").textContent = state.allTimeRecord.note || "";
+
+      // Scope Label
+      const scopeEl = document.getElementById("avgScopeBadge");
+      if (state.currentYear === "2026") {
+        scopeEl.textContent = state.includeCurrentMonthInAverages ? "Jan – Oct (Includes In-Progress)" : "Jan – Sep (Completed Months)";
+      } else {
+        scopeEl.textContent = `Full Year ${state.currentYear}`;
+      }
+
+      renderKPIs();
+      renderQuarterCards();
+      renderLedgerTable();
+      renderDailyLogs();
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function renderKPIs() {
+      const fullMetrics = computeMetricsForYear(state.currentYear, 11);
+      const avgCutoff = getActiveCutoffIndex(state.currentYear);
+      const scopedMetrics = computeMetricsForYear(state.currentYear, avgCutoff);
+
+      let compareYear = state.benchmarkMode === "prev_year"
+        ? (state.currentYear === "2026" ? "2025" : "2026")
+        : (state.benchmarkMode === "all_time" ? "2026" : state.benchmarkMode);
+      const baseMetrics = computeMetricsForYear(compareYear, avgCutoff);
+
+      document.getElementById("kpiYtdNet").textContent = fmtCurrency(fullMetrics.ytdNet);
+      document.getElementById("kpiYtdGross").textContent = fmtCurrency(fullMetrics.ytdGross);
+      document.getElementById("kpiTotalPaid").textContent = fmtCurrency(fullMetrics.totalPaid);
+      document.getElementById("kpiHealthBadge").textContent = `HSA: ${fmtCurrency(fullMetrics.extras.healthPaid)}/$1,000`;
+
+      document.getElementById("kpiAvgDaily").textContent = fmtCurrency(scopedMetrics.avgDailyNet);
+      document.getElementById("kpiTotalDays").textContent = fmtNum(fullMetrics.ytdDays, 0);
+      document.getElementById("kpiAvgDaysMth").textContent = fmtNum(scopedMetrics.avgDaysMth, 1);
+
+      document.getElementById("kpiRevPt").textContent = fmtCurrency(scopedMetrics.avgRevPt);
+      document.getElementById("kpiTotalPts").textContent = fmtNum(fullMetrics.ytdPts, 0);
+      document.getElementById("kpiPtsDay").textContent = fmtNum(scopedMetrics.avgPtsDay, 2);
+      document.getElementById("kpiAvgPtsMth").textContent = fmtNum(scopedMetrics.avgPtsMth, 1);
+
+      if (baseMetrics) {
+        document.getElementById("trendNetCut").innerHTML = makeDiffPill(fullMetrics.ytdNet, baseMetrics.ytdNet);
+        document.getElementById("trendGross").innerHTML = makeDiffPill(fullMetrics.ytdGross, baseMetrics.ytdGross);
+        document.getElementById("trendTotalPaid").innerHTML = makeDiffPill(fullMetrics.totalPaid, baseMetrics.totalPaid);
+        document.getElementById("trendAvgDaily").innerHTML = makeDiffPill(scopedMetrics.avgDailyNet, baseMetrics.avgDailyNet);
+        document.getElementById("trendTotalDays").innerHTML = makeDiffPill(fullMetrics.ytdDays, baseMetrics.ytdDays);
+        document.getElementById("trendAvgDaysMth").innerHTML = makeDiffPill(scopedMetrics.avgDaysMth, baseMetrics.avgDaysMth);
+        document.getElementById("trendRevPt").innerHTML = makeDiffPill(scopedMetrics.avgRevPt, baseMetrics.avgRevPt);
+        document.getElementById("trendTotalPts").innerHTML = makeDiffPill(fullMetrics.ytdPts, baseMetrics.ytdPts);
+        document.getElementById("trendPtsDay").innerHTML = makeDiffPill(scopedMetrics.avgPtsDay, baseMetrics.avgPtsDay);
+        document.getElementById("trendAvgPtsMth").innerHTML = makeDiffPill(scopedMetrics.avgPtsMth, baseMetrics.avgPtsMth);
+      }
+    }
+
+    function calculateQuarterSummary(yearKey, qKey, useTotalOhip) {
+      const yr = state.years[yearKey];
+      const qMap = { Q1: [0, 1, 2], Q2: [3, 4, 5], Q3: [6, 7, 8], Q4: [9, 10, 11] };
+      const indices = qMap[qKey] || [];
+      let estNet = 0, target = 0;
+
+      indices.forEach(idx => {
+        const m = yr.months[idx];
+        const c = calculateMonth(m, useTotalOhip);
+        const hasAct = c.gross > 0 || c.totalRecd > 0 || c.patients > 0;
+        if (hasAct) {
+          estNet += c.net;
+          target += c.target;
+        }
+      });
+
+      const estBonus = estNet - target;
+      const qRec = yr.quarters?.[qKey] || { confirmed: false, actualNet: null, actualBonus: null };
+      const isConfirmed = Boolean(qRec.confirmed);
+      const displayNet = (qRec.actualNet !== null && qRec.actualNet !== "" && !isNaN(Number(qRec.actualNet))) ? Number(qRec.actualNet) : estNet;
+      const displayBonus = (isConfirmed && qRec.actualBonus !== null && qRec.actualBonus !== "" && !isNaN(Number(qRec.actualBonus)))
+        ? Number(qRec.actualBonus)
+        : estBonus;
+
+      return { qKey, estNet, target, estBonus, isConfirmed, displayNet, displayBonus, qRec };
+    }
+
+    function renderQuarterCards() {
+      const useTotal = state.quarterOhipMode === "total";
+      const btnRecon = document.getElementById("btnOhipReconMode");
+      const btnTotal = document.getElementById("btnOhipTotalMode");
+
+      if (useTotal) {
+        btnTotal.className = "px-3 py-1 rounded-lg font-semibold transition bg-white dark:bg-slate-900 text-sky-600 dark:text-sky-400 shadow-sm";
+        btnRecon.className = "px-3 py-1 rounded-lg font-semibold transition text-slate-600 dark:text-slate-400";
+      } else {
+        btnRecon.className = "px-3 py-1 rounded-lg font-semibold transition bg-white dark:bg-slate-900 text-sky-600 dark:text-sky-400 shadow-sm";
+        btnTotal.className = "px-3 py-1 rounded-lg font-semibold transition text-slate-600 dark:text-slate-400";
+      }
+
+      const compareYear = state.benchmarkMode === "prev_year"
+        ? (state.currentYear === "2026" ? "2025" : "2026")
+        : (state.benchmarkMode === "all_time" ? "2026" : state.benchmarkMode);
+
+      const labels = { Q1: "Q1 (Jan–Mar)", Q2: "Q2 (Apr–Jun)", Q3: "Q3 (Jul–Sep)", Q4: "Q4 (Oct–Dec)" };
+      const grid = document.getElementById("quarterCardsGrid");
+
+      grid.innerHTML = ["Q1", "Q2", "Q3", "Q4"].map(qKey => {
+        const q = calculateQuarterSummary(state.currentYear, qKey, useTotal);
+        const baseQ = calculateQuarterSummary(compareYear, qKey, useTotal);
+        const pill = makeDiffPill(q.displayBonus, baseQ.displayBonus);
+
+        const badge = q.isConfirmed
+          ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">✓ Confirmed Bonus</span>`
+          : `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30">Est. Quarter Bonus</span>`;
+
+        return `
+          <div onclick="window.openQuarterModal('${qKey}')" class="cursor-pointer group rounded-2xl p-4 border border-slate-200 dark:border-slate-800 hover:border-sky-500 dark:hover:border-sky-500 bg-slate-50/60 dark:bg-slate-800/40 transition flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between gap-2">
+                <span class="font-bold text-xs text-slate-700 dark:text-slate-200">${labels[qKey]}</span>
+                ${badge}
+              </div>
+              <div class="flex items-baseline justify-between mt-2">
+                <div class="text-xl font-extrabold ${q.displayBonus >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
+                  ${fmtCurrency(q.displayBonus)}
+                </div>
+                ${pill}
+              </div>
+            </div>
+            <div class="mt-3 pt-2.5 border-t border-slate-200/70 dark:border-slate-700/60 space-y-1 text-[11px] text-slate-500 dark:text-slate-400">
+              <div class="flex justify-between"><span>24% Net:</span><strong class="text-slate-700 dark:text-slate-200">${fmtCurrency(q.displayNet)}</strong></div>
+              <div class="flex justify-between"><span>Target:</span><span>${fmtCurrency(q.target)}</span></div>
+              ${q.isConfirmed ? `<div class="flex justify-between text-[10px] text-slate-400"><span>Ledger Est:</span><span>${fmtCurrency(q.estBonus)}</span></div>` : ''}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderLedgerTable() {
+      const yr = state.years[state.currentYear];
+      const tbody = document.getElementById("ledgerTableBody");
+      const tfoot = document.getElementById("ledgerTableFoot");
+      const avgCutoff = getActiveCutoffIndex(state.currentYear);
+
+      let sumMt = 0, sumF = 0, sumGross = 0, sumReci = 0, sumOhip = 0, sumTotalOhip = 0, sumRecd = 0, sumNet = 0, sumDraws = 0, sumTarget = 0, sumDiff = 0, sumDays = 0, sumPts = 0;
+      let avgRows = [];
+
+      tbody.innerHTML = yr.months.map((m, idx) => {
+        const c = calculateMonth(m, false);
+        const hasAct = c.gross > 0 || c.totalRecd > 0 || c.patients > 0;
+        if (hasAct) {
+          sumMt += c.mt;
+          sumF += c.f;
+          sumGross += c.gross;
+          sumReci += c.reci;
+          sumOhip += c.ohip;
+          sumTotalOhip += c.totalOhip;
+          sumRecd += c.totalRecd;
+          sumNet += c.net;
+          sumDraws += c.paid;
+          sumTarget += c.target;
+          sumDiff += c.diff;
+          sumDays += c.days;
+          sumPts += c.patients;
+          if (idx <= avgCutoff) avgRows.push(c);
+        }
+
+        const diffColor = c.diff >= 0 ? "text-emerald-600 dark:text-emerald-400 font-bold" : "text-rose-600 dark:text-rose-400 font-bold";
+        return `
+          <tr onclick="window.openMonthModal(${idx})" class="hover:bg-sky-50/60 dark:hover:bg-slate-800/60 cursor-pointer transition">
+            <td class="py-2.5 px-3 font-bold text-slate-900 dark:text-white">${c.month}</td>
+            <td class="py-2.5 px-2 text-center">${c.mt}</td>
+            <td class="py-2.5 px-2 text-center">${c.f}</td>
+            <td class="py-2.5 px-3 text-right">${c.gross ? fmtCurrency(c.gross) : '—'}</td>
+            <td class="py-2.5 px-3 text-right">${c.reci ? fmtCurrency(c.reci) : '—'}</td>
+            <td class="py-2.5 px-3 text-right">${c.ohip ? fmtCurrency(c.ohip) : '—'}</td>
+            <td class="py-2.5 px-3 text-right text-slate-500">${c.totalOhip ? fmtCurrency(c.totalOhip) : '—'}</td>
+            <td class="py-2.5 px-3 text-right font-medium">${c.totalRecd ? fmtCurrency(c.totalRecd) : '—'}</td>
+            <td class="py-2.5 px-3 text-right font-bold text-sky-600 dark:text-sky-400">${c.net ? fmtCurrency(c.net) : '—'}</td>
+            <td class="py-2.5 px-3 text-right">${c.paid ? fmtCurrency(c.paid) : '—'}</td>
+            <td class="py-2.5 px-3 text-right">
+              ${fmtCurrency(c.target)}
+              ${c.isCustomTarget ? `<span class="ml-1 px-1 py-0.5 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 text-[9px] font-bold">Manual</span>` : ''}
+            </td>
+            <td class="py-2.5 px-3 text-right ${hasAct ? diffColor : 'text-slate-400'}">${hasAct ? fmtCurrency(c.diff) : '—'}</td>
+            <td class="py-2.5 px-3 text-right">${c.dailyAvg ? fmtCurrency(c.dailyAvg) : '—'}</td>
+            <td class="py-2.5 px-3 text-right">${c.revPt ? fmtCurrency(c.revPt) : '—'}</td>
+            <td class="py-2.5 px-2 text-center font-semibold">${c.days || '—'}</td>
+            <td class="py-2.5 px-2 text-center">${c.patients || '—'}</td>
+            <td class="py-2.5 px-2 text-right">${c.ptsDay ? fmtNum(c.ptsDay, 2) : '—'}</td>
+          </tr>
+        `;
+      }).join("");
+
+      const extras = getYearPaidExtras(state.currentYear);
+      const grandTotalPaid = sumDraws + extras.healthPaid + extras.bonusPaid;
+      const nAvg = avgRows.length || 1;
+
+      const avgGross = avgRows.reduce((s, r) => s + r.gross, 0) / nAvg;
+      const avgRecd = avgRows.reduce((s, r) => s + r.totalRecd, 0) / nAvg;
+      const avgNet = avgRows.reduce((s, r) => s + r.net, 0) / nAvg;
+      const avgPaid = avgRows.reduce((s, r) => s + r.paid, 0) / nAvg;
+      const avgTarget = avgRows.reduce((s, r) => s + r.target, 0) / nAvg;
+      const avgDiff = avgRows.reduce((s, r) => s + r.diff, 0) / nAvg;
+      const avgDaily = avgRows.reduce((s, r) => s + r.dailyAvg, 0) / nAvg;
+      const avgRevPt = avgRows.reduce((s, r) => s + r.revPt, 0) / nAvg;
+      const avgDays = avgRows.reduce((s, r) => s + r.days, 0) / nAvg;
+      const avgPts = avgRows.reduce((s, r) => s + r.patients, 0) / nAvg;
+      const avgPtsDay = avgRows.reduce((s, r) => s + r.ptsDay, 0) / nAvg;
+
+      tfoot.innerHTML = `
+        <!-- Row 15: Health Reimbursement -->
+        <tr onclick="window.openExtrasModal()" class="cursor-pointer bg-teal-50/50 dark:bg-teal-950/20 hover:bg-teal-100/50 text-teal-800 dark:text-teal-300 border-b border-slate-200 dark:border-slate-800">
+          <td class="py-2 px-3 font-bold flex items-center gap-1.5" colspan="9">
+            <i data-lucide="heart-pulse" class="w-3.5 h-3.5"></i>
+            <span>Health Spending Reimbursement (${fmtCurrency(extras.healthPaid)} / $1,000.00 Cap) — Click to edit</span>
+          </td>
+          <td class="py-2 px-3 text-right font-bold">+${fmtCurrency(extras.healthPaid)}</td>
+          <td colspan="7"></td>
+        </tr>
+        <!-- Row 16: Confirmed Bonus Paid -->
+        <tr onclick="window.openExtrasModal()" class="cursor-pointer bg-emerald-50/50 dark:bg-emerald-950/20 hover:bg-emerald-100/50 text-emerald-800 dark:text-emerald-300 border-b border-slate-200 dark:border-slate-800">
+          <td class="py-2 px-3 font-bold flex items-center gap-1.5" colspan="9">
+            <i data-lucide="coins" class="w-3.5 h-3.5"></i>
+            <span>Bonus Paid YTD (Added to Paid Total) — Click to edit</span>
+          </td>
+          <td class="py-2 px-3 text-right font-bold">+${fmtCurrency(extras.bonusPaid)}</td>
+          <td colspan="7"></td>
+        </tr>
+        <!-- Row 17: Total -->
+        <tr class="bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-extrabold">
+          <td class="py-3 px-3">Total</td>
+          <td class="py-3 px-2 text-center">${sumMt}</td>
+          <td class="py-3 px-2 text-center">${sumF}</td>
+          <td class="py-3 px-3 text-right">${fmtCurrency(sumGross)}</td>
+          <td class="py-3 px-3 text-right">${fmtCurrency(sumReci)}</td>
+          <td class="py-3 px-3 text-right">${fmtCurrency(sumOhip)}</td>
+          <td class="py-3 px-3 text-right">${fmtCurrency(sumTotalOhip)}</td>
+          <td class="py-3 px-3 text-right">${fmtCurrency(sumRecd)}</td>
+          <td class="py-3 px-3 text-right text-sky-600 dark:text-sky-400">${fmtCurrency(sumNet)}</td>
+          <td class="py-3 px-3 text-right text-emerald-600 dark:text-emerald-400">${fmtCurrency(grandTotalPaid)}</td>
+          <td class="py-3 px-3 text-right">${fmtCurrency(sumTarget)}</td>
+          <td class="py-3 px-3 text-right">${fmtCurrency(sumDiff)}</td>
+          <td class="py-3 px-3 text-right">—</td>
+          <td class="py-3 px-3 text-right">—</td>
+          <td class="py-3 px-2 text-center">${sumDays}</td>
+          <td class="py-3 px-2 text-center">${sumPts}</td>
+          <td class="py-3 px-2 text-right">—</td>
+        </tr>
+        <!-- Row 18: Average -->
+        <tr class="bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-bold">
+          <td class="py-2.5 px-3">Average</td>
+          <td class="py-2.5 px-2 text-center">—</td>
+          <td class="py-2.5 px-2 text-center">—</td>
+          <td class="py-2.5 px-3 text-right">${fmtCurrency(avgGross)}</td>
+          <td class="py-2.5 px-3 text-right">—</td>
+          <td class="py-2.5 px-3 text-right">—</td>
+          <td class="py-2.5 px-3 text-right">—</td>
+          <td class="py-2.5 px-3 text-right">${fmtCurrency(avgRecd)}</td>
+          <td class="py-2.5 px-3 text-right text-sky-600 dark:text-sky-400">${fmtCurrency(avgNet)}</td>
+          <td class="py-2.5 px-3 text-right">${fmtCurrency(avgPaid)}</td>
+          <td class="py-2.5 px-3 text-right">${fmtCurrency(avgTarget)}</td>
+          <td class="py-2.5 px-3 text-right">${fmtCurrency(avgDiff)}</td>
+          <td class="py-2.5 px-3 text-right text-sky-600 dark:text-sky-400">${fmtCurrency(avgDaily)}</td>
+          <td class="py-2.5 px-3 text-right text-indigo-600 dark:text-indigo-400">${fmtCurrency(avgRevPt)}</td>
+          <td class="py-2.5 px-2 text-center">${fmtNum(avgDays, 1)}</td>
+          <td class="py-2.5 px-2 text-center">${fmtNum(avgPts, 1)}</td>
+          <td class="py-2.5 px-2 text-right">${fmtNum(avgPtsDay, 2)}</td>
+        </tr>
+      `;
+    }
+
+    function renderDailyLogs() {
+      const container = document.getElementById("dailyLogsContainer");
+      const logs = state.years[state.currentYear]?.dailyLogs || [];
+      if (logs.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full py-8 text-center text-xs text-slate-400 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
+            No clinic shifts logged yet for ${state.currentYear}. Click "Log Clinic Day" to calculate your daily numbers from your EMR Month-to-Date totals.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = logs.map(log => `
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 flex flex-col justify-between gap-2 text-xs">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-800 dark:text-slate-100">${log.date} (${log.month})</span>
+            <div class="flex items-center gap-1">
+              <button onclick="window.openEditSingleLogModal('${log.id}')" class="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500"><i data-lucide="edit-2" class="w-3.5 h-3.5"></i></button>
+              <button onclick="window.deleteDailyLog('${log.id}')" class="p-1 rounded hover:bg-rose-100 dark:hover:bg-rose-950 text-rose-500"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+            </div>
+          </div>
+          <div class="grid grid-cols-3 gap-2 pt-1">
+            <div><span class="text-[10px] text-slate-400 block">Gross</span><strong class="text-slate-900 dark:text-white">${fmtCurrency(log.gross)}</strong></div>
+            <div><span class="text-[10px] text-slate-400 block">24% Net</span><strong class="text-sky-600 dark:text-sky-400">${fmtCurrency(log.net)}</strong></div>
+            <div><span class="text-[10px] text-slate-400 block">Patients</span><strong>${log.patients}</strong></div>
+          </div>
+          ${log.note ? `<p class="text-[11px] text-slate-500 italic">${log.note}</p>` : ''}
+        </div>
+      `).join("");
+    }
+
+    window.switchYear = (yr) => { state.currentYear = yr; renderAll(); saveToCloud(); };
+    window.toggleIncludeCurrentMonth = (checked) => { state.includeCurrentMonthInAverages = checked; renderAll(); saveToCloud(); };
+    window.setBenchmarkMode = (mode) => { state.benchmarkMode = mode; renderAll(); saveToCloud(); };
+    window.setQuarterOhipMode = (mode) => { state.quarterOhipMode = mode; renderAll(); saveToCloud(); };
+    window.toggleTheme = () => { document.documentElement.classList.toggle("dark"); };
+
+    // Month Editor
+    window.openMonthModal = (idx) => {
+      const m = state.years[state.currentYear].months[idx];
+      document.getElementById("editMonthIndex").value = idx;
+      document.getElementById("monthModalTitle").textContent = `Edit ${m.month} ${state.currentYear}`;
+      document.getElementById("inpMtDays").value = m.mtDays;
+      document.getElementById("inpFDays").value = m.fDays;
+      document.getElementById("inpDaysWorked").value = m.daysWorked;
+      document.getElementById("inpGross").value = m.gross;
+      document.getElementById("inpReci").value = m.reci;
+      document.getElementById("inpOhip").value = m.ohip;
+      document.getElementById("inpTotalOhip").value = m.totalOhip || 0;
+      document.getElementById("inpPaid").value = m.paid;
+      document.getElementById("inpPatients").value = m.patients;
+      document.getElementById("inpCustomTarget").value = m.customTarget !== null ? m.customTarget : "";
+      document.getElementById("monthModal").classList.remove("hidden");
+    };
+    window.closeMonthModal = () => document.getElementById("monthModal").classList.add("hidden");
+    window.saveMonthModal = (e) => {
+      e.preventDefault();
+      const idx = Number(document.getElementById("editMonthIndex").value);
+      const m = state.years[state.currentYear].months[idx];
+      m.mtDays = Number(document.getElementById("inpMtDays").value) || 0;
+      m.fDays = Number(document.getElementById("inpFDays").value) || 0;
+      m.daysWorked = Number(document.getElementById("inpDaysWorked").value) || 0;
+      m.gross = Number(document.getElementById("inpGross").value) || 0;
+      m.reci = Number(document.getElementById("inpReci").value) || 0;
+      m.ohip = Number(document.getElementById("inpOhip").value) || 0;
+      m.totalOhip = Number(document.getElementById("inpTotalOhip").value) || 0;
+      m.paid = Number(document.getElementById("inpPaid").value) || 0;
+      m.patients = Number(document.getElementById("inpPatients").value) || 0;
+      const ct = document.getElementById("inpCustomTarget").value;
+      m.customTarget = ct === "" ? null : Number(ct);
+
+      window.closeMonthModal();
+      renderAll();
+      saveToCloud();
+      showToast(`${m.month} updated!`);
+    };
+
+    // Quarter Modal
+    window.openQuarterModal = (qKey) => {
+      const q = calculateQuarterSummary(state.currentYear, qKey, state.quarterOhipMode === "total");
+      document.getElementById("editQuarterKey").value = qKey;
+      document.getElementById("quarterModalTitle").textContent = `${qKey} (${state.currentYear}) Reconciliation`;
+      document.getElementById("qModalEstNet").textContent = fmtCurrency(q.estNet);
+      document.getElementById("qModalTarget").textContent = fmtCurrency(q.target);
+      document.getElementById("qModalEstBonus").textContent = fmtCurrency(q.estBonus);
+      document.getElementById("inpQActualNet").value = q.qRec.actualNet !== null ? q.qRec.actualNet : "";
+      document.getElementById("inpQActualBonus").value = q.qRec.actualBonus !== null ? q.qRec.actualBonus : "";
+      document.getElementById("chkQConfirmed").checked = Boolean(q.qRec.confirmed);
+      document.getElementById("quarterModal").classList.remove("hidden");
+    };
+    window.closeQuarterModal = () => document.getElementById("quarterModal").classList.add("hidden");
+    window.calcQuarterBonusFromNet = () => {
+      const qKey = document.getElementById("editQuarterKey").value;
+      const q = calculateQuarterSummary(state.currentYear, qKey, state.quarterOhipMode === "total");
+      const netVal = document.getElementById("inpQActualNet").value;
+      const netToUse = netVal !== "" ? Number(netVal) : q.estNet;
+      document.getElementById("inpQActualBonus").value = (netToUse - q.target).toFixed(2);
+      document.getElementById("chkQConfirmed").checked = true;
+    };
+    window.saveQuarterModal = (e) => {
+      e.preventDefault();
+      const qKey = document.getElementById("editQuarterKey").value;
+      const netVal = document.getElementById("inpQActualNet").value;
+      const bonusVal = document.getElementById("inpQActualBonus").value;
+      const confirmed = document.getElementById("chkQConfirmed").checked || bonusVal !== "";
+      state.years[state.currentYear].quarters[qKey] = {
+        confirmed,
+        actualNet: netVal === "" ? null : Number(netVal),
+        actualBonus: bonusVal === "" ? null : Number(bonusVal)
+      };
+      window.closeQuarterModal();
+      renderAll();
+      saveToCloud();
+      showToast(`${qKey} reconciliation saved!`);
+    };
+
+    // Daily Log Modal (MTD subtraction)
+    window.openDailyLogModal = () => {
+      const sel = document.getElementById("logMonthIdx");
+      sel.innerHTML = MONTHS.map((m, i) => `<option value="${i}" ${i === 9 ? 'selected' : ''}>${m}</option>`).join("");
+      document.getElementById("logDate").value = new Date().toISOString().split("T")[0];
+      window.onLogMonthChange();
+      document.getElementById("dailyLogModal").classList.remove("hidden");
+    };
+    window.closeDailyLogModal = () => document.getElementById("dailyLogModal").classList.add("hidden");
+    window.onLogMonthChange = () => {
+      const idx = Number(document.getElementById("logMonthIdx").value);
+      const m = state.years[state.currentYear].months[idx];
+      document.getElementById("prevGrossHint").textContent = `Prev: ${fmtCurrency(m.gross)}`;
+      document.getElementById("prevReciHint").textContent = `Prev: ${fmtCurrency(m.reci)}`;
+      document.getElementById("prevOhipHint").textContent = `Prev: ${fmtCurrency(m.ohip)}`;
+      document.getElementById("prevTotalOhipHint").textContent = `Prev: ${fmtCurrency(m.totalOhip || 0)}`;
+      document.getElementById("prevPaidHint").textContent = `Prev: ${fmtCurrency(m.paid)}`;
+      document.getElementById("prevPtsHint").textContent = `Prev: ${m.patients}`;
+
+      document.getElementById("logMtdGross").value = m.gross || 0;
+      document.getElementById("logMtdReci").value = m.reci || 0;
+      document.getElementById("logMtdOhip").value = m.ohip || 0;
+      document.getElementById("logMtdTotalOhip").value = m.totalOhip || 0;
+      document.getElementById("logMtdPaid").value = m.paid || 0;
+      document.getElementById("logMtdPts").value = m.patients || 0;
+      window.updateDailyLogDeltaPreview();
+    };
+    window.updateDailyLogDeltaPreview = () => {
+      const idx = Number(document.getElementById("logMonthIdx").value);
+      const m = state.years[state.currentYear].months[idx];
+      const dGross = (Number(document.getElementById("logMtdGross").value) || 0) - (m.gross || 0);
+      const dReci = (Number(document.getElementById("logMtdReci").value) || 0) - (m.reci || 0);
+      const dOhip = (Number(document.getElementById("logMtdOhip").value) || 0) - (m.ohip || 0);
+      const dPts = (Number(document.getElementById("logMtdPts").value) || 0) - (m.patients || 0);
+      const dNet = (dReci + dOhip) * ((state.settings.netPercent || 24) / 100);
+
+      document.getElementById("deltaGrossPreview").textContent = fmtCurrency(dGross);
+      document.getElementById("deltaNetPreview").textContent = fmtCurrency(dNet);
+      document.getElementById("deltaPtsPreview").textContent = dPts;
+      document.getElementById("deltaOhipPreview").textContent = fmtCurrency(dOhip);
+
+      const alertBadge = document.getElementById("newRecordAlertBadge");
+      if (dGross > state.allTimeRecord.amount) {
+        alertBadge.classList.remove("hidden");
+      } else {
+        alertBadge.classList.add("hidden");
+      }
+    };
+    window.saveDailyLogModal = (e) => {
+      e.preventDefault();
+      const idx = Number(document.getElementById("logMonthIdx").value);
+      const m = state.years[state.currentYear].months[idx];
+      const newGross = Number(document.getElementById("logMtdGross").value) || 0;
+      const newReci = Number(document.getElementById("logMtdReci").value) || 0;
+      const newOhip = Number(document.getElementById("logMtdOhip").value) || 0;
+      const newTotalOhip = Number(document.getElementById("logMtdTotalOhip").value) || 0;
+      const newPaid = Number(document.getElementById("logMtdPaid").value) || 0;
+      const newPts = Number(document.getElementById("logMtdPts").value) || 0;
+      const dayAdd = Number(document.getElementById("logDayWeight").value) || 0;
+
+      const dGross = newGross - (m.gross || 0);
+      const dReci = newReci - (m.reci || 0);
+      const dOhip = newOhip - (m.ohip || 0);
+      const dPts = newPts - (m.patients || 0);
+      const dNet = (dReci + dOhip) * ((state.settings.netPercent || 24) / 100);
+
+      m.gross = newGross;
+      m.reci = newReci;
+      m.ohip = newOhip;
+      m.totalOhip = newTotalOhip;
+      m.paid = newPaid;
+      m.patients = newPts;
+      m.daysWorked = (Number(m.daysWorked) || 0) + dayAdd;
+
+      const dateStr = document.getElementById("logDate").value;
+      const noteStr = document.getElementById("logNote").value;
+
+      state.years[state.currentYear].dailyLogs.unshift({
+        id: "log_" + Date.now(),
+        date: dateStr,
+        month: m.month,
+        gross: dGross,
+        net: dNet,
+        patients: dPts,
+        note: noteStr
+      });
+
+      if (dGross > state.allTimeRecord.amount) {
+        state.allTimeRecord.amount = dGross;
+        state.allTimeRecord.date = dateStr;
+        state.allTimeRecord.note = noteStr || "New All-Time Daily Gross High!";
+        if (window.confetti) window.confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+      }
+
+      window.closeDailyLogModal();
+      renderAll();
+      saveToCloud();
+      showToast("Clinic shift logged & monthly ledger updated!");
+    };
+
+    window.openEditSingleLogModal = (id) => {
+      const logs = state.years[state.currentYear].dailyLogs;
+      const item = logs.find(x => x.id === id);
+      if (!item) return;
+      document.getElementById("editLogId").value = item.id;
+      document.getElementById("editLogDate").value = item.date;
+      document.getElementById("editLogGross").value = item.gross;
+      document.getElementById("editLogNet").value = item.net;
+      document.getElementById("editLogPts").value = item.patients;
+      document.getElementById("editLogNote").value = item.note || "";
+      document.getElementById("editSingleLogModal").classList.remove("hidden");
+    };
+    window.saveEditSingleLog = (e) => {
+      e.preventDefault();
+      const id = document.getElementById("editLogId").value;
+      const logs = state.years[state.currentYear].dailyLogs;
+      const item = logs.find(x => x.id === id);
+      if (item) {
+        item.date = document.getElementById("editLogDate").value;
+        item.gross = Number(document.getElementById("editLogGross").value) || 0;
+        item.net = Number(document.getElementById("editLogNet").value) || 0;
+        item.patients = Number(document.getElementById("editLogPts").value) || 0;
+        item.note = document.getElementById("editLogNote").value;
+      }
+      document.getElementById("editSingleLogModal").classList.add("hidden");
+      renderAll();
+      saveToCloud();
+      showToast("Shift log updated!");
+    };
+    window.deleteDailyLog = (id) => {
+      state.years[state.currentYear].dailyLogs = state.years[state.currentYear].dailyLogs.filter(x => x.id !== id);
+      renderAll();
+      saveToCloud();
+      showToast("Shift log deleted.");
+    };
+
+    // Record, Extras & Settings Modals
+    window.openRecordModal = () => {
+      document.getElementById("inpRecordAmount").value = state.allTimeRecord.amount;
+      document.getElementById("inpRecordDate").value = state.allTimeRecord.date;
+      document.getElementById("inpRecordNote").value = state.allTimeRecord.note || "";
+      document.getElementById("recordModal").classList.remove("hidden");
+    };
+    window.saveRecordModal = (e) => {
+      e.preventDefault();
+      state.allTimeRecord.amount = Number(document.getElementById("inpRecordAmount").value) || 0;
+      state.allTimeRecord.date = document.getElementById("inpRecordDate").value;
+      state.allTimeRecord.note = document.getElementById("inpRecordNote").value;
+      document.getElementById("recordModal").classList.add("hidden");
+      renderAll();
+      saveToCloud();
+      showToast("All-Time Record updated!");
+    };
+
+    window.openExtrasModal = () => {
+      const yr = state.years[state.currentYear];
+      document.getElementById("inpHealthPaid").value = yr.healthPaid || 0;
+      document.getElementById("inpManualBonusPaid").value = yr.manualBonusPaid !== null ? yr.manualBonusPaid : "";
+      document.getElementById("extrasModal").classList.remove("hidden");
+    };
+    window.saveExtrasModal = (e) => {
+      e.preventDefault();
+      const yr = state.years[state.currentYear];
+      yr.healthPaid = Math.min(1000, Math.max(0, Number(document.getElementById("inpHealthPaid").value) || 0));
+      const mb = document.getElementById("inpManualBonusPaid").value;
+      yr.manualBonusPaid = mb === "" ? null : Number(mb);
+      document.getElementById("extrasModal").classList.add("hidden");
+      renderAll();
+      saveToCloud();
+      showToast("Health & Bonus paid totals updated!");
+    };
+
+    window.openSettingsModal = () => {
+      document.getElementById("inpRateMT").value = state.settings.mtRate;
+      document.getElementById("inpRateF").value = state.settings.fRate;
+      document.getElementById("inpNetPct").value = state.settings.netPercent;
+      document.getElementById("settingsModal").classList.remove("hidden");
+    };
+    window.saveSettingsModal = (e) => {
+      e.preventDefault();
+      state.settings.mtRate = Number(document.getElementById("inpRateMT").value) || 780;
+      state.settings.fRate = Number(document.getElementById("inpRateF").value) || 630;
+      state.settings.netPercent = Number(document.getElementById("inpNetPct").value) || 24;
+      document.getElementById("settingsModal").classList.add("hidden");
+      renderAll();
+      saveToCloud();
+      showToast("Settings saved!");
+    };
+
+    window.exportCSV = () => {
+      const yr = state.years[state.currentYear];
+      const headers = ["Month", "# M-T", "# F", "Gross", "Accounts Reci", "OHIP Recon", "Total OHIP", "Received", "Net (24%)", "Paid", "Target", "Diff", "Daily Avg", "Rev/Pt", "Days Worked", "Total Pts", "Pts/Day"];
+      const rows = yr.months.map(m => {
+        const c = calculateMonth(m, false);
+        return [c.month, c.mt, c.f, c.gross, c.reci, c.ohip, c.totalOhip, c.totalRecd, c.net.toFixed(2), c.paid, c.target, c.diff.toFixed(2), c.dailyAvg.toFixed(2), c.revPt.toFixed(2), c.days, c.patients, c.ptsDay.toFixed(2)];
+      });
+      const csv = [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+      const blob = new Blob([csv], { type: "text/csv" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `OptoTrack_${state.currentYear}.csv`;
+      a.click();
+    };
+
+    window.exportBackupJSON = () => {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `OptoTrack_Backup_${new Date().toISOString().split("T")[0]}.json`;
+      a.click();
+    };
+
+    window.importBackupJSON = (event) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (imported && imported.years) {
+            state = imported;
+            renderAll();
+            saveToCloud();
+            showToast("Backup JSON restored!");
+          }
+        } catch (err) {
+          showToast("Invalid JSON backup file.");
+        }
+      };
+      reader.readAsText(file);
+    };
+
+    // Cloud Sync Modal & Firebase Setup
+    window.openCloudModal = () => document.getElementById("cloudModal").classList.remove("hidden");
+    window.closeCloudModal = () => document.getElementById("cloudModal").classList.add("hidden");
+
+    function getAppId() {
+      return typeof __app_id !== "undefined" && __app_id ? __app_id : "optotrack-default";
+    }
+
+    function updateSyncUI(statusText, isOnline) {
+      const txtEl = document.getElementById("syncStatusText");
+      const dot1 = document.getElementById("syncDot");
+      const dot2 = document.getElementById("cloudBadgeDot");
+      const modalStatus = document.getElementById("cloudModalUserStatus");
+      if (txtEl) txtEl.innerHTML = `<span class="w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-500' : 'bg-amber-400'} inline-block"></span><span>${statusText}</span>`;
+      if (dot2) dot2.className = `w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-500' : 'bg-amber-400'} absolute top-1.5 right-1.5`;
+      if (modalStatus) modalStatus.textContent = statusText;
+    }
+
+    async function saveToCloud() {
+      if (!db || !currentUser) return;
+      try {
+        const ref = doc(db, "artifacts", getAppId(), "users", currentUser.uid, "optotrack_data", "main_state");
+        await setDoc(ref, { payload: JSON.stringify(state), updatedAt: Date.now() }, { merge: true });
+      } catch (e) {
+        console.warn("Cloud sync write warning:", e);
+      }
+    }
+
+    window.forceManualCloudSync = () => {
+      saveToCloud();
+      showToast("Synced state to cloud!");
+    };
+
+    window.saveCustomFirebaseConfig = async () => {
+      const raw = document.getElementById("inpCustomFirebaseConfig").value.trim();
+      try {
+        // Allow user to paste either strict JSON or JS object snippet
+        const cleaned = raw.replace(/^const\s+firebaseConfig\s*=\s*/, "").replace(/;$/, "");
+        const cfg = JSON.parse(cleaned);
+        customFirebaseCfgInMemory = cfg;
+        await initCloudSync(cfg);
+        showToast("Custom Firebase connected! Now click Sign In with Google.");
+      } catch (err) {
+        showToast("Please make sure your config is valid JSON with quotes around keys: {\"apiKey\": \"...\"}");
+      }
+    };
+
+    window.handleGoogleSignIn = async () => {
+      if (!auth) { showToast("Connect Firebase config first."); return; }
+      try {
+        const provider = new GoogleAuthProvider();
+        await signInWithPopup(auth, provider);
+        showToast("Signed in with Google!");
+      } catch (err) {
+        showToast("Google Sign-In error: " + (err.message || "Check authorized domains in Firebase."));
+      }
+    };
+
+    window.handleEmailAuth = async (mode) => {
+      if (!auth) { showToast("Connect Firebase config first."); return; }
+      const email = document.getElementById("authEmail").value.trim();
+      const pass = document.getElementById("authPass").value;
+      if (!email || !pass) { showToast("Enter email and password."); return; }
+      try {
+        if (mode === "signup") {
+          await createUserWithEmailAndPassword(auth, email, pass);
+          showToast("Account created & signed in!");
+        } else {
+          await signInWithEmailAndPassword(auth, email, pass);
+          showToast("Signed in!");
+        }
+      } catch (err) {
+        showToast("Auth error: " + err.message);
+      }
+    };
+
+    window.handleSignOut = async () => {
+      if (!auth) return;
+      try {
+        await signOut(auth);
+        currentUser = null;
+        updateSyncUI("Signed out (Session Mode)", false);
+        showToast("Signed out.");
+      } catch (e) {
+        showToast("Error signing out.");
+      }
+    };
+
+    async function initCloudSync(overrideConfig = null) {
+      try {
+        let cfg = overrideConfig || customFirebaseCfgInMemory || USER_FIREBASE_CONFIG;
+        if (!cfg && typeof __firebase_config !== "undefined" && __firebase_config) {
+          cfg = JSON.parse(__firebase_config);
+        }
+        if (!cfg) {
+          updateSyncUI("Ready (Offline/Session)", false);
+          return;
+        }
+
+        const app = initializeApp(cfg, overrideConfig ? "custom_" + Date.now() : undefined);
+        auth = getAuth(app);
+        db = getFirestore(app);
+
+        onAuthStateChanged(auth, (user) => {
+          currentUser = user;
+          if (!user) {
+            updateSyncUI("Not Signed In (Click Cloud)", false);
+            return;
+          }
+          const label = user.email ? `Synced: ${user.email}` : `Synced (ID: ${user.uid.slice(0, 6)}…)`;
+          updateSyncUI(label, true);
+
+          if (unsubscribeSnapshot) unsubscribeSnapshot();
+          const ref = doc(db, "artifacts", getAppId(), "users", user.uid, "optotrack_data", "main_state");
+          unsubscribeSnapshot = onSnapshot(ref, (snap) => {
+            if (snap.exists() && snap.data()?.payload) {
+              try {
+                state = JSON.parse(snap.data().payload);
+                renderAll();
+              } catch (e) {
+                console.warn("Parse error:", e);
+              }
+            } else {
+              saveToCloud();
+            }
+          }, (err) => {
+            console.warn("Firestore snapshot listener warning:", err);
+          });
+        });
+      } catch (e) {
+        console.warn("Cloud init fallback:", e);
+        updateSyncUI("Ready (Session Mode)", false);
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      renderAll();
+      initCloudSync();
+    });
+  </script>
+</body>
+</html>
