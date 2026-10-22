@@ -45,6 +45,49 @@
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen overflow-x-hidden">
 
+  <!-- MANDATORY FULL-SCREEN AUTHENTICATION GATE (Blocks all data until signed in) -->
+  <div id="authGateScreen" class="fixed inset-0 z-[100] bg-slate-950 flex flex-col items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 sm:p-8 shadow-2xl space-y-6">
+      <div class="flex flex-col items-center text-center space-y-3">
+        <img src="data:image/png;base64,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" class="w-16 h-16 rounded-2xl object-contain bg-[#e6e6e6] p-1 shadow-lg border border-slate-700" alt="Brockville Optometric Centre" />
+        <div>
+          <h1 class="text-xl font-extrabold text-white tracking-tight">OptoTrack Private Suite</h1>
+          <p class="text-xs text-slate-400 mt-0.5">Brockville Optometric Centre • Authorized Access Only</p>
+        </div>
+      </div>
+
+      <div id="gateLoadingSpinner" class="py-6 text-center text-xs text-slate-400">
+        Verifying security session...
+      </div>
+
+      <div id="gateLoginForm" class="hidden space-y-3.5 text-xs">
+        <button onclick="window.signInWithGoogle()" class="w-full py-2.5 px-4 rounded-xl font-semibold bg-white text-slate-900 hover:bg-slate-100 transition flex items-center justify-center gap-2 shadow-sm">
+          <span>Sign in with Google</span>
+        </button>
+        <div class="relative flex py-1 items-center">
+          <div class="flex-grow border-t border-slate-800"></div>
+          <span class="flex-shrink mx-3 text-slate-500 text-[11px]">Or Email & Password</span>
+          <div class="flex-grow border-t border-slate-800"></div>
+        </div>
+        <div>
+          <label class="block text-slate-400 font-semibold mb-1">Email</label>
+          <input type="email" id="gateEmail" placeholder="dr.email@domain.com" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white focus:outline-none focus:border-brand-500" />
+        </div>
+        <div>
+          <label class="block text-slate-400 font-semibold mb-1">Password</label>
+          <input type="password" id="gatePassword" onkeydown="if(event.key==='Enter') window.gateEmailSignIn()" placeholder="••••••••" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white focus:outline-none focus:border-brand-500" />
+        </div>
+        <button onclick="window.gateEmailSignIn()" class="w-full py-2.5 rounded-xl font-bold bg-brand-600 hover:bg-brand-500 text-white shadow-lg shadow-brand-600/25 transition">
+          Unlock OptoTrack
+        </button>
+        <div id="gateErrorMsg" class="hidden p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-center"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROTECTED APPLICATION SHELL (Hidden until authenticated) -->
+  <div id="protectedAppShell" class="hidden">
+
   <!-- SIDEBAR NAVIGATION -->
   <div id="sidebarOverlay" class="fixed inset-0 bg-slate-950/60 hidden z-40 backdrop-blur-sm" onclick="window.closeSidebar()"></div>
   <div id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shadow-2xl transform -translate-x-full transition-transform z-50 flex flex-col">
@@ -95,8 +138,8 @@
         </button>
 
         <button onclick="window.openCloudModal()" id="cloudBtn" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-          <span id="syncDot" class="w-2 h-2 rounded-full bg-amber-400 shrink-0"></span>
-          <span id="syncText" class="hidden md:inline max-w-[140px] truncate">Local Session</span>
+          <span id="syncDot" class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+          <span id="syncText" class="hidden md:inline max-w-[140px] truncate">Synced</span>
           <span>☁️</span>
         </button>
         <select id="yearSelect" onchange="window.switchYear(this.value)" class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
@@ -377,8 +420,23 @@
         <div class="h-72"><canvas id="chartPageForecastCone"></canvas></div>
         <div id="coneSummaryCards" class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-xs"></div>
       </div>
+
+      <!-- Chart 6: Annual Projected Salary & Total Compensation Cone -->
+      <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-6 shadow-sm min-w-0">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <div>
+            <h3 class="font-bold text-sm sm:text-base">Annual Projected Salary & Total Earnings Trajectory (<span id="annualConeYearLbl">2026</span>)</h3>
+            <p class="text-xs text-slate-500">12-month cumulative associate earnings forecast based on YTD logged net and remaining scheduled shifts in the year.</p>
+          </div>
+          <span id="annualRemainingDaysBadge" class="self-start sm:self-center px-3 py-1 rounded-full text-xs font-bold bg-brand-500/15 text-brand-400 border border-brand-500/30 mono">0 shifts remaining</span>
+        </div>
+        <div class="h-72"><canvas id="chartPageAnnualSalaryCone"></canvas></div>
+        <div id="annualConeSummaryCards" class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-xs"></div>
+      </div>
     </div>
   </main>
+
+  </div><!-- END PROTECTED APP SHELL -->
 
   <!-- MODALS -->
   <div id="monthModal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
@@ -389,14 +447,14 @@
         <div><label class="block font-semibold mb-1 text-slate-500"># Fri Shifts</label><input type="number" step="0.5" id="editFDays" oninput="window.updateMonthModalFormulaPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
         <div><label class="block font-semibold mb-1 text-slate-500">Days Worked</label><input type="number" step="0.5" id="editDaysWorked" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
         <div class="col-span-2 sm:col-span-3">
-          <div class="flex justify-between mb-1"><label class="font-semibold text-slate-500">Target Override (\$) (Formula: <span id="formulaTargetPreview" class="mono text-brand-500">$0</span>)</label><button type="button" onclick="document.getElementById('editCustomTarget').value=''" class="text-brand-500 font-semibold">Use Formula</button></div>
+          <div class="flex justify-between mb-1"><label class="font-semibold text-slate-500">Target Override ($) (Formula: <span id="formulaTargetPreview" class="mono text-brand-500">$0</span>)</label><button type="button" onclick="document.getElementById('editCustomTarget').value=''" class="text-brand-500 font-semibold">Use Formula</button></div>
           <input type="number" step="0.01" id="editCustomTarget" placeholder="Auto formula" class="w-full px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/30 mono font-semibold" />
         </div>
-        <div><label class="block font-semibold mb-1 text-slate-500">Gross (\$)</label><input type="number" step="0.01" id="editGross" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
-        <div><label class="block font-semibold mb-1 text-slate-500">Acct Rec'd (\$)</label><input type="number" step="0.01" id="editReci" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
-        <div><label class="block font-semibold mb-1 text-slate-500">OHIP Recon (\$)</label><input type="number" step="0.01" id="editOhip" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
-        <div><label class="block font-semibold mb-1 text-slate-500">Total OHIP (\$)</label><input type="number" step="0.01" id="editTotalOhip" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
-        <div><label class="block font-semibold mb-1 text-slate-500">Paid Draw (\$)</label><input type="number" step="0.01" id="editPaid" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
+        <div><label class="block font-semibold mb-1 text-slate-500">Gross ($)</label><input type="number" step="0.01" id="editGross" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
+        <div><label class="block font-semibold mb-1 text-slate-500">Acct Rec'd ($)</label><input type="number" step="0.01" id="editReci" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
+        <div><label class="block font-semibold mb-1 text-slate-500">OHIP Recon ($)</label><input type="number" step="0.01" id="editOhip" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
+        <div><label class="block font-semibold mb-1 text-slate-500">Total OHIP ($)</label><input type="number" step="0.01" id="editTotalOhip" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
+        <div><label class="block font-semibold mb-1 text-slate-500">Paid Draw ($)</label><input type="number" step="0.01" id="editPaid" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
         <div><label class="block font-semibold mb-1 text-slate-500">Patients</label><input type="number" step="1" id="editPatients" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
       </div>
       <div class="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
@@ -415,8 +473,8 @@
         <div class="flex justify-between"><span>Ledger Est. Bonus:</span><span id="qModalEstBonus" class="mono font-bold text-brand-500">$0.00</span></div>
       </div>
       <div class="space-y-3 text-xs">
-        <div><div class="flex justify-between mb-1"><label class="font-semibold text-slate-500">Confirmed Actual 24% Net (\$)</label><button type="button" onclick="window.calcQuarterNetFromBonus()" class="text-brand-500 font-semibold">Calc from Bonus</button></div><input type="number" step="0.01" id="qEditActualNet" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
-        <div><div class="flex justify-between mb-1"><label class="font-semibold text-slate-500">Confirmed Bonus Paid (\$)</label><button type="button" onclick="window.calcQuarterBonusFromNet()" class="text-brand-500 font-semibold">Calc from Net</button></div><input type="number" step="0.01" id="qEditActualBonus" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
+        <div><div class="flex justify-between mb-1"><label class="font-semibold text-slate-500">Confirmed Actual 24% Net ($)</label><button type="button" onclick="window.calcQuarterNetFromBonus()" class="text-brand-500 font-semibold">Calc from Bonus</button></div><input type="number" step="0.01" id="qEditActualNet" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
+        <div><div class="flex justify-between mb-1"><label class="font-semibold text-slate-500">Confirmed Bonus Paid ($)</label><button type="button" onclick="window.calcQuarterBonusFromNet()" class="text-brand-500 font-semibold">Calc from Net</button></div><input type="number" step="0.01" id="qEditActualBonus" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
         <label class="flex items-center gap-2 pt-1"><input type="checkbox" id="qEditConfirmed" class="rounded" /><span class="font-semibold">Mark Quarter as Confirmed</span></label>
       </div>
       <div class="flex justify-between pt-3 border-t border-slate-200 dark:border-slate-800">
@@ -462,8 +520,8 @@
       <div class="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-3"><h3 class="font-bold text-lg">Edit Logged Shift</h3><button onclick="window.closeEditLogModal()">✕</button></div>
       <div class="grid grid-cols-2 gap-3 text-xs">
         <div><label class="block font-semibold mb-1 text-slate-500">Date</label><input type="date" id="editLogDate" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800" /></div>
-        <div><label class="block font-semibold mb-1 text-slate-500">Day Gross (\$)</label><input type="number" step="0.01" id="editLogGross" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
-        <div><label class="block font-semibold mb-1 text-slate-500">Day 24% Net (\$)</label><input type="number" step="0.01" id="editLogNet" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
+        <div><label class="block font-semibold mb-1 text-slate-500">Day Gross ($)</label><input type="number" step="0.01" id="editLogGross" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
+        <div><label class="block font-semibold mb-1 text-slate-500">Day 24% Net ($)</label><input type="number" step="0.01" id="editLogNet" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
         <div><label class="block font-semibold mb-1 text-slate-500">Day Patients</label><input type="number" step="1" id="editLogPts" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
         <div class="col-span-2"><label class="block font-semibold mb-1 text-slate-500">Note</label><input type="text" id="editLogNote" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800" /></div>
       </div>
@@ -478,7 +536,7 @@
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-sm w-full p-5 space-y-4">
       <div class="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-3"><h3 class="font-bold text-lg">All-Time Daily Gross High</h3><button onclick="window.closeRecordModal()">✕</button></div>
       <div class="space-y-3 text-xs">
-        <div><label class="block font-semibold mb-1 text-slate-500">Peak Daily Gross (\$)</label><input type="number" step="0.01" id="inputRecordAmount" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-bold" /></div>
+        <div><label class="block font-semibold mb-1 text-slate-500">Peak Daily Gross ($)</label><input type="number" step="0.01" id="inputRecordAmount" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-bold" /></div>
         <div><label class="block font-semibold mb-1 text-slate-500">Date Achieved</label><input type="text" id="inputRecordDate" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800" /></div>
         <div><label class="block font-semibold mb-1 text-slate-500">Note</label><input type="text" id="inputRecordNote" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800" /></div>
       </div>
@@ -494,7 +552,7 @@
       <div class="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-3"><h3 class="font-bold text-lg">Health Spending & Paid Bonus</h3><button onclick="window.closeExtrasModal()">✕</button></div>
       <div class="space-y-3 text-xs">
         <div><label class="block font-semibold mb-1 text-slate-500">Health Reimbursement Claimed ($ / $1,000)</label><input type="number" step="0.01" id="inputHealthPaid" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-bold" /></div>
-        <div><div class="flex justify-between mb-1"><label class="font-semibold text-slate-500">Confirmed Bonus Paid YTD (\$)</label><button type="button" onclick="window.syncBonusRowFromQuarters()" class="text-brand-500 font-semibold">Sum Q1-Q4</button></div><input type="number" step="0.01" id="inputBonusPaid" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-bold" /></div>
+        <div><div class="flex justify-between mb-1"><label class="font-semibold text-slate-500">Confirmed Bonus Paid YTD ($)</label><button type="button" onclick="window.syncBonusRowFromQuarters()" class="text-brand-500 font-semibold">Sum Q1-Q4</button></div><input type="number" step="0.01" id="inputBonusPaid" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-bold" /></div>
       </div>
       <div class="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
         <button onclick="window.closeExtrasModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800">Cancel</button>
@@ -508,8 +566,8 @@
       <div class="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-3"><h3 class="font-bold text-lg">Contract Rates & Targets</h3><button onclick="window.closeSettingsModal()">✕</button></div>
       <div class="space-y-3 text-xs">
         <div><label class="block font-semibold mb-1 text-slate-500">Associate Net Rate (%)</label><input type="number" step="0.1" id="setNetPct" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-bold" /></div>
-        <div><label class="block font-semibold mb-1 text-slate-500">Mon–Thu Daily Target (\$)</label><input type="number" step="1" id="setMtRate" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-bold" /></div>
-        <div><label class="block font-semibold mb-1 text-slate-500">Friday Daily Target (\$)</label><input type="number" step="1" id="setFRate" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-bold" /></div>
+        <div><label class="block font-semibold mb-1 text-slate-500">Mon–Thu Daily Target ($)</label><input type="number" step="1" id="setMtRate" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-bold" /></div>
+        <div><label class="block font-semibold mb-1 text-slate-500">Friday Daily Target ($)</label><input type="number" step="1" id="setFRate" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-bold" /></div>
       </div>
       <div class="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
         <button onclick="window.closeSettingsModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800">Cancel</button>
@@ -554,19 +612,10 @@
         <div><h3 class="font-bold text-lg">Cloud Sync & Account</h3><p class="text-xs text-slate-500">Project: <span class="mono font-semibold text-brand-500">optotrack-tracker</span></p></div>
         <button onclick="window.closeCloudModal()">✕</button>
       </div>
-      <div id="authSignedOutBox" class="space-y-3 text-xs">
-        <button onclick="window.signInWithGoogle()" class="w-full py-2.5 px-4 rounded-xl font-semibold bg-white text-slate-900 border border-slate-300">Sign in with Google</button>
-        <input type="email" id="authEmail" placeholder="Email address" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800" />
-        <input type="password" id="authPassword" placeholder="Password" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800" />
-        <div class="flex gap-2">
-          <button onclick="window.emailSignIn(false)" class="flex-1 py-2 rounded-xl font-semibold bg-brand-600 text-white">Email Sign In</button>
-          <button onclick="window.emailSignIn(true)" class="flex-1 py-2 rounded-xl font-semibold bg-slate-200 dark:bg-slate-800">Create Account</button>
-        </div>
-      </div>
-      <div id="authSignedInBox" class="hidden space-y-3 text-xs">
+      <div id="authSignedInBox" class="space-y-3 text-xs">
         <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between gap-2">
           <div class="min-w-0"><span class="text-[10px] uppercase font-bold text-emerald-500 block">Live Cloud Sync Active</span><span id="authUserLabel" class="font-semibold mono text-sm truncate block">Signed In</span></div>
-          <button onclick="window.signOutUser()" class="px-3 py-1.5 rounded-lg bg-rose-500/10 text-rose-500 font-semibold shrink-0">Sign Out</button>
+          <button onclick="window.signOutUser()" class="px-3 py-1.5 rounded-lg bg-rose-500/10 text-rose-500 font-semibold shrink-0">Sign Out & Lock</button>
         </div>
         <button onclick="window.forcePushToCloud()" class="w-full py-2 rounded-xl font-semibold bg-brand-600/15 text-brand-400 border border-brand-500/30">Force Push Local State to Cloud Now</button>
       </div>
@@ -576,7 +625,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
     import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
     const logoHref = document.getElementById('faviconLink').href;
@@ -647,58 +696,28 @@
       appId: "1:551535439217:web:f51f8fdf5379f892231ad0"
     };
 
-    const STORAGE_KEY = 'optotrack_state_v5';
-    const INITIAL_2025 = [
-      { month: 'Jan', mtDays: 0, fDays: 0, daysWorked: 0, gross: 0, reci: 0, ohip: 0, totalOhip: 0, paid: 0, patients: 0, customTarget: null },
-      { month: 'Feb', mtDays: 0, fDays: 0, daysWorked: 0, gross: 0, reci: 0, ohip: 0, totalOhip: 0, paid: 0, patients: 0, customTarget: null },
-      { month: 'Mar', mtDays: 0, fDays: 0, daysWorked: 0, gross: 0, reci: 0, ohip: 0, totalOhip: 0, paid: 0, patients: 0, customTarget: null },
-      { month: 'Apr', mtDays: 0, fDays: 0, daysWorked: 0, gross: 0, reci: 0, ohip: 0, totalOhip: 0, paid: 0, patients: 0, customTarget: null },
-      { month: 'May', mtDays: 0, fDays: 0, daysWorked: 0, gross: 0, reci: 0, ohip: 0, totalOhip: 0, paid: 0, patients: 0, customTarget: null },
-      { month: 'Jun', mtDays: 12, fDays: 3, daysWorked: 15, gross: 31974.30, reci: 24881.79, ohip: 0, totalOhip: 0, paid: 5300, patients: 129, customTarget: 7950 },
-      { month: 'Jul', mtDays: 14, fDays: 4, daysWorked: 18, gross: 68247.22, reci: 59979.71, ohip: 0, totalOhip: 0, paid: 11250, patients: 220, customTarget: 11700 },
-      { month: 'Aug', mtDays: 15, fDays: 4, daysWorked: 19, gross: 71925.20, reci: 70007.95, ohip: 0, totalOhip: 0, paid: 10470, patients: 266, customTarget: null },
-      { month: 'Sep', mtDays: 17, fDays: 3, daysWorked: 20, gross: 94044.37, reci: 76961.75, ohip: 0, totalOhip: 0, paid: 14220, patients: 289, customTarget: null },
-      { month: 'Oct', mtDays: 17, fDays: 4, daysWorked: 21, gross: 82381.75, reci: 93221.55, ohip: 0, totalOhip: 0, paid: 20460, patients: 334, customTarget: null },
-      { month: 'Nov', mtDays: 16, fDays: 4, daysWorked: 20, gross: 69567.53, reci: 71625.60, ohip: 0, totalOhip: 0, paid: 15000, patients: 276, customTarget: null },
-      { month: 'Dec', mtDays: 13, fDays: 2, daysWorked: 15, gross: 74636.97, reci: 71127.68, ohip: 0, totalOhip: 0, paid: 14850, patients: 214, customTarget: null }
-    ];
-    const INITIAL_2026 = [
-      { month: 'Jan', mtDays: 16, fDays: 3, daysWorked: 19, gross: 61615.55, reci: 54757.80, ohip: 7143.35, totalOhip: 7818.25, paid: 6870, patients: 224, customTarget: null },
-      { month: 'Feb', mtDays: 14, fDays: 4, daysWorked: 18, gross: 64422.83, reci: 45008.40, ohip: 8349.15, totalOhip: 9016.05, paid: 15000, patients: 231, customTarget: null },
-      { month: 'Mar', mtDays: 17, fDays: 4, daysWorked: 21, gross: 74463.57, reci: 65682.32, ohip: 7907.40, totalOhip: 8533.15, paid: 20160, patients: 269, customTarget: null },
-      { month: 'Apr', mtDays: 16, fDays: 3, daysWorked: 19, gross: 75321.85, reci: 63588.75, ohip: 9981.30, totalOhip: 10351.75, paid: 13590, patients: 276, customTarget: null },
-      { month: 'May', mtDays: 15, fDays: 5, daysWorked: 20, gross: 86564.30, reci: 73649.60, ohip: 11204.90, totalOhip: 11833.50, paid: 13440, patients: 303, customTarget: null },
-      { month: 'Jun', mtDays: 18, fDays: 2, daysWorked: 20, gross: 75380.99, reci: 81584.46, ohip: 8980.20, totalOhip: 10042.35, paid: 14370, patients: 287, customTarget: 15630 },
-      { month: 'Jul', mtDays: 16, fDays: 4, daysWorked: 20, gross: 95663.78, reci: 79769.90, ohip: 9198.00, totalOhip: 9483.90, paid: 11880, patients: 296, customTarget: null },
-      { month: 'Aug', mtDays: 14, fDays: 2, daysWorked: 16, gross: 87989.01, reci: 77191.24, ohip: 8919.95, totalOhip: 9336.70, paid: 11400, patients: 240, customTarget: null },
-      { month: 'Sep', mtDays: 14, fDays: 3, daysWorked: 17, gross: 73288.10, reci: 60336.50, ohip: 5704.15, totalOhip: 10926.50, paid: 18450, patients: 256, customTarget: 12510 },
-      { month: 'Oct', mtDays: 16, fDays: 4, daysWorked: 11, gross: 47779.15, reci: 45474.93, ohip: 0, totalOhip: 6249.55, paid: 7500, patients: 165, customTarget: null },
-      { month: 'Nov', mtDays: 15, fDays: 4, daysWorked: 0, gross: 0, reci: 0, ohip: 0, totalOhip: 0, paid: 0, patients: 0, customTarget: null },
-      { month: 'Dec', mtDays: 14, fDays: 3, daysWorked: 0, gross: 0, reci: 0, ohip: 0, totalOhip: 0, paid: 0, patients: 0, customTarget: null }
-    ];
-    const INITIAL_2027 = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map(m => ({
+    // Zero-data default skeleton: no personal financial numbers exist in source code
+    const makeBlankYear = () => ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map(m => ({
       month: m, mtDays: 16, fDays: 4, daysWorked: 0, gross: 0, reci: 0, ohip: 0, totalOhip: 0, paid: 0, patients: 0, customTarget: null
     }));
 
-    function getDefaultState() {
+    function getEmptyState() {
       return {
         currentYear: '2026', includeCurrentMonthInAverages: true, benchmarkMode: 'prev_year', quarterOhipMode: 'recon', coneQuarter: 'Q4',
         settings: { netPct: 24, mtRate: 780, fRate: 630 },
-        recordHigh: { amount: 7965.82, date: '25/08/26', note: 'Peak clinical billing day' },
-        years: { '2025': INITIAL_2025, '2026': INITIAL_2026, '2027': INITIAL_2027 },
+        recordHigh: { amount: 0, date: '—', note: '' },
+        years: { '2025': makeBlankYear(), '2026': makeBlankYear(), '2027': makeBlankYear() },
         quarterConfirmations: {
-          '2025': { Q1: { confirmed: false, actualNet: null, actualBonus: 0 }, Q2: { confirmed: false, actualNet: null, actualBonus: 0 }, Q3: { confirmed: true, actualNet: null, actualBonus: 6033.69 }, Q4: { confirmed: true, actualNet: null, actualBonus: 14689.76 } },
-          '2026': { Q1: { confirmed: true, actualNet: null, actualBonus: 1859.06 }, Q2: { confirmed: true, actualNet: null, actualBonus: 15796.61 }, Q3: { confirmed: true, actualNet: null, actualBonus: 19617.63 }, Q4: { confirmed: false, actualNet: null, actualBonus: null } },
+          '2025': { Q1: { confirmed: false, actualNet: null, actualBonus: null }, Q2: { confirmed: false, actualNet: null, actualBonus: null }, Q3: { confirmed: false, actualNet: null, actualBonus: null }, Q4: { confirmed: false, actualNet: null, actualBonus: null } },
+          '2026': { Q1: { confirmed: false, actualNet: null, actualBonus: null }, Q2: { confirmed: false, actualNet: null, actualBonus: null }, Q3: { confirmed: false, actualNet: null, actualBonus: null }, Q4: { confirmed: false, actualNet: null, actualBonus: null } },
           '2027': { Q1: { confirmed: false, actualNet: null, actualBonus: null }, Q2: { confirmed: false, actualNet: null, actualBonus: null }, Q3: { confirmed: false, actualNet: null, actualBonus: null }, Q4: { confirmed: false, actualNet: null, actualBonus: null } }
         },
-        yearPaidExtras: { '2025': { health: 705.01, bonusPaid: 20723.45 }, '2026': { health: 0, bonusPaid: 37273.30 }, '2027': { health: 0, bonusPaid: 0 } },
+        yearPaidExtras: { '2025': { health: 0, bonusPaid: 0 }, '2026': { health: 0, bonusPaid: 0 }, '2027': { health: 0, bonusPaid: 0 } },
         dailyLogs: []
       };
     }
 
-    let state = getDefaultState();
-    try { const s = localStorage.getItem(STORAGE_KEY); if (s) state = { ...getDefaultState(), ...JSON.parse(s) }; } catch (e) {}
-
+    let state = getEmptyState();
     let fbApp, auth, db, currentUser = null, unsubSnapshot = null, isApplyingRemote = false, activePage = 'pageDashboard';
 
     function initFirebase() {
@@ -708,25 +727,40 @@
         db = getFirestore(fbApp);
         onAuthStateChanged(auth, (user) => {
           currentUser = user;
-          updateAuthUI();
+          const gate = document.getElementById('authGateScreen');
+          const spinner = document.getElementById('gateLoadingSpinner');
+          const loginForm = document.getElementById('gateLoginForm');
+          const appShell = document.getElementById('protectedAppShell');
+
           if (user) {
+            gate.classList.add('hidden');
+            appShell.classList.remove('hidden');
+            updateAuthUI();
             if (unsubSnapshot) unsubSnapshot();
             unsubSnapshot = onSnapshot(doc(db, 'artifacts', 'optotrack-tracker', 'users', user.uid, 'state', 'main'), (snap) => {
               if (snap.exists()) {
                 isApplyingRemote = true;
-                state = { ...getDefaultState(), ...snap.data() };
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                state = { ...getEmptyState(), ...snap.data() };
                 renderAll();
                 isApplyingRemote = false;
-              } else { pushStateToCloud(); }
+              } else {
+                renderAll();
+              }
             });
+          } else {
+            if (unsubSnapshot) { unsubSnapshot(); unsubSnapshot = null; }
+            state = getEmptyState();
+            appShell.classList.add('hidden');
+            gate.classList.remove('hidden');
+            spinner.classList.add('hidden');
+            loginForm.classList.remove('hidden');
+            updateAuthUI();
           }
         });
       } catch (err) { console.warn(err); }
     }
 
     async function pushStateToCloud() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       if (!currentUser || !db || isApplyingRemote) return;
       try { await setDoc(doc(db, 'artifacts', 'optotrack-tracker', 'users', currentUser.uid, 'state', 'main'), JSON.parse(JSON.stringify(state)), { merge: true }); } catch (e) {}
     }
@@ -1221,9 +1255,94 @@
           <span class="text-[11px] text-slate-400 block">Projected Qtr Net: ${fmtCurr(cumPeak[3])}</span>
         </div>
       `;
+
+      // Chart 6: Annual Projected Salary & Total Earnings Trajectory (Jan - Dec)
+      document.getElementById('annualConeYearLbl').textContent = curYearStr;
+      const allMonthsCalc = months.map(m => calculateMonth(m, state.settings, state.quarterOhipMode));
+      const annualLabels = ['Start', ...allMonthsCalc.map(m => m.month)];
+
+      let annTarget = [0], annActual = [0], annCons = [0], annRun = [0], annPeak = [0];
+      let totalRemainingDays = 0;
+
+      allMonthsCalc.forEach((m, i) => {
+        const schedDays = (m.mtDays + m.fDays) || 19;
+        const baselineDaily = schedDays > 0 ? (m.target / schedDays) : 750;
+        const remDays = Math.max(0, schedDays - m.daysWorked);
+        totalRemainingDays += remDays;
+
+        annTarget.push(annTarget[i] + m.target);
+
+        if (m.isActive && remDays === 0) {
+          const nextVal = annActual[i] !== null ? annActual[i] + m.net : null;
+          annActual.push(nextVal);
+          annCons.push(annCons[i] + m.net);
+          annRun.push(annRun[i] + m.net);
+          annPeak.push(annPeak[i] + m.net);
+        } else if (m.isActive && remDays > 0) {
+          annActual.push(annActual[i] + m.net);
+          annCons.push(annCons[i] + m.net + (remDays * baselineDaily));
+          annRun.push(annRun[i] + m.net + (remDays * runRateDaily));
+          annPeak.push(annPeak[i] + m.net + (remDays * peakDaily));
+        } else {
+          annActual.push(null);
+          annCons.push(annCons[i] + m.target);
+          annRun.push(annRun[i] + (schedDays * runRateDaily));
+          annPeak.push(annPeak[i] + (schedDays * peakDaily));
+        }
+      });
+
+      const healthExtra = yrMetrics.healthPaid || 0;
+      const finalAnnTarget = annTarget[12];
+      const finalConsSalary = annCons[12] + healthExtra;
+      const finalRunSalary = annRun[12] + healthExtra;
+      const finalPeakSalary = annPeak[12] + healthExtra;
+
+      document.getElementById('annualRemainingDaysBadge').textContent = `${fmtNum(totalRemainingDays, 1)} shifts remaining in ${curYearStr}`;
+
+      makeChart('annualSalaryCone', 'chartPageAnnualSalaryCone', {
+        type: 'line',
+        data: {
+          labels: annualLabels,
+          datasets: [
+            { label: 'Actual Logged YTD Net', data: annActual, borderColor: '#6366f1', backgroundColor: '#6366f1', borderWidth: 3, pointRadius: 4, tension: 0.2 },
+            { label: `Peak Pace Annual Trajectory (${fmtCurr(peakDaily)}/d)`, data: annPeak, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.10)', borderDash: [4, 4], borderWidth: 2, fill: '+1', tension: 0.2 },
+            { label: `Current Run-Rate Salary (${fmtCurr(runRateDaily)}/d)`, data: annRun, borderColor: '#38bdf8', backgroundColor: 'rgba(56, 189, 248, 0.12)', borderDash: [6, 3], borderWidth: 2.5, fill: '+1', tension: 0.2 },
+            { label: 'Conservative (Target Pace)', data: annCons, borderColor: '#94a3b8', borderDash: [3, 3], borderWidth: 2, tension: 0.2 },
+            { label: 'Annual Target Baseline', data: annTarget, borderColor: '#f59e0b', borderWidth: 2, pointRadius: 2, tension: 0.1 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } },
+          scales: {
+            x: { ticks: { color: '#94a3b8' } },
+            y: { ticks: { color: '#94a3b8', callback: v => '$' + (v / 1000).toFixed(0) + 'k' } }
+          }
+        }
+      });
+
+      document.getElementById('annualConeSummaryCards').innerHTML = `
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/70">
+          <span class="text-slate-400 block font-semibold">Conservative Annual Salary</span>
+          <span class="text-lg font-extrabold mono text-slate-200">${fmtCurr(finalConsSalary)}</span>
+          <span class="text-[11px] text-slate-500 block">Est. Surplus vs Annual Target (${fmtCurr(finalAnnTarget)}): ${fmtCurr(annCons[12] - finalAnnTarget)}</span>
+        </div>
+        <div class="p-3 rounded-xl bg-sky-500/10 border border-sky-500/30">
+          <span class="text-sky-400 block font-semibold">Run-Rate Projected Salary (${fmtCurr(runRateDaily)}/d)</span>
+          <span class="text-lg font-extrabold mono text-sky-400">${fmtCurr(finalRunSalary)}</span>
+          <span class="text-[11px] text-slate-400 block">Based on ${ yrMetrics.ytdDaysWorked } worked + ${fmtNum(totalRemainingDays, 1)} remaining shifts</span>
+        </div>
+        <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
+          <span class="text-emerald-400 block font-semibold">Peak Pace Projected Salary (${fmtCurr(peakDaily)}/d)</span>
+          <span class="text-lg font-extrabold mono text-emerald-400">${fmtCurr(finalPeakSalary)}</span>
+          <span class="text-[11px] text-slate-400 block">Est. Total Annual Bonus Pool: +${fmtCurr(annPeak[12] - finalAnnTarget)}</span>
+        </div>
+      `;
     }
 
     function renderAll() {
+      if (!currentUser) return;
       populateYearDropdowns();
       if (activePage === 'pageDashboard') { renderKPIs(); renderQuarterCards(); renderLedgerTable(); renderChart(); renderDailyLogs(); }
       else if (activePage === 'pageRecords') { renderRecordsPage(); }
@@ -1426,22 +1545,39 @@
     function updateAuthUI() {
       const dot = document.getElementById('syncDot'), txt = document.getElementById('syncText');
       if (currentUser) {
-        dot.className = 'w-2 h-2 rounded-full bg-emerald-500 shrink-0'; txt.textContent = `Synced: ${currentUser.email || 'Cloud'}`;
-        document.getElementById('authSignedOutBox').classList.add('hidden'); document.getElementById('authSignedInBox').classList.remove('hidden');
+        dot.className = 'w-2 h-2 rounded-full bg-emerald-500 shrink-0';
+        txt.textContent = `Synced: ${currentUser.email || 'Cloud'}`;
         document.getElementById('authUserLabel').textContent = currentUser.email || currentUser.uid;
-      } else {
-        dot.className = 'w-2 h-2 rounded-full bg-amber-400 shrink-0'; txt.textContent = 'Local Session';
-        document.getElementById('authSignedOutBox').classList.remove('hidden'); document.getElementById('authSignedInBox').classList.add('hidden');
       }
     }
     window.openCloudModal = () => document.getElementById('cloudModal').classList.remove('hidden');
     window.closeCloudModal = () => document.getElementById('cloudModal').classList.add('hidden');
-    window.signInWithGoogle = async () => { try { await signInWithPopup(auth, new GoogleAuthProvider()); } catch (e) { const b = document.getElementById('authErrorMsg'); b.textContent = e.message; b.classList.remove('hidden'); } };
-    window.emailSignIn = async (c) => {
-      const em = document.getElementById('authEmail').value.trim(), pw = document.getElementById('authPassword').value;
-      try { c ? await createUserWithEmailAndPassword(auth, em, pw) : await signInWithEmailAndPassword(auth, em, pw); } catch (e) { const b = document.getElementById('authErrorMsg'); b.textContent = e.message; b.classList.remove('hidden'); }
+    window.signInWithGoogle = async () => {
+      const gErr = document.getElementById('gateErrorMsg');
+      gErr.classList.add('hidden');
+      try {
+        await signInWithPopup(auth, new GoogleAuthProvider());
+      } catch (e) {
+        gErr.textContent = e.message;
+        gErr.classList.remove('hidden');
+      }
     };
-    window.signOutUser = async () => { if (auth) await signOut(auth); };
+    window.gateEmailSignIn = async () => {
+      const gErr = document.getElementById('gateErrorMsg');
+      gErr.classList.add('hidden');
+      const em = document.getElementById('gateEmail').value.trim();
+      const pw = document.getElementById('gatePassword').value;
+      try {
+        await signInWithEmailAndPassword(auth, em, pw);
+      } catch (e) {
+        gErr.textContent = e.message;
+        gErr.classList.remove('hidden');
+      }
+    };
+    window.signOutUser = async () => {
+      window.closeCloudModal();
+      if (auth) await signOut(auth);
+    };
     window.forcePushToCloud = async () => { await pushStateToCloud(); window.closeCloudModal(); };
 
     window.exportCSV = () => {
@@ -1455,11 +1591,10 @@
     };
     window.restoreBackupJSON = (ev) => {
       const f = ev.target.files[0]; if (!f) return;
-      const r = new FileReader(); r.onload = (e) => { try { state = { ...getDefaultState(), ...JSON.parse(e.target.result) }; saveAndRender(); } catch (err) {} }; r.readAsText(f);
+      const r = new FileReader(); r.onload = (e) => { try { state = { ...getEmptyState(), ...JSON.parse(e.target.result) }; saveAndRender(); } catch (err) {} }; r.readAsText(f);
     };
 
     initFirebase();
-    renderAll();
   </script>
 </body>
 </html>
