@@ -157,9 +157,9 @@
     </div>
   </header>
 
-  <!-- PAGE 1: DASHBOARD -->
-  <main id="pageDashboard" class="max-w-7xl mx-auto px-3 sm:px-6 py-5 sm:py-6 space-y-6 block">
-    <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-3 sm:p-3.5 flex flex-col lg:flex-row lg:items-center justify-between gap-3 text-xs">
+  <!-- GLOBAL TOP CONTROL BAR (Averages Scope + Current-Qtr OHIP Basis Toggle + Benchmark Selector) -->
+  <div id="globalTopControlBar" class="max-w-7xl mx-auto px-3 sm:px-6 pt-5">
+    <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-3 sm:p-3.5 flex flex-col xl:flex-row xl:items-center justify-between gap-3 text-xs">
       <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
         <span class="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
           <span class="w-2 h-2 rounded-full bg-brand-500 shrink-0"></span>
@@ -170,16 +170,32 @@
           <span class="font-medium">Include in-progress month</span>
         </label>
       </div>
-      <div class="flex flex-wrap items-center gap-2">
-        <span class="font-semibold text-slate-500">Benchmark Comparison:</span>
-        <select id="benchmarkSelect" onchange="window.setBenchmarkMode(this.value)" class="px-2.5 py-1 rounded-lg font-semibold bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-          <option value="prev_year" selected>Previous Year (Same Period)</option>
-          <option value="2025">2025 Actuals</option>
-          <option value="2026">2026 Actuals</option>
-          <option value="all_time">All-Time Peak Pace</option>
-        </select>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <!-- OHIP Basis Toggle Moved to Top Bar -->
+        <div class="flex items-center gap-1.5">
+          <span class="font-semibold text-slate-500" title="Uses Total OHIP for the current/unconfirmed quarter while keeping confirmed quarters on OHIP Recon">Current Qtr OHIP:</span>
+          <div class="inline-flex rounded-lg p-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[11px] font-semibold">
+            <button id="ohipModeReconBtn" onclick="window.setQuarterOhipMode('recon')" class="px-2.5 py-1 rounded-md transition">OHIP Recon</button>
+            <button id="ohipModeTotalBtn" onclick="window.setQuarterOhipMode('total')" class="px-2.5 py-1 rounded-md transition">Total OHIP</button>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <span class="font-semibold text-slate-500">Benchmark:</span>
+          <select id="benchmarkSelect" onchange="window.setBenchmarkMode(this.value)" class="px-2.5 py-1 rounded-lg font-semibold bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+            <option value="prev_year" selected>Previous Year (Same Period)</option>
+            <option value="2025">2025 Actuals</option>
+            <option value="2026">2026 Actuals</option>
+            <option value="all_time">All-Time Peak Pace</option>
+          </select>
+        </div>
       </div>
     </div>
+  </div>
+
+  <!-- PAGE 1: DASHBOARD -->
+  <main id="pageDashboard" class="max-w-7xl mx-auto px-3 sm:px-6 py-5 sm:py-6 space-y-6 block">
 
     <!-- KPI CARDS (Aligned Sub-Columns Across All Devices) -->
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
@@ -304,13 +320,6 @@
           <h2 class="text-base sm:text-lg font-bold">Quarterly Bonus Estimator & Reconciliation</h2>
           <p class="text-xs text-slate-500">Click any quarter card to record confirmed actual production & bonus payout.</p>
         </div>
-        <div class="flex items-center gap-2 self-start sm:self-center">
-          <span class="text-xs font-semibold text-slate-500">Estimate Basis:</span>
-          <div class="inline-flex rounded-xl p-1 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold">
-            <button id="ohipModeReconBtn" onclick="window.setQuarterOhipMode('recon')" class="px-3 py-1 rounded-lg">OHIP Recon</button>
-            <button id="ohipModeTotalBtn" onclick="window.setQuarterOhipMode('total')" class="px-3 py-1 rounded-lg">Total OHIP</button>
-          </div>
-        </div>
       </div>
       <div id="quarterCardsGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4"></div>
     </section>
@@ -373,7 +382,7 @@
   </main>
 
   <!-- PAGE 3: CHARTS & TRENDS -->
-  <main id="pageCharts" class="hidden max-w-7xl mx-auto px-3 sm:px-6 py-8 space-y-6">
+  <main id="pageCharts" class="hidden max-w-7xl mx-auto px-3 sm:px-6 py-6 space-y-6">
     <div class="border-b border-slate-200 dark:border-slate-800 pb-5">
       <h2 class="text-2xl sm:text-3xl font-extrabold">Charts & Trends</h2>
       <p class="text-slate-500 mt-1 text-sm">Visualize your year-over-year pacing, daily averages, and volumes.</p>
@@ -426,9 +435,9 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div>
             <h3 class="font-bold text-sm sm:text-base">Annual Projected Salary & Total Earnings Trajectory (<span id="annualConeYearLbl">2026</span>)</h3>
-            <p class="text-xs text-slate-500">12-month cumulative associate earnings forecast based on YTD logged net and remaining scheduled shifts in the year.</p>
+            <p class="text-xs text-slate-500">Starts from your YTD Net Cut earned so far and adds remaining work days across all 3 scenarios.</p>
           </div>
-          <span id="annualRemainingDaysBadge" class="self-start sm:self-center px-3 py-1 rounded-full text-xs font-bold bg-brand-500/15 text-brand-400 border border-brand-500/30 mono">0 shifts remaining</span>
+          <span id="annualRemainingDaysBadge" class="self-start sm:self-center px-3 py-1 rounded-full text-xs font-bold bg-brand-500/15 text-brand-600 dark:text-brand-400 border border-brand-500/30 mono">0 shifts remaining</span>
         </div>
         <div class="h-72"><canvas id="chartPageAnnualSalaryCone"></canvas></div>
         <div id="annualConeSummaryCards" class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-xs"></div>
@@ -696,7 +705,6 @@
       appId: "1:551535439217:web:f51f8fdf5379f892231ad0"
     };
 
-    // Zero-data default skeleton: no personal financial numbers exist in source code
     const makeBlankYear = () => ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map(m => ({
       month: m, mtDays: 16, fDays: 4, daysWorked: 0, gross: 0, reci: 0, ohip: 0, totalOhip: 0, paid: 0, patients: 0, customTarget: null
     }));
@@ -779,6 +787,10 @@
         sortedYears.map(y => `<option value="${y}">${y} Actuals</option>`).join('') +
         `<option value="all_time">All-Time Peak Pace</option>`;
       bs.value = curBm;
+
+      const mode = state.quarterOhipMode || 'recon';
+      document.getElementById('ohipModeReconBtn').className = mode === 'recon' ? 'px-2.5 py-1 rounded-md bg-brand-600 text-white shadow-sm transition' : 'px-2.5 py-1 rounded-md text-slate-500 dark:text-slate-400 transition';
+      document.getElementById('ohipModeTotalBtn').className = mode === 'total' ? 'px-2.5 py-1 rounded-md bg-brand-600 text-white shadow-sm transition' : 'px-2.5 py-1 rounded-md text-slate-500 dark:text-slate-400 transition';
     }
 
     window.openSidebar = () => { document.getElementById('sidebarOverlay').classList.remove('hidden'); document.getElementById('sidebar').classList.remove('-translate-x-full'); };
@@ -793,12 +805,35 @@
       document.getElementById('headerSubtitle').textContent = titles[pageId];
       document.getElementById('yearSelect').classList.toggle('hidden', pageId === 'pageRecords');
       document.getElementById('logDayBtn').classList.toggle('hidden', pageId !== 'pageDashboard');
+      document.getElementById('globalTopControlBar').classList.toggle('hidden', pageId === 'pageRecords');
       window.closeSidebar();
       renderAll();
     };
 
     const fmtCurr = (v) => { const n = Number(v) || 0; return (n < 0 ? '-$' : '$') + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
     const fmtNum = (v, d = 1) => (Number(v) || 0).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+
+    // Determines if a given month index (0..11) in yearStr should use 'total' OHIP or 'recon' OHIP.
+    // Rule: Previous/confirmed quarters always use 'recon' (confirmed). Only unconfirmed/current quarter uses 'total' when toggle is set to 'total'.
+    function isQuarterConfirmedForMonth(yearStr, monthIdx) {
+      const qKey = ['Q1', 'Q2', 'Q3', 'Q4'][Math.floor(monthIdx / 3)];
+      const qConf = state.quarterConfirmations?.[yearStr]?.[qKey];
+      if (!qConf) return false;
+      const hasActualBonus = qConf.actualBonus !== null && qConf.actualBonus !== undefined && qConf.actualBonus !== '';
+      const hasActualNet = qConf.actualNet !== null && qConf.actualNet !== undefined && qConf.actualNet !== '';
+      return !!qConf.confirmed || hasActualBonus || hasActualNet;
+    }
+
+    function getEffectiveMonthOhipMode(yearStr, monthIdx, requestedOhipMode = state.quarterOhipMode) {
+      if (requestedOhipMode !== 'total') return 'recon';
+      // If the quarter is already confirmed, keep its OHIP on 'recon'
+      if (isQuarterConfirmedForMonth(yearStr, monthIdx)) return 'recon';
+      // Also only apply 'total' to the current active/unconfirmed quarter
+      const lastActiveIdx = getLastActiveMonthIndex(yearStr);
+      const currentActiveQtr = Math.floor(Math.max(0, lastActiveIdx) / 3);
+      const thisMonthQtr = Math.floor(monthIdx / 3);
+      return thisMonthQtr === currentActiveQtr ? 'total' : 'recon';
+    }
 
     function calculateMonth(m, settings = state.settings, ohipMode = 'recon') {
       const mtDays = Number(m.mtDays) || 0, fDays = Number(m.fDays) || 0, daysWorked = Number(m.daysWorked) || 0;
@@ -814,7 +849,7 @@
       const dailyAvg = daysWorked > 0 ? net / daysWorked : 0;
       const revPerPt = patients > 0 ? net / patients : 0;
       const ptsPerDay = daysWorked > 0 ? patients / daysWorked : 0;
-      const isActive = gross > 0 || reci > 0 || ohip > 0 || patients > 0;
+      const isActive = gross > 0 || reci > 0 || ohip > 0 || totalOhip > 0 || patients > 0 || daysWorked > 0;
       return { ...m, mtDays, fDays, daysWorked, gross, reci, ohip, totalOhip, totalRecd, net, paid, formulaTarget, hasCustomTarget, target, diff, dailyAvg, revPerPt, patients, ptsPerDay, isActive };
     }
 
@@ -827,11 +862,15 @@
     function getLastActiveMonthIndex(yearStr) {
       const months = state.years[yearStr] || [];
       let lastIdx = -1;
-      months.forEach((m, idx) => { if (calculateMonth(m).isActive) lastIdx = idx; });
-      return lastIdx >= 0 ? lastIdx : getAverageCutoffIndex(yearStr);
+      months.forEach((m, idx) => {
+        if ((Number(m.gross) || 0) > 0 || (Number(m.reci) || 0) > 0 || (Number(m.ohip) || 0) > 0 || (Number(m.patients) || 0) > 0 || (Number(m.daysWorked) || 0) > 0) {
+          lastIdx = idx;
+        }
+      });
+      return lastIdx >= 0 ? lastIdx : 0;
     }
 
-    function getYearMetrics(yearStr, maxMonthIdxOverride = null) {
+    function getYearMetrics(yearStr, maxMonthIdxOverride = null, requestedOhipMode = state.quarterOhipMode) {
       const months = state.years[yearStr] || [];
       const isPeriodSliced = maxMonthIdxOverride !== null;
       const avgCutoffIdx = isPeriodSliced ? maxMonthIdxOverride : getAverageCutoffIndex(yearStr);
@@ -842,7 +881,8 @@
       let avgScopeMonths = 0, sumDailyAvgs = 0, sumRevPerPts = 0, sumPtsPerDay = 0, scopeDaysWorked = 0, scopePatients = 0, scopeGross = 0, scopeReci = 0, scopeOhip = 0, scopeTotalOhip = 0, scopeRecd = 0, scopeNet = 0, scopeBasePaid = 0, scopeTarget = 0, scopeDiff = 0, ohipActiveCount = 0, totalOhipActiveCount = 0;
 
       months.forEach((m, idx) => {
-        const c = calculateMonth(m);
+        const effMode = getEffectiveMonthOhipMode(yearStr, idx, requestedOhipMode);
+        const c = calculateMonth(m, state.settings, effMode);
         if (c.isActive) {
           if (idx <= ytdCutoffIdx) {
             ytdGross += c.gross; ytdReci += c.reci; ytdOhip += c.ohip; ytdTotalOhip += c.totalOhip;
@@ -897,7 +937,7 @@
     function makeDiffPill(currVal, baseVal, label, formatType = 'currency') {
       if (!baseVal || baseVal <= 0 || !isFinite(baseVal) || !isFinite(currVal)) return '';
       const diff = currVal - baseVal, pct = (diff / Math.abs(baseVal)) * 100, isUp = diff >= 0;
-      const colorCls = isUp ? 'bg-emerald-500/15 text-emerald-500 border-emerald-500/30' : 'bg-rose-500/15 text-rose-500 border-rose-500/30';
+      const colorCls = isUp ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30' : 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30';
       const fBase = formatType === 'currency' ? fmtCurr(baseVal) : (formatType === 'int' ? Math.round(baseVal) : fmtNum(baseVal, 1));
       const fDiff = (diff >= 0 ? '+' : '') + (formatType === 'currency' ? fmtCurr(diff) : (formatType === 'int' ? Math.round(diff) : fmtNum(diff, 1)));
       return `<span tabindex="0" class="bm-pill inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-bold border ${colorCls}">${isUp ? '▲' : '▼'} ${isUp ? '+' : ''}${pct.toFixed(1)}%<span class="bm-tooltip">vs ${label}: ${fBase} (${fDiff})</span></span>`;
@@ -935,16 +975,20 @@
     function calculateQuarterSummary(yearStr, qKey, ohipMode = state.quarterOhipMode) {
       const qMap = { Q1: [0, 1, 2], Q2: [3, 4, 5], Q3: [6, 7, 8], Q4: [9, 10, 11] };
       const months = state.years[yearStr] || [];
-      let estNet = 0, target = 0, paid = 0;
-      (qMap[qKey] || []).forEach(i => {
-        const c = calculateMonth(months[i], state.settings, ohipMode);
-        if (c.isActive) { estNet += c.net; target += c.target; paid += c.paid; }
-      });
-      const estBonus = estNet - target;
       const qConf = (state.quarterConfirmations?.[yearStr]?.[qKey]) || { confirmed: false, actualNet: null, actualBonus: null };
       const hasActualBonus = qConf.actualBonus !== null && qConf.actualBonus !== undefined && qConf.actualBonus !== '';
       const hasActualNet = qConf.actualNet !== null && qConf.actualNet !== undefined && qConf.actualNet !== '';
       const isConfirmed = !!qConf.confirmed || hasActualBonus || hasActualNet;
+
+      // Confirmed quarters always use 'recon' OHIP; unconfirmed quarters obey the toggle
+      const effectiveModeForQtr = isConfirmed ? 'recon' : ohipMode;
+
+      let estNet = 0, target = 0, paid = 0;
+      (qMap[qKey] || []).forEach(i => {
+        const c = calculateMonth(months[i], state.settings, effectiveModeForQtr);
+        if (c.isActive) { estNet += c.net; target += c.target; paid += c.paid; }
+      });
+      const estBonus = estNet - target;
       const displayNet = hasActualNet ? Number(qConf.actualNet) : estNet;
       const displayBonus = hasActualBonus ? Number(qConf.actualBonus) : (hasActualNet ? (Number(qConf.actualNet) - target) : estBonus);
       return { qKey, estNet, target, paid, estBonus, displayNet, displayBonus, isConfirmed, qConf };
@@ -986,9 +1030,6 @@
 
     function renderQuarterCards() {
       const mode = state.quarterOhipMode || 'recon';
-      document.getElementById('ohipModeReconBtn').className = mode === 'recon' ? 'px-3 py-1 rounded-lg bg-brand-600 text-white' : 'px-3 py-1 rounded-lg text-slate-400';
-      document.getElementById('ohipModeTotalBtn').className = mode === 'total' ? 'px-3 py-1 rounded-lg bg-brand-600 text-white' : 'px-3 py-1 rounded-lg text-slate-400';
-
       const qLabels = { Q1: 'Jan – Mar', Q2: 'Apr – Jun', Q3: 'Jul – Sep', Q4: 'Oct – Dec' };
       const bmMode = state.benchmarkMode || 'prev_year';
       const compareYear = bmMode === 'prev_year' ? String(Number(state.currentYear) - 1) : (bmMode === 'all_time' ? '2026' : bmMode);
@@ -1017,7 +1058,8 @@
       document.getElementById('ledgerYearLabel').textContent = state.currentYear;
       const months = state.years[state.currentYear] || [], cur = getYearMetrics(state.currentYear);
       let rowsHtml = months.map((m, idx) => {
-        const c = calculateMonth(m);
+        const effMode = getEffectiveMonthOhipMode(state.currentYear, idx, state.quarterOhipMode);
+        const c = calculateMonth(m, state.settings, effMode);
         return `<tr onclick="window.openMonthModal(${idx})" class="hover:bg-slate-100/70 dark:hover:bg-slate-800/50 cursor-pointer">
           <td class="py-2.5 px-3 font-bold">${c.month}</td><td class="py-2.5 px-2 text-center mono text-slate-500">${c.mtDays}</td><td class="py-2.5 px-2 text-center mono text-slate-500">${c.fDays}</td>
           <td class="py-2.5 px-2 text-center mono font-semibold">${c.daysWorked || '—'}</td><td class="py-2.5 px-3 text-right mono">${c.gross ? fmtCurr(c.gross) : '—'}</td>
@@ -1065,8 +1107,8 @@
         data: {
           labels: months.map(m => m.month),
           datasets: [
-            { label: '24% Net Earnings', data: months.map(m => calculateMonth(m).net), backgroundColor: 'rgba(99, 102, 241, 0.8)', borderRadius: 6 },
-            { label: 'Monthly Target', data: months.map(m => calculateMonth(m).target), type: 'line', borderColor: '#f59e0b', borderWidth: 2, tension: 0.25 }
+            { label: '24% Net Earnings', data: months.map((m, idx) => calculateMonth(m, state.settings, getEffectiveMonthOhipMode(state.currentYear, idx)).net), backgroundColor: 'rgba(99, 102, 241, 0.8)', borderRadius: 6 },
+            { label: 'Monthly Target', data: months.map((m, idx) => calculateMonth(m, state.settings, getEffectiveMonthOhipMode(state.currentYear, idx)).target), type: 'line', borderColor: '#f59e0b', borderWidth: 2, tension: 0.25 }
           ]
         },
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#94a3b8' } } }, scales: { x: { ticks: { color: '#94a3b8' } }, y: { ticks: { color: '#94a3b8' } } } }
@@ -1095,8 +1137,8 @@
       let maxMthPts = { val: 0, label: '' }, maxMthDays = { val: 0, label: '' }, maxMthGross = { val: 0, label: '' }, maxYrDays = { val: 0, label: '' }, maxYrPaid = { val: 0, label: '' }, maxQtrNet = { val: 0, label: '' }, maxMthDailyAvg = { val: 0, label: '' };
       for (const yr in state.years) {
         let yrDays = 0;
-        state.years[yr].forEach(m => {
-          const c = calculateMonth(m);
+        state.years[yr].forEach((m, idx) => {
+          const c = calculateMonth(m, state.settings, getEffectiveMonthOhipMode(yr, idx));
           if (c.patients > maxMthPts.val) maxMthPts = { val: c.patients, label: `${m.month} ${yr}` };
           if (c.daysWorked > maxMthDays.val) maxMthDays = { val: c.daysWorked, label: `${m.month} ${yr}` };
           if (c.gross > maxMthGross.val) maxMthGross = { val: c.gross, label: `${m.month} ${yr}` };
@@ -1129,15 +1171,38 @@
 
     window.setConeQuarter = (qk) => { state.coneQuarter = qk; saveAndRender(); };
 
+    // Helper: For any month index in yearStr, returns how many work days remain to be worked.
+    // Completed past months (idx < lastActiveIdx) have 0 remaining days (even if daysWorked < scheduled due to vacation/half-days).
+    // The current in-progress month (idx === lastActiveIdx) has max(0, scheduled - daysWorked) remaining days.
+    // Future unworked months (idx > lastActiveIdx) have their full scheduled (mtDays + fDays) remaining days.
+    function getMonthRemainingDaysAndTarget(mCalc, mIdx, lastActiveIdx) {
+      const schedDays = (mCalc.mtDays + mCalc.fDays) || 0;
+      const baselineDaily = schedDays > 0 ? (mCalc.target / schedDays) : 750;
+      if (mIdx < lastActiveIdx) {
+        return { remDays: 0, baselineDaily, isCompleted: true, isCurrent: false, isFuture: false };
+      } else if (mIdx === lastActiveIdx && mCalc.isActive) {
+        const remDays = Math.max(0, schedDays - mCalc.daysWorked);
+        return { remDays, baselineDaily, isCompleted: remDays === 0, isCurrent: remDays > 0, isFuture: false };
+      } else {
+        return { remDays: schedDays, baselineDaily, isCompleted: false, isCurrent: false, isFuture: true };
+      }
+    }
+
     function renderChartsPage() {
       if (activePage !== 'pageCharts') return;
       const curYearStr = state.currentYear, prevYearStr = String(Number(curYearStr) - 1);
       const months = state.years[curYearStr] || [], prevMonths = state.years[prevYearStr] || [];
       const labels = months.map(m => m.month);
-      const calcCur = months.map(m => calculateMonth(m)), calcPrev = prevMonths.map(m => calculateMonth(m));
+      const calcCur = months.map((m, idx) => calculateMonth(m, state.settings, getEffectiveMonthOhipMode(curYearStr, idx)));
+      const calcPrev = prevMonths.map((m, idx) => calculateMonth(m, state.settings, getEffectiveMonthOhipMode(prevYearStr, idx)));
 
       let allTimeMaxDaily = 0;
-      Object.values(state.years).forEach(yd => yd.forEach(m => { const c = calculateMonth(m); if (c.dailyAvg > allTimeMaxDaily) allTimeMaxDaily = c.dailyAvg; }));
+      Object.keys(state.years).forEach(yr => {
+        state.years[yr].forEach((m, idx) => {
+          const c = calculateMonth(m, state.settings, getEffectiveMonthOhipMode(yr, idx));
+          if (c.dailyAvg > allTimeMaxDaily) allTimeMaxDaily = c.dailyAvg;
+        });
+      });
 
       const makeChart = (key, id, cfg) => { if (chartsObj[key]) chartsObj[key].destroy(); chartsObj[key] = new Chart(document.getElementById(id), cfg); };
       makeChart('netTarget', 'chartPageNetTarget', {
@@ -1166,47 +1231,46 @@
         type: 'bar',
         data: { labels, datasets: [
           { label: "Acct Rec'd", data: calcCur.map(c => c.reci), backgroundColor: 'rgba(99, 102, 241, 0.8)' },
-          { label: 'OHIP Recon', data: calcCur.map(c => c.ohip), backgroundColor: 'rgba(244, 63, 94, 0.8)' }
+          { label: 'OHIP (Active Basis)', data: calcCur.map((c, idx) => getEffectiveMonthOhipMode(curYearStr, idx) === 'total' ? (c.totalOhip || c.ohip) : c.ohip), backgroundColor: 'rgba(244, 63, 94, 0.8)' }
         ]},
         options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true } } }
       });
 
-      // Chart 5: Quarterly Payout Cone / Forecast
-      const qk = state.coneQuarter || 'Q4';
-      document.getElementById('coneQuarterSelect').value = qk;
-      const qMap = { Q1: [0, 1, 2], Q2: [3, 4, 5], Q3: [6, 7, 8], Q4: [9, 10, 11] };
-      const qIdxs = qMap[qk] || [9, 10, 11];
-      const qMonths = qIdxs.map(i => calculateMonth(months[i], state.settings, state.quarterOhipMode));
-      const coneLabels = ['Start', ...qMonths.map(m => m.month)];
-
+      const lastActiveIdx = getLastActiveMonthIndex(curYearStr);
       const yrMetrics = getYearMetrics(curYearStr);
       const runRateDaily = yrMetrics.avgDailyNet > 0 ? yrMetrics.avgDailyNet : 965.25;
       const peakDaily = allTimeMaxDaily > 0 ? allTimeMaxDaily : 1291.68;
 
+      // Chart 5: Quarterly Payout Cone / Forecast
+      // Starts from exact Quarter Net earned so far + (remaining days in quarter * scenario daily rate)
+      const qk = state.coneQuarter || 'Q4';
+      document.getElementById('coneQuarterSelect').value = qk;
+      const qMap = { Q1: [0, 1, 2], Q2: [3, 4, 5], Q3: [6, 7, 8], Q4: [9, 10, 11] };
+      const qIdxs = qMap[qk] || [9, 10, 11];
+      const qMonths = qIdxs.map(i => calcCur[i]);
+      const coneLabels = ['Start', ...qMonths.map(m => m.month)];
+
       let cumTarget = [0], cumActual = [0], cumCons = [0], cumRun = [0], cumPeak = [0];
+      let qRemDaysTotal = 0;
+
       qMonths.forEach((m, i) => {
-        const schedDays = (m.mtDays + m.fDays) || 19;
-        const baselineDaily = schedDays > 0 ? (m.target / schedDays) : 750;
-        const remDays = Math.max(0, schedDays - m.daysWorked);
+        const globalMIdx = qIdxs[i];
+        const { remDays, baselineDaily, isFuture } = getMonthRemainingDaysAndTarget(m, globalMIdx, lastActiveIdx);
+        qRemDaysTotal += remDays;
 
         cumTarget.push(cumTarget[i] + m.target);
 
-        if (m.isActive && remDays === 0) {
-          const nextVal = cumActual[i] !== null ? cumActual[i] + m.net : null;
-          cumActual.push(nextVal);
-          cumCons.push(cumCons[i] + m.net);
-          cumRun.push(cumRun[i] + m.net);
-          cumPeak.push(cumPeak[i] + m.net);
-        } else if (m.isActive && remDays > 0) {
-          cumActual.push(cumActual[i] + m.net);
-          cumCons.push(cumCons[i] + m.net + (remDays * baselineDaily));
-          cumRun.push(cumRun[i] + m.net + (remDays * runRateDaily));
-          cumPeak.push(cumPeak[i] + m.net + (remDays * peakDaily));
+        if (!isFuture && m.isActive) {
+          const earned = m.net;
+          cumActual.push((cumActual[i] ?? 0) + earned);
+          cumCons.push(cumCons[i] + earned + (remDays * baselineDaily));
+          cumRun.push(cumRun[i] + earned + (remDays * runRateDaily));
+          cumPeak.push(cumPeak[i] + earned + (remDays * peakDaily));
         } else {
           cumActual.push(null);
-          cumCons.push(cumCons[i] + m.target);
-          cumRun.push(cumRun[i] + (schedDays * runRateDaily));
-          cumPeak.push(cumPeak[i] + (schedDays * peakDaily));
+          cumCons.push(cumCons[i] + (remDays * baselineDaily));
+          cumRun.push(cumRun[i] + (remDays * runRateDaily));
+          cumPeak.push(cumPeak[i] + (remDays * peakDaily));
         }
       });
 
@@ -1223,7 +1287,7 @@
             { label: 'Actual Logged Net', data: cumActual, borderColor: '#6366f1', backgroundColor: '#6366f1', borderWidth: 3, pointRadius: 4, tension: 0.2 },
             { label: `Record Peak Cone (${fmtCurr(peakDaily)}/d)`, data: cumPeak, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.12)', borderDash: [4, 4], borderWidth: 2, fill: '+1', tension: 0.2 },
             { label: `Current Run-Rate (${fmtCurr(runRateDaily)}/d)`, data: cumRun, borderColor: '#38bdf8', backgroundColor: 'rgba(56, 189, 248, 0.12)', borderDash: [6, 3], borderWidth: 2.5, fill: '+1', tension: 0.2 },
-            { label: 'Conservative (Target Pace)', data: cumCons, borderColor: '#94a3b8', borderDash: [3, 3], borderWidth: 2, tension: 0.2 },
+            { label: 'Conservative (Target Pace)', data: cumCons, borderColor: '#64748b', borderDash: [3, 3], borderWidth: 2, tension: 0.2 },
             { label: 'Quarter Target Threshold', data: cumTarget, borderColor: '#f59e0b', borderWidth: 2, pointRadius: 2, tension: 0.1 }
           ]
         },
@@ -1239,63 +1303,56 @@
       });
 
       document.getElementById('coneSummaryCards').innerHTML = `
-        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/70">
-          <span class="text-slate-400 block font-semibold">Conservative Projected Bonus</span>
-          <span class="text-lg font-extrabold mono ${consBonus >= 0 ? 'text-slate-200' : 'text-rose-400'}">${fmtCurr(consBonus)}</span>
-          <span class="text-[11px] text-slate-500 block">Qtr Net: ${fmtCurr(cumCons[3])} vs Target ${fmtCurr(totalQTarget)}</span>
+        <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/70">
+          <span class="text-slate-600 dark:text-slate-400 block font-semibold">Conservative Projected Bonus</span>
+          <span class="text-lg font-extrabold mono ${consBonus >= 0 ? 'text-slate-900 dark:text-slate-100' : 'text-rose-600 dark:text-rose-400'}">${fmtCurr(consBonus)}</span>
+          <span class="text-[11px] text-slate-600 dark:text-slate-400 block">Qtr Net: ${fmtCurr(cumCons[3])} vs Target ${fmtCurr(totalQTarget)} (${fmtNum(qRemDaysTotal, 1)}d left)</span>
         </div>
         <div class="p-3 rounded-xl bg-sky-500/10 border border-sky-500/30">
-          <span class="text-sky-400 block font-semibold">Current Run-Rate Bonus (${fmtCurr(runRateDaily)}/d)</span>
-          <span class="text-lg font-extrabold mono ${runBonus >= 0 ? 'text-sky-400' : 'text-rose-400'}">${fmtCurr(runBonus)}</span>
-          <span class="text-[11px] text-slate-400 block">Projected Qtr Net: ${fmtCurr(cumRun[3])}</span>
+          <span class="text-sky-700 dark:text-sky-400 block font-semibold">Current Run-Rate Bonus (${fmtCurr(runRateDaily)}/d)</span>
+          <span class="text-lg font-extrabold mono ${runBonus >= 0 ? 'text-sky-700 dark:text-sky-400' : 'text-rose-600 dark:text-rose-400'}">${fmtCurr(runBonus)}</span>
+          <span class="text-[11px] text-slate-600 dark:text-slate-400 block">Projected Qtr Net: ${fmtCurr(cumRun[3])}</span>
         </div>
         <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
-          <span class="text-emerald-400 block font-semibold">Record Peak Pace Bonus (${fmtCurr(peakDaily)}/d)</span>
-          <span class="text-lg font-extrabold mono text-emerald-400">${fmtCurr(peakBonus)}</span>
-          <span class="text-[11px] text-slate-400 block">Projected Qtr Net: ${fmtCurr(cumPeak[3])}</span>
+          <span class="text-emerald-700 dark:text-emerald-400 block font-semibold">Record Peak Pace Bonus (${fmtCurr(peakDaily)}/d)</span>
+          <span class="text-lg font-extrabold mono text-emerald-700 dark:text-emerald-400">${fmtCurr(peakBonus)}</span>
+          <span class="text-[11px] text-slate-600 dark:text-slate-400 block">Projected Qtr Net: ${fmtCurr(cumPeak[3])}</span>
         </div>
       `;
 
       // Chart 6: Annual Projected Salary & Total Earnings Trajectory (Jan - Dec)
+      // Uses exact YTD Net Cut earned so far + (remaining work days in year * scenario daily rate)
       document.getElementById('annualConeYearLbl').textContent = curYearStr;
-      const allMonthsCalc = months.map(m => calculateMonth(m, state.settings, state.quarterOhipMode));
-      const annualLabels = ['Start', ...allMonthsCalc.map(m => m.month)];
+      const annualLabels = ['Start', ...calcCur.map(m => m.month)];
 
       let annTarget = [0], annActual = [0], annCons = [0], annRun = [0], annPeak = [0];
       let totalRemainingDays = 0;
 
-      allMonthsCalc.forEach((m, i) => {
-        const schedDays = (m.mtDays + m.fDays) || 19;
-        const baselineDaily = schedDays > 0 ? (m.target / schedDays) : 750;
-        const remDays = Math.max(0, schedDays - m.daysWorked);
+      calcCur.forEach((m, i) => {
+        const { remDays, baselineDaily, isFuture } = getMonthRemainingDaysAndTarget(m, i, lastActiveIdx);
         totalRemainingDays += remDays;
 
         annTarget.push(annTarget[i] + m.target);
 
-        if (m.isActive && remDays === 0) {
-          const nextVal = annActual[i] !== null ? annActual[i] + m.net : null;
-          annActual.push(nextVal);
-          annCons.push(annCons[i] + m.net);
-          annRun.push(annRun[i] + m.net);
-          annPeak.push(annPeak[i] + m.net);
-        } else if (m.isActive && remDays > 0) {
-          annActual.push(annActual[i] + m.net);
-          annCons.push(annCons[i] + m.net + (remDays * baselineDaily));
-          annRun.push(annRun[i] + m.net + (remDays * runRateDaily));
-          annPeak.push(annPeak[i] + m.net + (remDays * peakDaily));
+        if (!isFuture && m.isActive) {
+          const earned = m.net;
+          annActual.push((annActual[i] ?? 0) + earned);
+          annCons.push(annCons[i] + earned + (remDays * baselineDaily));
+          annRun.push(annRun[i] + earned + (remDays * runRateDaily));
+          annPeak.push(annPeak[i] + earned + (remDays * peakDaily));
         } else {
           annActual.push(null);
-          annCons.push(annCons[i] + m.target);
-          annRun.push(annRun[i] + (schedDays * runRateDaily));
-          annPeak.push(annPeak[i] + (schedDays * peakDaily));
+          annCons.push(annCons[i] + (remDays * baselineDaily));
+          annRun.push(annRun[i] + (remDays * runRateDaily));
+          annPeak.push(annPeak[i] + (remDays * peakDaily));
         }
       });
 
-      const healthExtra = yrMetrics.healthPaid || 0;
       const finalAnnTarget = annTarget[12];
-      const finalConsSalary = annCons[12] + healthExtra;
-      const finalRunSalary = annRun[12] + healthExtra;
-      const finalPeakSalary = annPeak[12] + healthExtra;
+      // Guaranteed exact match: YTD Net Cut + Remaining Days * Rate
+      const finalConsSalary = annCons[12];
+      const finalRunSalary = annRun[12];
+      const finalPeakSalary = annPeak[12];
 
       document.getElementById('annualRemainingDaysBadge').textContent = `${fmtNum(totalRemainingDays, 1)} shifts remaining in ${curYearStr}`;
 
@@ -1307,7 +1364,7 @@
             { label: 'Actual Logged YTD Net', data: annActual, borderColor: '#6366f1', backgroundColor: '#6366f1', borderWidth: 3, pointRadius: 4, tension: 0.2 },
             { label: `Peak Pace Annual Trajectory (${fmtCurr(peakDaily)}/d)`, data: annPeak, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.10)', borderDash: [4, 4], borderWidth: 2, fill: '+1', tension: 0.2 },
             { label: `Current Run-Rate Salary (${fmtCurr(runRateDaily)}/d)`, data: annRun, borderColor: '#38bdf8', backgroundColor: 'rgba(56, 189, 248, 0.12)', borderDash: [6, 3], borderWidth: 2.5, fill: '+1', tension: 0.2 },
-            { label: 'Conservative (Target Pace)', data: annCons, borderColor: '#94a3b8', borderDash: [3, 3], borderWidth: 2, tension: 0.2 },
+            { label: 'Conservative (Target Pace)', data: annCons, borderColor: '#64748b', borderDash: [3, 3], borderWidth: 2, tension: 0.2 },
             { label: 'Annual Target Baseline', data: annTarget, borderColor: '#f59e0b', borderWidth: 2, pointRadius: 2, tension: 0.1 }
           ]
         },
@@ -1323,20 +1380,20 @@
       });
 
       document.getElementById('annualConeSummaryCards').innerHTML = `
-        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/70">
-          <span class="text-slate-400 block font-semibold">Conservative Annual Salary</span>
-          <span class="text-lg font-extrabold mono text-slate-200">${fmtCurr(finalConsSalary)}</span>
-          <span class="text-[11px] text-slate-500 block">Est. Surplus vs Annual Target (${fmtCurr(finalAnnTarget)}): ${fmtCurr(annCons[12] - finalAnnTarget)}</span>
+        <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/70">
+          <span class="text-slate-600 dark:text-slate-400 block font-semibold">Conservative Annual Salary</span>
+          <span class="text-lg font-extrabold mono text-slate-900 dark:text-slate-100">${fmtCurr(finalConsSalary)}</span>
+          <span class="text-[11px] text-slate-600 dark:text-slate-400 block">YTD Net (${fmtCurr(yrMetrics.ytdNet)}) + ${fmtNum(totalRemainingDays, 1)}d @ Target Pace</span>
         </div>
         <div class="p-3 rounded-xl bg-sky-500/10 border border-sky-500/30">
-          <span class="text-sky-400 block font-semibold">Run-Rate Projected Salary (${fmtCurr(runRateDaily)}/d)</span>
-          <span class="text-lg font-extrabold mono text-sky-400">${fmtCurr(finalRunSalary)}</span>
-          <span class="text-[11px] text-slate-400 block">Based on ${ yrMetrics.ytdDaysWorked } worked + ${fmtNum(totalRemainingDays, 1)} remaining shifts</span>
+          <span class="text-sky-700 dark:text-sky-400 block font-semibold">Run-Rate Projected Salary (${fmtCurr(runRateDaily)}/d)</span>
+          <span class="text-lg font-extrabold mono text-sky-700 dark:text-sky-400">${fmtCurr(finalRunSalary)}</span>
+          <span class="text-[11px] text-slate-600 dark:text-slate-400 block">YTD Net (${fmtCurr(yrMetrics.ytdNet)}) + ${fmtCurr(totalRemainingDays * runRateDaily)} (${fmtNum(totalRemainingDays, 1)}d)</span>
         </div>
         <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
-          <span class="text-emerald-400 block font-semibold">Peak Pace Projected Salary (${fmtCurr(peakDaily)}/d)</span>
-          <span class="text-lg font-extrabold mono text-emerald-400">${fmtCurr(finalPeakSalary)}</span>
-          <span class="text-[11px] text-slate-400 block">Est. Total Annual Bonus Pool: +${fmtCurr(annPeak[12] - finalAnnTarget)}</span>
+          <span class="text-emerald-700 dark:text-emerald-400 block font-semibold">Peak Pace Projected Salary (${fmtCurr(peakDaily)}/d)</span>
+          <span class="text-lg font-extrabold mono text-emerald-700 dark:text-emerald-400">${fmtCurr(finalPeakSalary)}</span>
+          <span class="text-[11px] text-slate-600 dark:text-slate-400 block">YTD Net (${fmtCurr(yrMetrics.ytdNet)}) + ${fmtCurr(totalRemainingDays * peakDaily)} (${fmtNum(totalRemainingDays, 1)}d)</span>
         </div>
       `;
     }
@@ -1581,7 +1638,7 @@
     window.forcePushToCloud = async () => { await pushStateToCloud(); window.closeCloudModal(); };
 
     window.exportCSV = () => {
-      const rows = (state.years[state.currentYear] || []).map(m => { const c = calculateMonth(m); return [c.month, c.mtDays, c.fDays, c.daysWorked, c.gross, c.reci, c.ohip, c.totalOhip, c.totalRecd, c.net.toFixed(2), c.paid, c.target, c.diff.toFixed(2), c.dailyAvg.toFixed(2), c.revPerPt.toFixed(2), c.patients, c.ptsPerDay.toFixed(2)].join(','); });
+      const rows = (state.years[state.currentYear] || []).map((m, idx) => { const c = calculateMonth(m, state.settings, getEffectiveMonthOhipMode(state.currentYear, idx)); return [c.month, c.mtDays, c.fDays, c.daysWorked, c.gross, c.reci, c.ohip, c.totalOhip, c.totalRecd, c.net.toFixed(2), c.paid, c.target, c.diff.toFixed(2), c.dailyAvg.toFixed(2), c.revPerPt.toFixed(2), c.patients, c.ptsPerDay.toFixed(2)].join(','); });
       const a = document.createElement('a'); a.href = encodeURI('data:text/csv;charset=utf-8,Month,# M-T,# F,Days,Gross,Acct Recd,OHIP Recon,Total OHIP,Received,24% Net,Paid,Target,Diff,Daily Avg,Rev/Pt,Pts,Pts/Day\n' + rows.join('\n'));
       a.download = `OptoTrack_${state.currentYear}.csv`; a.click();
     };
