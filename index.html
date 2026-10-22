@@ -14,6 +14,7 @@
   <link id="manifestLink" rel="manifest" href="" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script>
     tailwind.config = {
@@ -41,9 +42,44 @@
       transition: opacity 0.15s ease; pointer-events: none;
     }
     .bm-pill:hover .bm-tooltip, .bm-pill:focus .bm-tooltip, .bm-pill:active .bm-tooltip { visibility: visible; opacity: 1; }
+    @keyframes spinOnce {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .spin-sync { animation: spinOnce 0.6s ease-in-out; }
+    .layout-edit-active .customizable-block {
+      outline: 2px dashed rgba(99, 102, 241, 0.65);
+      outline-offset: 2px;
+      position: relative;
+      cursor: grab;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+    }
+    .layout-edit-active .customizable-block:active {
+      cursor: grabbing;
+    }
+    .dragging-block {
+      opacity: 0.45 !important;
+      transform: scale(0.98);
+    }
+    .drag-over-target {
+      outline: 3px solid #10b981 !important;
+      outline-offset: 4px !important;
+      box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.45) !important;
+    }
   </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen overflow-x-hidden">
+
+  <!-- 5-SECOND NEW PERSONAL RECORD CELEBRATION BANNER -->
+  <div id="recordCelebrationBanner" class="fixed top-4 left-1/2 -translate-x-1/2 z-[120] hidden max-w-xl w-[92%] pointer-events-none transition-all duration-300">
+    <div class="bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-slate-950 rounded-2xl p-4 shadow-2xl border-2 border-white/50 flex items-center gap-3.5">
+      <div class="w-11 h-11 rounded-xl bg-slate-950/15 flex items-center justify-center text-2xl shrink-0">🏆</div>
+      <div class="min-w-0 flex-1">
+        <div class="text-[11px] font-extrabold uppercase tracking-wider text-slate-900/80">New Personal Record Achieved!</div>
+        <div id="recordBannerList" class="text-sm sm:text-base font-extrabold mono leading-snug mt-0.5 break-words"></div>
+      </div>
+    </div>
+  </div>
 
   <!-- MANDATORY FULL-SCREEN AUTHENTICATION GATE (Blocks all data until signed in) -->
   <div id="authGateScreen" class="fixed inset-0 z-[100] bg-slate-950 flex flex-col items-center justify-center p-4">
@@ -80,6 +116,9 @@
         <button onclick="window.gateEmailSignIn()" class="w-full py-2.5 rounded-xl font-bold bg-brand-600 hover:bg-brand-500 text-white shadow-lg shadow-brand-600/25 transition">
           Unlock OptoTrack
         </button>
+        <div class="text-[10px] text-slate-500 text-center pt-1">
+          Auto-locks when window closes or after 30 minutes of inactivity.
+        </div>
         <div id="gateErrorMsg" class="hidden p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-center"></div>
       </div>
     </div>
@@ -131,17 +170,24 @@
         </div>
       </div>
 
-      <div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
         <!-- Native PWA Install Button -->
         <button id="installPwaBtn" onclick="window.installPWA()" class="hidden items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition">
           <span>📲 Install App</span>
         </button>
 
-        <button onclick="window.openCloudModal()" id="cloudBtn" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-          <span id="syncDot" class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
-          <span id="syncText" class="hidden md:inline max-w-[140px] truncate">Synced</span>
-          <span>☁️</span>
-        </button>
+        <!-- Cloud Status Pill + Direct Quick Sync Refresh Button -->
+        <div class="inline-flex items-center rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-0.5">
+          <button onclick="window.openCloudModal()" id="cloudBtn" class="flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium hover:bg-slate-200/70 dark:hover:bg-slate-700/70 transition" title="Account & Cloud Settings">
+            <span id="syncDot" class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+            <span id="syncText" class="hidden md:inline max-w-[130px] truncate">Synced</span>
+            <span>☁️</span>
+          </button>
+          <button onclick="window.quickSyncNow()" id="quickSyncBtn" class="p-1.5 rounded-md text-slate-500 hover:text-brand-500 hover:bg-slate-200/70 dark:hover:bg-slate-700/70 transition border-l border-slate-200 dark:border-slate-700" title="Sync Now with Cloud">
+            <svg id="quickSyncIcon" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          </button>
+        </div>
+
         <select id="yearSelect" onchange="window.switchYear(this.value)" class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
           <option value="2025">2025</option>
           <option value="2026" selected>2026</option>
@@ -151,13 +197,45 @@
         <button id="logDayBtn" onclick="window.openDailyLogModal()" class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold bg-brand-600 hover:bg-brand-500 text-white flex items-center gap-1 whitespace-nowrap">
           <span>+ Log Day</span>
         </button>
+        <button id="editLayoutBtn" onclick="window.toggleLayoutEditMode()" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-brand-500/15 border border-slate-200 dark:border-slate-700 transition flex items-center gap-1" title="Drag & Drop, Add, or Hide Blocks">
+          <span>✨</span><span id="editLayoutBtnText" class="hidden sm:inline">Customize Layout</span>
+        </button>
         <button onclick="window.openSettingsModal()" class="p-1.5 sm:p-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700" title="Settings">⚙️</button>
         <button onclick="window.toggleTheme()" class="p-1.5 sm:p-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700" title="Theme">🌗</button>
       </div>
     </div>
   </header>
 
-  <!-- GLOBAL TOP CONTROL BAR (Averages Scope + Current-Qtr OHIP Basis Toggle + Benchmark Selector) -->
+  <!-- LAYOUT CUSTOMIZATION DRAWER (Only visible when Customize Layout mode is active) -->
+  <div id="layoutEditorDrawer" class="hidden max-w-7xl mx-auto px-3 sm:px-6 pt-4">
+    <div class="bg-brand-500/10 border-2 border-dashed border-brand-500/40 rounded-2xl p-4 space-y-3 text-xs">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <span class="text-base">✨</span>
+          <div>
+            <h3 class="font-extrabold text-sm text-brand-600 dark:text-brand-300">Drag & Drop Layout Customization Active</h3>
+            <p class="text-slate-500 dark:text-slate-400">Drag any block or card by its <span class="mono font-bold text-brand-500">⠿ Drag to reposition</span> bar and drop it onto another block to swap positions. On the Home Dashboard, you can also hide blocks or pin any chart from the Charts tab.</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="window.resetLayoutDefaults()" class="px-3 py-1.5 rounded-lg font-semibold bg-slate-200 dark:bg-slate-800 hover:bg-rose-500/20 hover:text-rose-400 transition">Reset Default Layout</button>
+          <button onclick="window.toggleLayoutEditMode()" class="px-3.5 py-1.5 rounded-lg font-bold bg-brand-600 text-white shadow-sm">Done Editing ✓</button>
+        </div>
+      </div>
+      <div id="dashboardWidgetAdder" class="pt-3 border-t border-brand-500/20 grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div>
+          <span class="font-bold text-slate-600 dark:text-slate-300 block mb-1.5">Restore Hidden Home Blocks / KPIs:</span>
+          <div id="hiddenHomeBlocksList" class="flex flex-wrap gap-1.5"></div>
+        </div>
+        <div>
+          <span class="font-bold text-slate-600 dark:text-slate-300 block mb-1.5">Pin Charts from Charts Section to Home Screen:</span>
+          <div id="addableHomeChartsList" class="flex flex-wrap gap-1.5"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GLOBAL TOP CONTROL BAR -->
   <div id="globalTopControlBar" class="max-w-7xl mx-auto px-3 sm:px-6 pt-5">
     <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-3 sm:p-3.5 flex flex-col xl:flex-row xl:items-center justify-between gap-3 text-xs">
       <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
@@ -172,7 +250,6 @@
       </div>
 
       <div class="flex flex-wrap items-center gap-3">
-        <!-- OHIP Basis Toggle Moved to Top Bar -->
         <div class="flex items-center gap-1.5">
           <span class="font-semibold text-slate-500" title="Uses Total OHIP for the current/unconfirmed quarter while keeping confirmed quarters on OHIP Recon">Current Qtr OHIP:</span>
           <div class="inline-flex rounded-lg p-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[11px] font-semibold">
@@ -195,126 +272,128 @@
   </div>
 
   <!-- PAGE 1: DASHBOARD -->
-  <main id="pageDashboard" class="max-w-7xl mx-auto px-3 sm:px-6 py-5 sm:py-6 space-y-6 block">
+  <main id="pageDashboard" class="max-w-7xl mx-auto px-3 sm:px-6 py-5 sm:py-6 flex flex-col gap-6 block">
 
-    <!-- KPI CARDS (Aligned Sub-Columns Across All Devices) -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-      <!-- KPI 1: YTD Net Cut -->
-      <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between min-w-0">
-        <div>
-          <div class="flex items-center justify-between gap-2">
-            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 truncate">YTD Net Cut (24%)</span>
-            <span id="bmNetPill" class="shrink-0"></span>
+    <!-- BLOCK: KPI CARDS -->
+    <div id="dashBlock_kpis" data-block-id="kpis" class="customizable-block">
+      <div id="kpiGridContainer" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <!-- KPI 1: YTD Net Cut -->
+        <div id="kpiCard_net" data-kpi-id="net" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between min-w-0">
+          <div>
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 truncate">YTD Net Cut (24%)</span>
+              <span id="bmNetPill" class="shrink-0"></span>
+            </div>
+            <div id="kpiYtdNet" class="text-2xl sm:text-3xl font-extrabold mono mt-1.5 text-brand-600 dark:text-brand-400 truncate">$0.00</div>
           </div>
-          <div id="kpiYtdNet" class="text-2xl sm:text-3xl font-extrabold mono mt-1.5 text-brand-600 dark:text-brand-400 truncate">$0.00</div>
-        </div>
-        <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2 text-xs">
-          <div class="flex items-center justify-between gap-2">
-            <span class="text-slate-500 shrink-0">YTD Gross:</span>
-            <div class="flex items-center justify-end gap-2 min-w-0">
-              <span id="kpiYtdGross" class="font-semibold mono text-right whitespace-nowrap">$0.00</span>
-              <span id="bmGrossPill" class="w-[68px] flex justify-end shrink-0"></span>
+          <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2 text-xs">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-slate-500 shrink-0">YTD Gross:</span>
+              <div class="flex items-center justify-end gap-2 min-w-0">
+                <span id="kpiYtdGross" class="font-semibold mono text-right whitespace-nowrap">$0.00</span>
+                <span id="bmGrossPill" class="w-[68px] flex justify-end shrink-0"></span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-slate-500 shrink-0">YTD Target:</span>
+              <div class="flex items-center justify-end gap-2 min-w-0">
+                <span id="kpiYtdTarget" class="font-semibold mono text-right whitespace-nowrap">$0.00</span>
+                <span class="w-[68px] shrink-0"></span>
+              </div>
             </div>
           </div>
-          <div class="flex items-center justify-between gap-2">
-            <span class="text-slate-500 shrink-0">YTD Target:</span>
-            <div class="flex items-center justify-end gap-2 min-w-0">
-              <span id="kpiYtdTarget" class="font-semibold mono text-right whitespace-nowrap">$0.00</span>
-              <span class="w-[68px] shrink-0"></span>
-            </div>
-          </div>
         </div>
-      </div>
 
-      <!-- KPI 2: Total Paid YTD -->
-      <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between min-w-0">
-        <div>
-          <div class="flex items-center justify-between gap-2">
-            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 truncate">Total Paid (YTD)</span>
-            <span id="bmPaidPill" class="shrink-0"></span>
+        <!-- KPI 2: Total Paid YTD -->
+        <div id="kpiCard_paid" data-kpi-id="paid" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between min-w-0">
+          <div>
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 truncate">Total Paid (YTD)</span>
+              <span id="bmPaidPill" class="shrink-0"></span>
+            </div>
+            <div id="kpiYtdPaid" class="text-2xl sm:text-3xl font-extrabold mono mt-1.5 text-purple-600 dark:text-purple-400 truncate">$0.00</div>
           </div>
-          <div id="kpiYtdPaid" class="text-2xl sm:text-3xl font-extrabold mono mt-1.5 text-purple-600 dark:text-purple-400 truncate">$0.00</div>
+          <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 space-y-1.5 text-xs">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-slate-500 shrink-0">Minimum Paid:</span>
+              <span id="kpiBaseDrawsPaid" class="font-semibold mono text-right whitespace-nowrap">$0.00</span>
+            </div>
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-slate-500 shrink-0">YTD Bonus Paid:</span>
+              <span id="kpiBonusPaidSub" class="font-semibold mono text-emerald-500 text-right whitespace-nowrap">+$0.00</span>
+            </div>
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-slate-500 shrink-0">Health Claimed:</span>
+              <span id="kpiHealthSub" class="font-semibold mono text-sky-500 text-right whitespace-nowrap">$0.00 / $1,000</span>
+            </div>
+          </div>
         </div>
-        <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 space-y-1.5 text-xs">
-          <div class="flex items-center justify-between gap-2">
-            <span class="text-slate-500 shrink-0">Minimum Paid:</span>
-            <span id="kpiBaseDrawsPaid" class="font-semibold mono text-right whitespace-nowrap">$0.00</span>
-          </div>
-          <div class="flex items-center justify-between gap-2">
-            <span class="text-slate-500 shrink-0">YTD Bonus Paid:</span>
-            <span id="kpiBonusPaidSub" class="font-semibold mono text-emerald-500 text-right whitespace-nowrap">+$0.00</span>
-          </div>
-          <div class="flex items-center justify-between gap-2">
-            <span class="text-slate-500 shrink-0">Health Claimed:</span>
-            <span id="kpiHealthSub" class="font-semibold mono text-sky-500 text-right whitespace-nowrap">$0.00 / $1,000</span>
-          </div>
-        </div>
-      </div>
 
-      <!-- KPI 3: Avg Daily Net -->
-      <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between min-w-0">
-        <div>
-          <div class="flex items-center justify-between gap-2">
-            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 truncate">Avg Daily Net</span>
-            <span id="bmDailyNetPill" class="shrink-0"></span>
+        <!-- KPI 3: Avg Daily Net -->
+        <div id="kpiCard_daily" data-kpi-id="daily" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between min-w-0">
+          <div>
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 truncate">Avg Daily Net</span>
+              <span id="bmDailyNetPill" class="shrink-0"></span>
+            </div>
+            <div id="kpiAvgDailyNet" class="text-2xl sm:text-3xl font-extrabold mono mt-1.5 text-emerald-600 dark:text-emerald-400 truncate">$0.00</div>
           </div>
-          <div id="kpiAvgDailyNet" class="text-2xl sm:text-3xl font-extrabold mono mt-1.5 text-emerald-600 dark:text-emerald-400 truncate">$0.00</div>
-        </div>
-        <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2 text-xs">
-          <div class="flex items-center justify-between gap-2">
-            <span class="text-slate-500 shrink-0">Days Worked:</span>
-            <div class="flex items-center justify-end gap-2 min-w-0">
-              <span id="kpiTotalDays" class="font-semibold mono text-right whitespace-nowrap">0 days</span>
-              <span id="bmTotalDaysPill" class="w-[68px] flex justify-end shrink-0"></span>
+          <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2 text-xs">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-slate-500 shrink-0">Days Worked:</span>
+              <div class="flex items-center justify-end gap-2 min-w-0">
+                <span id="kpiTotalDays" class="font-semibold mono text-right whitespace-nowrap">0 days</span>
+                <span id="bmTotalDaysPill" class="w-[68px] flex justify-end shrink-0"></span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-slate-500 shrink-0">Avg Days / Mth:</span>
+              <div class="flex items-center justify-end gap-2 min-w-0">
+                <span id="kpiAvgDaysMth" class="font-semibold mono text-right whitespace-nowrap">0.0 d/m</span>
+                <span id="bmDaysMthPill" class="w-[68px] flex justify-end shrink-0"></span>
+              </div>
             </div>
           </div>
-          <div class="flex items-center justify-between gap-2">
-            <span class="text-slate-500 shrink-0">Avg Days / Mth:</span>
-            <div class="flex items-center justify-end gap-2 min-w-0">
-              <span id="kpiAvgDaysMth" class="font-semibold mono text-right whitespace-nowrap">0.0 d/m</span>
-              <span id="bmDaysMthPill" class="w-[68px] flex justify-end shrink-0"></span>
-            </div>
-          </div>
         </div>
-      </div>
 
-      <!-- KPI 4: Rev / Patient & Patient Volume -->
-      <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between min-w-0">
-        <div>
-          <div class="flex items-center justify-between gap-2">
-            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 truncate">Rev / Patient</span>
-            <span id="bmRevPtPill" class="shrink-0"></span>
-          </div>
-          <div id="kpiRevPerPt" class="text-2xl sm:text-3xl font-extrabold mono mt-1.5 text-amber-600 dark:text-amber-400 truncate">$0.00</div>
-        </div>
-        <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 space-y-1.5 text-xs">
-          <div class="flex items-center justify-between gap-2">
-            <span class="text-slate-500 shrink-0">Total Patients:</span>
-            <div class="flex items-center justify-end gap-2 min-w-0">
-              <span id="kpiTotalPts" class="font-semibold mono text-right whitespace-nowrap">0</span>
-              <span id="bmTotalPtsPill" class="w-[68px] flex justify-end shrink-0"></span>
+        <!-- KPI 4: Rev / Patient & Patient Volume -->
+        <div id="kpiCard_revpt" data-kpi-id="revpt" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between min-w-0">
+          <div>
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 truncate">Rev / Patient</span>
+              <span id="bmRevPtPill" class="shrink-0"></span>
             </div>
+            <div id="kpiRevPerPt" class="text-2xl sm:text-3xl font-extrabold mono mt-1.5 text-amber-600 dark:text-amber-400 truncate">$0.00</div>
           </div>
-          <div class="flex items-center justify-between gap-2">
-            <span class="text-slate-500 shrink-0">Avg Pts / Day:</span>
-            <div class="flex items-center justify-end gap-2 min-w-0">
-              <span id="kpiPtsPerDay" class="font-semibold mono text-right whitespace-nowrap">0.0/d</span>
-              <span id="bmPtsDayPill" class="w-[68px] flex justify-end shrink-0"></span>
+          <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 space-y-1.5 text-xs">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-slate-500 shrink-0">Total Patients:</span>
+              <div class="flex items-center justify-end gap-2 min-w-0">
+                <span id="kpiTotalPts" class="font-semibold mono text-right whitespace-nowrap">0</span>
+                <span id="bmTotalPtsPill" class="w-[68px] flex justify-end shrink-0"></span>
+              </div>
             </div>
-          </div>
-          <div class="flex items-center justify-between gap-2">
-            <span class="text-slate-500 shrink-0">Avg Pts / Mth:</span>
-            <div class="flex items-center justify-end gap-2 min-w-0">
-              <span id="kpiAvgPtsMth" class="font-semibold mono text-right whitespace-nowrap">0.0/m</span>
-              <span id="bmPtsMthPill" class="w-[68px] flex justify-end shrink-0"></span>
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-slate-500 shrink-0">Avg Pts / Day:</span>
+              <div class="flex items-center justify-end gap-2 min-w-0">
+                <span id="kpiPtsPerDay" class="font-semibold mono text-right whitespace-nowrap">0.0/d</span>
+                <span id="bmPtsDayPill" class="w-[68px] flex justify-end shrink-0"></span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-slate-500 shrink-0">Avg Pts / Mth:</span>
+              <div class="flex items-center justify-end gap-2 min-w-0">
+                <span id="kpiAvgPtsMth" class="font-semibold mono text-right whitespace-nowrap">0.0/m</span>
+                <span id="bmPtsMthPill" class="w-[68px] flex justify-end shrink-0"></span>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- QUARTERLY BONUS ESTIMATOR -->
-    <section class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-6 shadow-sm space-y-4">
+    <!-- BLOCK: QUARTERLY BONUS ESTIMATOR -->
+    <section id="dashBlock_quarters" data-block-id="quarters" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-6 shadow-sm space-y-4">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 class="text-base sm:text-lg font-bold">Quarterly Bonus Estimator & Reconciliation</h2>
@@ -324,17 +403,17 @@
       <div id="quarterCardsGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4"></div>
     </section>
 
-    <!-- MONTHLY LEDGER -->
-    <section class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+    <!-- BLOCK: MONTHLY LEDGER -->
+    <section id="dashBlock_ledger" data-block-id="ledger" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
       <div class="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 class="text-base sm:text-lg font-bold">Monthly Production Ledger (<span id="ledgerYearLabel">2026</span>)</h2>
           <p class="text-xs text-slate-500">Click any monthly row to edit shifts, target overrides, or collections.</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
-          <button onclick="window.exportCSV()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">Export CSV</button>
-          <button onclick="window.downloadBackupJSON()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">Backup JSON</button>
-          <label class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 cursor-pointer">
+          <button onclick="window.exportCSV()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition">Export CSV</button>
+          <button onclick="window.downloadBackupJSON()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition">Backup JSON</button>
+          <label class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 cursor-pointer transition">
             Restore JSON <input type="file" accept=".json" onchange="window.restoreBackupJSON(event)" class="hidden" />
           </label>
         </div>
@@ -355,8 +434,8 @@
       </div>
     </section>
 
-    <!-- DASHBOARD CHART & DAILY LOGS -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- BLOCK: DASHBOARD CHART & DAILY LOGS -->
+    <div id="dashBlock_bottomRow" data-block-id="bottomRow" class="customizable-block grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm min-w-0">
         <h3 class="font-bold text-sm sm:text-base mb-1">Monthly 24% Net vs. Baseline Target</h3>
         <p class="text-xs text-slate-500 mb-4">Visualizing monthly surplus above target draw</p>
@@ -370,6 +449,10 @@
         <div id="dailyLogsContainer" class="space-y-2.5 max-h-64 overflow-y-auto pr-1"></div>
       </div>
     </div>
+
+    <!-- PINNED CHARTS CONTAINER (Holds any extra charts added to the Home Screen) -->
+    <div id="dashPinnedChartsContainer" class="grid grid-cols-1 lg:grid-cols-2 gap-6 empty:hidden"></div>
+
   </main>
 
   <!-- PAGE 2: RECORDS & MILESTONES -->
@@ -385,32 +468,32 @@
   <main id="pageCharts" class="hidden max-w-7xl mx-auto px-3 sm:px-6 py-6 space-y-6">
     <div class="border-b border-slate-200 dark:border-slate-800 pb-5">
       <h2 class="text-2xl sm:text-3xl font-extrabold">Charts & Trends</h2>
-      <p class="text-slate-500 mt-1 text-sm">Visualize your year-over-year pacing, daily averages, and volumes.</p>
+      <p class="text-slate-500 mt-1 text-sm">Visualize your year-over-year pacing, daily averages, seasonality, and volumes.</p>
     </div>
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm min-w-0">
+    <div id="chartsGridContainer" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div id="chartBlock_netTarget" data-chart-id="netTarget" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm min-w-0">
         <h3 class="font-bold text-sm sm:text-base mb-1">Monthly 24% Net vs. Baseline Target</h3>
         <p class="text-xs text-slate-500 mb-4">Monthly associate cut compared to baseline target draw.</p>
         <div class="h-64"><canvas id="chartPageNetTarget"></canvas></div>
       </div>
-      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm min-w-0">
+      <div id="chartBlock_dailyAvg" data-chart-id="dailyAvg" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm min-w-0">
         <h3 class="font-bold text-sm sm:text-base mb-1">Daily Average Income Across the Year (YoY & Peak)</h3>
         <p class="text-xs text-slate-500 mb-4">Comparing $/day earning pace across years vs. all-time peak pace.</p>
         <div class="h-64"><canvas id="chartPageDailyAvg"></canvas></div>
       </div>
-      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm min-w-0">
+      <div id="chartBlock_patients" data-chart-id="patients" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm min-w-0">
         <h3 class="font-bold text-sm sm:text-base mb-1">Patient Volume & Revenue per Patient</h3>
         <p class="text-xs text-slate-500 mb-4">Monthly patients seen vs. average net revenue per patient.</p>
         <div class="h-64"><canvas id="chartPagePatients"></canvas></div>
       </div>
-      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm min-w-0">
+      <div id="chartBlock_breakdown" data-chart-id="breakdown" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm min-w-0">
         <h3 class="font-bold text-sm sm:text-base mb-1">Monthly Collections Breakdown</h3>
         <p class="text-xs text-slate-500 mb-4">Accounts Received vs. OHIP Reconciliation stacked collections.</p>
         <div class="h-64"><canvas id="chartPageBreakdown"></canvas></div>
       </div>
 
       <!-- Chart 5: Quarterly Payout Cone / Forecast -->
-      <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-6 shadow-sm min-w-0">
+      <div id="chartBlock_forecastCone" data-chart-id="forecastCone" class="customizable-block lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-6 shadow-sm min-w-0">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div>
             <h3 class="font-bold text-sm sm:text-base">Quarterly Payout Cone & Trajectory Forecast</h3>
@@ -431,7 +514,7 @@
       </div>
 
       <!-- Chart 6: Annual Projected Salary & Total Compensation Cone -->
-      <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-6 shadow-sm min-w-0">
+      <div id="chartBlock_annualSalaryCone" data-chart-id="annualSalaryCone" class="customizable-block lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-6 shadow-sm min-w-0">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div>
             <h3 class="font-bold text-sm sm:text-base">Annual Projected Salary & Total Earnings Trajectory (<span id="annualConeYearLbl">2026</span>)</h3>
@@ -441,6 +524,19 @@
         </div>
         <div class="h-72"><canvas id="chartPageAnnualSalaryCone"></canvas></div>
         <div id="annualConeSummaryCards" class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-xs"></div>
+      </div>
+
+      <!-- Chart 7: Historical Quarterly Seasonality (Single Average Bar + Bonus Line) -->
+      <div id="chartBlock_quarterSeasonality" data-chart-id="quarterSeasonality" class="customizable-block lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-6 shadow-sm min-w-0">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <div>
+            <h3 class="font-bold text-sm sm:text-base">Historical Quarterly Seasonality — Average Quarterly Earnings (All Recorded Years)</h3>
+            <p class="text-xs text-slate-500">Compares average 24% Net earnings and quarterly bonus payouts across Q1–Q4 to highlight your strongest quarters of the year.</p>
+          </div>
+          <span id="bestSeasonalityBadge" class="self-start sm:self-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">Top Quarter: —</span>
+        </div>
+        <div class="h-72"><canvas id="chartPageQuarterSeasonality"></canvas></div>
+        <div id="seasonalitySummaryCards" class="grid grid-cols-1 sm:grid-cols-4 gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-xs"></div>
       </div>
     </div>
   </main>
@@ -534,8 +630,9 @@
         <div><label class="block font-semibold mb-1 text-slate-500">Day Patients</label><input type="number" step="1" id="editLogPts" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
         <div class="col-span-2"><label class="block font-semibold mb-1 text-slate-500">Note</label><input type="text" id="editLogNote" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800" /></div>
       </div>
+      <p class="text-[11px] text-slate-400">Editing or deleting this shift automatically updates the corresponding monthly ledger row.</p>
       <div class="flex justify-between pt-3 border-t border-slate-200 dark:border-slate-800">
-        <button onclick="window.deleteCurrentEditingLog()" class="px-3 py-2 rounded-xl text-xs font-semibold bg-rose-500/10 text-rose-500">Delete Log</button>
+        <button onclick="window.deleteCurrentEditingLog()" class="px-3 py-2 rounded-xl text-xs font-semibold bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition">Delete Log & Revert Ledger</button>
         <div class="flex gap-2"><button onclick="window.closeEditLogModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800">Cancel</button><button onclick="window.saveEditedDailyLog()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-600 text-white">Save</button></div>
       </div>
     </div>
@@ -623,7 +720,7 @@
       </div>
       <div id="authSignedInBox" class="space-y-3 text-xs">
         <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between gap-2">
-          <div class="min-w-0"><span class="text-[10px] uppercase font-bold text-emerald-500 block">Live Cloud Sync Active</span><span id="authUserLabel" class="font-semibold mono text-sm truncate block">Signed In</span></div>
+          <div class="min-w-0"><span class="text-[10px] uppercase font-bold text-emerald-500 block">Live Cloud Sync Active (30m Auto-Lock)</span><span id="authUserLabel" class="font-semibold mono text-sm truncate block">Signed In</span></div>
           <button onclick="window.signOutUser()" class="px-3 py-1.5 rounded-lg bg-rose-500/10 text-rose-500 font-semibold shrink-0">Sign Out & Lock</button>
         </div>
         <button onclick="window.forcePushToCloud()" class="w-full py-2 rounded-xl font-semibold bg-brand-600/15 text-brand-400 border border-brand-500/30">Force Push Local State to Cloud Now</button>
@@ -634,10 +731,49 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+    import { getAuth, setPersistence, browserSessionPersistence, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
     const logoHref = document.getElementById('faviconLink').href;
+
+    // 5-Second Celebratory Confetti Rain + Top Banner Display
+    let celebrationTimeout = null;
+    window.triggerRecordCelebration = (brokenRecordsList = []) => {
+      if (brokenRecordsList.length > 0) {
+        const banner = document.getElementById('recordCelebrationBanner');
+        const listEl = document.getElementById('recordBannerList');
+        listEl.innerHTML = brokenRecordsList.map(r => `<div>★ ${r.title}: <span class="underline">${r.valFormatted}</span></div>`).join('');
+        banner.classList.remove('hidden');
+        if (celebrationTimeout) clearTimeout(celebrationTimeout);
+        celebrationTimeout = setTimeout(() => {
+          banner.classList.add('hidden');
+        }, 5000);
+      }
+
+      if (typeof window.confetti !== 'function') return;
+      const duration = 5 * 1000;
+      const animationEnd = Date.now() + duration;
+      const defaults = { startVelocity: 28, spread: 360, ticks: 70, zIndex: 9999 };
+      const randomInRange = (min, max) => Math.random() * (max - min) + min;
+
+      const interval = setInterval(() => {
+        const timeLeft = animationEnd - Date.now();
+        if (timeLeft <= 0) {
+          return clearInterval(interval);
+        }
+        const particleCount = 45 * (timeLeft / duration);
+        window.confetti({
+          ...defaults,
+          particleCount,
+          origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+        });
+        window.confetti({
+          ...defaults,
+          particleCount,
+          origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+        });
+      }, 250);
+    };
 
     function setupPWAManifestAndServiceWorker() {
       const img = new Image();
@@ -709,11 +845,22 @@
       month: m, mtDays: 16, fDays: 4, daysWorked: 0, gross: 0, reci: 0, ohip: 0, totalOhip: 0, paid: 0, patients: 0, customTarget: null
     }));
 
+    function getDefaultLayouts() {
+      return {
+        dashBlocks: ['kpis', 'quarters', 'ledger', 'bottomRow'],
+        dashKpis: ['net', 'paid', 'daily', 'revpt'],
+        dashPinnedCharts: [],
+        recordsOrder: ['rec_dailyGross', 'rec_yrPaid', 'rec_qtrNet', 'rec_mthPts', 'rec_dailyPts', 'rec_yrDays', 'rec_mthDays', 'rec_mthGross', 'rec_mthDailyAvg'],
+        chartsOrder: ['netTarget', 'dailyAvg', 'patients', 'breakdown', 'forecastCone', 'annualSalaryCone', 'quarterSeasonality']
+      };
+    }
+
     function getEmptyState() {
       return {
         currentYear: '2026', includeCurrentMonthInAverages: true, benchmarkMode: 'prev_year', quarterOhipMode: 'recon', coneQuarter: 'Q4',
         settings: { netPct: 24, mtRate: 780, fRate: 630 },
         recordHigh: { amount: 0, date: '—', note: '' },
+        layouts: getDefaultLayouts(),
         years: { '2025': makeBlankYear(), '2026': makeBlankYear(), '2027': makeBlankYear() },
         quarterConfirmations: {
           '2025': { Q1: { confirmed: false, actualNet: null, actualBonus: null }, Q2: { confirmed: false, actualNet: null, actualBonus: null }, Q3: { confirmed: false, actualNet: null, actualBonus: null }, Q4: { confirmed: false, actualNet: null, actualBonus: null } },
@@ -727,12 +874,43 @@
 
     let state = getEmptyState();
     let fbApp, auth, db, currentUser = null, unsubSnapshot = null, isApplyingRemote = false, activePage = 'pageDashboard';
+    let isLayoutEditMode = false;
 
-    function initFirebase() {
+    const INACTIVITY_LIMIT_MS = 30 * 60 * 1000;
+    let inactivityTimer = null;
+
+    function resetInactivityTimer() {
+      if (inactivityTimer) clearTimeout(inactivityTimer);
+      if (!currentUser) return;
+      inactivityTimer = setTimeout(async () => {
+        if (currentUser && auth) {
+          await signOut(auth);
+        }
+      }, INACTIVITY_LIMIT_MS);
+    }
+
+    ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll', 'click'].forEach(evt => {
+      window.addEventListener(evt, resetInactivityTimer, { passive: true });
+    });
+
+    function ensureLayoutsValid() {
+      const def = getDefaultLayouts();
+      if (!state.layouts) state.layouts = def;
+      if (!Array.isArray(state.layouts.dashBlocks)) state.layouts.dashBlocks = def.dashBlocks;
+      if (!Array.isArray(state.layouts.dashKpis)) state.layouts.dashKpis = def.dashKpis;
+      if (!Array.isArray(state.layouts.dashPinnedCharts)) state.layouts.dashPinnedCharts = [];
+      if (!Array.isArray(state.layouts.recordsOrder) || state.layouts.recordsOrder.length < 9) state.layouts.recordsOrder = def.recordsOrder;
+      if (!Array.isArray(state.layouts.chartsOrder) || state.layouts.chartsOrder.length < 7) state.layouts.chartsOrder = def.chartsOrder;
+    }
+
+    async function initFirebase() {
       try {
         fbApp = initializeApp(DEFAULT_FIREBASE_CONFIG);
         auth = getAuth(fbApp);
         db = getFirestore(fbApp);
+
+        await setPersistence(auth, browserSessionPersistence);
+
         onAuthStateChanged(auth, (user) => {
           currentUser = user;
           const gate = document.getElementById('authGateScreen');
@@ -741,6 +919,7 @@
           const appShell = document.getElementById('protectedAppShell');
 
           if (user) {
+            resetInactivityTimer();
             gate.classList.add('hidden');
             appShell.classList.remove('hidden');
             updateAuthUI();
@@ -749,13 +928,16 @@
               if (snap.exists()) {
                 isApplyingRemote = true;
                 state = { ...getEmptyState(), ...snap.data() };
+                ensureLayoutsValid();
                 renderAll();
                 isApplyingRemote = false;
               } else {
+                ensureLayoutsValid();
                 renderAll();
               }
             });
           } else {
+            if (inactivityTimer) clearTimeout(inactivityTimer);
             if (unsubSnapshot) { unsubSnapshot(); unsubSnapshot = null; }
             state = getEmptyState();
             appShell.classList.add('hidden');
@@ -772,6 +954,32 @@
       if (!currentUser || !db || isApplyingRemote) return;
       try { await setDoc(doc(db, 'artifacts', 'optotrack-tracker', 'users', currentUser.uid, 'state', 'main'), JSON.parse(JSON.stringify(state)), { merge: true }); } catch (e) {}
     }
+
+    window.quickSyncNow = async () => {
+      if (!currentUser || !db) return;
+      const icon = document.getElementById('quickSyncIcon');
+      const txt = document.getElementById('syncText');
+      icon.classList.remove('spin-sync');
+      void icon.offsetWidth;
+      icon.classList.add('spin-sync');
+
+      try {
+        await pushStateToCloud();
+        const snap = await getDoc(doc(db, 'artifacts', 'optotrack-tracker', 'users', currentUser.uid, 'state', 'main'));
+        if (snap.exists()) {
+          isApplyingRemote = true;
+          state = { ...getEmptyState(), ...snap.data() };
+          ensureLayoutsValid();
+          renderAll();
+          isApplyingRemote = false;
+        }
+        const prevTxt = txt.textContent;
+        txt.textContent = 'Synced Just Now ✓';
+        setTimeout(() => { txt.textContent = prevTxt; }, 2000);
+      } catch (e) {
+        console.warn("Quick sync error:", e);
+      }
+    };
 
     function saveAndRender() { pushStateToCloud(); renderAll(); }
 
@@ -806,6 +1014,7 @@
       document.getElementById('yearSelect').classList.toggle('hidden', pageId === 'pageRecords');
       document.getElementById('logDayBtn').classList.toggle('hidden', pageId !== 'pageDashboard');
       document.getElementById('globalTopControlBar').classList.toggle('hidden', pageId === 'pageRecords');
+      document.getElementById('dashboardWidgetAdder').classList.toggle('hidden', pageId !== 'pageDashboard');
       window.closeSidebar();
       renderAll();
     };
@@ -813,8 +1022,6 @@
     const fmtCurr = (v) => { const n = Number(v) || 0; return (n < 0 ? '-$' : '$') + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
     const fmtNum = (v, d = 1) => (Number(v) || 0).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
 
-    // Determines if a given month index (0..11) in yearStr should use 'total' OHIP or 'recon' OHIP.
-    // Rule: Previous/confirmed quarters always use 'recon' (confirmed). Only unconfirmed/current quarter uses 'total' when toggle is set to 'total'.
     function isQuarterConfirmedForMonth(yearStr, monthIdx) {
       const qKey = ['Q1', 'Q2', 'Q3', 'Q4'][Math.floor(monthIdx / 3)];
       const qConf = state.quarterConfirmations?.[yearStr]?.[qKey];
@@ -826,9 +1033,7 @@
 
     function getEffectiveMonthOhipMode(yearStr, monthIdx, requestedOhipMode = state.quarterOhipMode) {
       if (requestedOhipMode !== 'total') return 'recon';
-      // If the quarter is already confirmed, keep its OHIP on 'recon'
       if (isQuarterConfirmedForMonth(yearStr, monthIdx)) return 'recon';
-      // Also only apply 'total' to the current active/unconfirmed quarter
       const lastActiveIdx = getLastActiveMonthIndex(yearStr);
       const currentActiveQtr = Math.floor(Math.max(0, lastActiveIdx) / 3);
       const thisMonthQtr = Math.floor(monthIdx / 3);
@@ -934,6 +1139,86 @@
       };
     }
 
+    function calculateQuarterSummary(yearStr, qKey, ohipMode = state.quarterOhipMode) {
+      const qMap = { Q1: [0, 1, 2], Q2: [3, 4, 5], Q3: [6, 7, 8], Q4: [9, 10, 11] };
+      const months = state.years[yearStr] || [];
+      const qConf = (state.quarterConfirmations?.[yearStr]?.[qKey]) || { confirmed: false, actualNet: null, actualBonus: null };
+      const hasActualBonus = qConf.actualBonus !== null && qConf.actualBonus !== undefined && qConf.actualBonus !== '';
+      const hasActualNet = qConf.actualNet !== null && qConf.actualNet !== undefined && qConf.actualNet !== '';
+      const isConfirmed = !!qConf.confirmed || hasActualBonus || hasActualNet;
+
+      const effectiveModeForQtr = isConfirmed ? 'recon' : ohipMode;
+
+      let estNet = 0, target = 0, paid = 0, activeMonthsCount = 0;
+      (qMap[qKey] || []).forEach(i => {
+        const c = calculateMonth(months[i], state.settings, effectiveModeForQtr);
+        if (c.isActive) { estNet += c.net; target += c.target; paid += c.paid; activeMonthsCount++; }
+      });
+      const estBonus = estNet - target;
+      const displayNet = hasActualNet ? Number(qConf.actualNet) : (hasActualBonus && target > 0 ? target + Number(qConf.actualBonus) : estNet);
+      const displayBonus = hasActualBonus ? Number(qConf.actualBonus) : (hasActualNet ? (Number(qConf.actualNet) - target) : estBonus);
+      return { qKey, estNet, target, paid, estBonus, displayNet, displayBonus, isConfirmed, activeMonthsCount, qConf };
+    }
+
+    function snapshotAllRecords() {
+      let maxDailyPts = { val: 0, label: '' }, maxDailyNet = { val: 0, label: '' };
+      (state.dailyLogs || []).forEach(l => {
+        if ((Number(l.pts) || 0) > maxDailyPts.val) maxDailyPts = { val: Number(l.pts) || 0, label: l.date };
+        if ((Number(l.net) || 0) > maxDailyNet.val) maxDailyNet = { val: Number(l.net) || 0, label: l.date };
+      });
+      let maxMthPts = { val: 0, label: '' }, maxMthDays = { val: 0, label: '' }, maxMthGross = { val: 0, label: '' }, maxYrDays = { val: 0, label: '' }, maxYrPaid = { val: 0, label: '' }, maxQtrNet = { val: 0, label: '' }, maxMthDailyAvg = { val: 0, label: '' };
+      for (const yr in state.years) {
+        let yrDays = 0;
+        state.years[yr].forEach((m, idx) => {
+          const c = calculateMonth(m, state.settings, getEffectiveMonthOhipMode(yr, idx));
+          if (c.patients > maxMthPts.val) maxMthPts = { val: c.patients, label: `${m.month} ${yr}` };
+          if (c.daysWorked > maxMthDays.val) maxMthDays = { val: c.daysWorked, label: `${m.month} ${yr}` };
+          if (c.gross > maxMthGross.val) maxMthGross = { val: c.gross, label: `${m.month} ${yr}` };
+          if (c.dailyAvg > maxMthDailyAvg.val) maxMthDailyAvg = { val: c.dailyAvg, label: `${m.month} ${yr}` };
+          yrDays += c.daysWorked;
+        });
+        if (yrDays > maxYrDays.val) maxYrDays = { val: yrDays, label: yr };
+        const ym = getYearMetrics(yr, 11);
+        if (ym.ytdTotalPaid > maxYrPaid.val) maxYrPaid = { val: ym.ytdTotalPaid, label: yr };
+        ['Q1','Q2','Q3','Q4'].forEach(qk => {
+          const q = calculateQuarterSummary(yr, qk);
+          if (q.displayNet > maxQtrNet.val) maxQtrNet = { val: q.displayNet, label: `${qk} ${yr}` };
+        });
+      }
+      return {
+        dailyGross: { val: Number(state.recordHigh?.amount) || 0, label: state.recordHigh?.date || '', title: 'All-Time Daily Gross', fmt: fmtCurr },
+        dailyNet: { val: maxDailyNet.val, label: maxDailyNet.label, title: 'Highest Daily 24% Net', fmt: fmtCurr },
+        dailyPts: { val: maxDailyPts.val, label: maxDailyPts.label, title: 'Most Patients in a Day', fmt: v => `${Math.round(v)} pts` },
+        mthPts: { val: maxMthPts.val, label: maxMthPts.label, title: 'Most Patients in a Month', fmt: v => `${Math.round(v)} pts (${maxMthPts.label})` },
+        mthDays: { val: maxMthDays.val, label: maxMthDays.label, title: 'Most Days Worked in a Month', fmt: v => `${v} days (${maxMthDays.label})` },
+        yrDays: { val: maxYrDays.val, label: maxYrDays.label, title: 'Most Days Worked in a Year', fmt: v => `${v} days (${maxYrDays.label})` },
+        mthGross: { val: maxMthGross.val, label: maxMthGross.label, title: 'Highest Monthly Gross', fmt: v => `${fmtCurr(v)} (${maxMthGross.label})` },
+        mthDailyAvg: { val: maxMthDailyAvg.val, label: maxMthDailyAvg.label, title: 'Best Monthly Daily Net Pace', fmt: v => `${fmtCurr(v)}/day (${maxMthDailyAvg.label})` },
+        qtrNet: { val: maxQtrNet.val, label: maxQtrNet.label, title: 'Highest Quarter 24% Net', fmt: v => `${fmtCurr(v)} (${maxQtrNet.label})` },
+        yrPaid: { val: maxYrPaid.val, label: maxYrPaid.label, title: 'Highest Annual Total Paid', fmt: v => `${fmtCurr(v)} (${maxYrPaid.label})` }
+      };
+    }
+
+    function checkAndCelebrateNewRecords(beforeSnap) {
+      if (!beforeSnap) return;
+      const afterSnap = snapshotAllRecords();
+      const broken = [];
+      Object.keys(afterSnap).forEach(k => {
+        const prev = beforeSnap[k]?.val || 0;
+        const curr = afterSnap[k]?.val || 0;
+        if (curr > prev && curr > 0) {
+          broken.push({
+            key: k,
+            title: afterSnap[k].title,
+            valFormatted: afterSnap[k].fmt(curr)
+          });
+        }
+      });
+      if (broken.length > 0) {
+        window.triggerRecordCelebration(broken);
+      }
+    }
+
     function makeDiffPill(currVal, baseVal, label, formatType = 'currency') {
       if (!baseVal || baseVal <= 0 || !isFinite(baseVal) || !isFinite(currVal)) return '';
       const diff = currVal - baseVal, pct = (diff / Math.abs(baseVal)) * 100, isUp = diff >= 0;
@@ -972,26 +1257,232 @@
       return { label: `${targetYear} Full Year`, ...getYearMetrics(targetYear, null) };
     }
 
-    function calculateQuarterSummary(yearStr, qKey, ohipMode = state.quarterOhipMode) {
-      const qMap = { Q1: [0, 1, 2], Q2: [3, 4, 5], Q3: [6, 7, 8], Q4: [9, 10, 11] };
-      const months = state.years[yearStr] || [];
-      const qConf = (state.quarterConfirmations?.[yearStr]?.[qKey]) || { confirmed: false, actualNet: null, actualBonus: null };
-      const hasActualBonus = qConf.actualBonus !== null && qConf.actualBonus !== undefined && qConf.actualBonus !== '';
-      const hasActualNet = qConf.actualNet !== null && qConf.actualNet !== undefined && qConf.actualNet !== '';
-      const isConfirmed = !!qConf.confirmed || hasActualBonus || hasActualNet;
+    // ================= DRAG & DROP LAYOUT CUSTOMIZATION ENGINE =================
+    const BLOCK_LABELS = {
+      kpis: 'Top KPI Summary Row',
+      quarters: 'Quarterly Bonus Estimator',
+      ledger: 'Monthly Production Ledger',
+      bottomRow: 'Monthly Bar Chart & Shift Logs'
+    };
+    const KPI_LABELS = {
+      net: 'KPI: YTD Net Cut',
+      paid: 'KPI: Total Paid (YTD)',
+      daily: 'KPI: Avg Daily Net',
+      revpt: 'KPI: Rev / Patient'
+    };
+    const CHART_META = {
+      netTarget: { title: 'Monthly 24% Net vs. Baseline Target', sub: 'Monthly associate cut compared to baseline target draw.' },
+      dailyAvg: { title: 'Daily Average Income Across the Year (YoY & Peak)', sub: 'Comparing $/day earning pace across years vs. all-time peak pace.' },
+      patients: { title: 'Patient Volume & Revenue per Patient', sub: 'Monthly patients seen vs. average net revenue per patient.' },
+      breakdown: { title: 'Monthly Collections Breakdown', sub: 'Accounts Received vs. OHIP Reconciliation stacked collections.' },
+      forecastCone: { title: 'Quarterly Payout Cone & Trajectory Forecast', sub: 'Cumulative quarter 24% net & bonus payout forecast.' },
+      annualSalaryCone: { title: 'Annual Projected Salary & Total Earnings Trajectory', sub: 'Starts from YTD Net Cut earned and adds remaining work days.' },
+      quarterSeasonality: { title: 'Historical Quarterly Seasonality (Average Earnings)', sub: 'Compares average 24% Net & Bonus across Q1–Q4.' }
+    };
 
-      // Confirmed quarters always use 'recon' OHIP; unconfirmed quarters obey the toggle
-      const effectiveModeForQtr = isConfirmed ? 'recon' : ohipMode;
+    let activeDragState = { listKey: null, itemKey: null };
 
-      let estNet = 0, target = 0, paid = 0;
-      (qMap[qKey] || []).forEach(i => {
-        const c = calculateMonth(months[i], state.settings, effectiveModeForQtr);
-        if (c.isActive) { estNet += c.net; target += c.target; paid += c.paid; }
+    window.onLayoutDragStart = (ev, listKey, itemKey) => {
+      if (!isLayoutEditMode) return;
+      ev.stopPropagation();
+      activeDragState = { listKey, itemKey };
+      ev.dataTransfer.effectAllowed = 'move';
+      ev.dataTransfer.setData('text/plain', `${listKey}:${itemKey}`);
+      const targetEl = ev.currentTarget;
+      setTimeout(() => targetEl.classList.add('dragging-block'), 0);
+    };
+
+    window.onLayoutDragOver = (ev, listKey, itemKey) => {
+      if (!isLayoutEditMode) return;
+      if (activeDragState.listKey !== listKey || activeDragState.itemKey === itemKey) return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      ev.dataTransfer.dropEffect = 'move';
+      ev.currentTarget.classList.add('drag-over-target');
+    };
+
+    window.onLayoutDragLeave = (ev) => {
+      ev.currentTarget.classList.remove('drag-over-target');
+    };
+
+    window.onLayoutDragEnd = (ev) => {
+      ev.currentTarget.classList.remove('dragging-block');
+      document.querySelectorAll('.drag-over-target').forEach(el => el.classList.remove('drag-over-target'));
+      activeDragState = { listKey: null, itemKey: null };
+    };
+
+    window.onLayoutDrop = (ev, targetListKey, targetItemKey) => {
+      if (!isLayoutEditMode) return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      ev.currentTarget.classList.remove('drag-over-target');
+
+      const { listKey, itemKey } = activeDragState;
+      if (!listKey || listKey !== targetListKey || itemKey === targetItemKey) return;
+
+      ensureLayoutsValid();
+      const arr = [...state.layouts[listKey]];
+      const fromIdx = arr.indexOf(itemKey);
+      const toIdx = arr.indexOf(targetItemKey);
+      if (fromIdx === -1 || toIdx === -1) return;
+
+      arr.splice(fromIdx, 1);
+      arr.splice(toIdx, 0, itemKey);
+      state.layouts[listKey] = arr;
+      activeDragState = { listKey: null, itemKey: null };
+      saveAndRender();
+    };
+
+    function bindDragAttributes(el, listKey, itemKey) {
+      if (!el) return;
+      if (isLayoutEditMode) {
+        el.setAttribute('draggable', 'true');
+        el.ondragstart = (ev) => window.onLayoutDragStart(ev, listKey, itemKey);
+        el.ondragover = (ev) => window.onLayoutDragOver(ev, listKey, itemKey);
+        el.ondragleave = (ev) => window.onLayoutDragLeave(ev);
+        el.ondrop = (ev) => window.onLayoutDrop(ev, listKey, itemKey);
+        el.ondragend = (ev) => window.onLayoutDragEnd(ev);
+      } else {
+        el.removeAttribute('draggable');
+        el.ondragstart = null;
+        el.ondragover = null;
+        el.ondragleave = null;
+        el.ondrop = null;
+        el.ondragend = null;
+      }
+    }
+
+    window.toggleLayoutEditMode = () => {
+      isLayoutEditMode = !isLayoutEditMode;
+      document.body.classList.toggle('layout-edit-active', isLayoutEditMode);
+      document.getElementById('layoutEditorDrawer').classList.toggle('hidden', !isLayoutEditMode);
+      const btn = document.getElementById('editLayoutBtn');
+      const txt = document.getElementById('editLayoutBtnText');
+      if (isLayoutEditMode) {
+        btn.className = 'px-2.5 py-1.5 rounded-lg text-xs font-bold bg-brand-600 text-white shadow-sm transition flex items-center gap-1';
+        txt.textContent = 'Done Layout';
+      } else {
+        btn.className = 'px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-brand-500/15 border border-slate-200 dark:border-slate-700 transition flex items-center gap-1';
+        txt.textContent = 'Customize Layout';
+      }
+      renderAll();
+    };
+
+    window.resetLayoutDefaults = () => {
+      state.layouts = getDefaultLayouts();
+      saveAndRender();
+    };
+
+    window.hideLayoutItem = (listKey, itemKey) => {
+      ensureLayoutsValid();
+      state.layouts[listKey] = state.layouts[listKey].filter(x => x !== itemKey);
+      saveAndRender();
+    };
+
+    window.restoreLayoutItem = (listKey, itemKey) => {
+      ensureLayoutsValid();
+      if (!state.layouts[listKey].includes(itemKey)) {
+        state.layouts[listKey].push(itemKey);
+        saveAndRender();
+      }
+    };
+
+    function makeEditOverlayBar(listKey, itemKey, label, allowDelete = false) {
+      if (!isLayoutEditMode) return '';
+      return `
+        <div onclick="event.stopPropagation()" class="layout-ctrl-bar mb-2 p-1.5 rounded-lg bg-brand-600/15 border border-brand-500/40 flex items-center justify-between gap-2 text-[11px] select-none">
+          <span class="font-bold text-brand-500 truncate px-1 flex items-center gap-1.5"><span>⠿</span><span>Drag to reposition: ${label}</span></span>
+          ${allowDelete ? `<button type="button" onclick="window.hideLayoutItem('${listKey}','${itemKey}')" class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-500 hover:bg-rose-500 hover:text-white font-bold shrink-0" title="Remove from Home">✕ Hide</button>` : `<span class="text-[10px] text-brand-400 font-semibold px-1.5 shrink-0">Drop target</span>`}
+        </div>
+      `;
+    }
+
+    function applyDashboardLayoutAndControls() {
+      ensureLayoutsValid();
+      const dashMain = document.getElementById('pageDashboard');
+      const pinnedContainer = document.getElementById('dashPinnedChartsContainer');
+
+      document.querySelectorAll('.layout-ctrl-bar').forEach(el => el.remove());
+
+      const allDashBlocks = ['kpis', 'quarters', 'ledger', 'bottomRow'];
+      allDashBlocks.forEach(bid => {
+        const el = document.getElementById(`dashBlock_${bid}`);
+        if (!el) return;
+        if (!state.layouts.dashBlocks.includes(bid)) {
+          el.classList.add('hidden');
+        } else {
+          el.classList.remove('hidden');
+        }
       });
-      const estBonus = estNet - target;
-      const displayNet = hasActualNet ? Number(qConf.actualNet) : estNet;
-      const displayBonus = hasActualBonus ? Number(qConf.actualBonus) : (hasActualNet ? (Number(qConf.actualNet) - target) : estBonus);
-      return { qKey, estNet, target, paid, estBonus, displayNet, displayBonus, isConfirmed, qConf };
+
+      state.layouts.dashBlocks.forEach(bid => {
+        const el = document.getElementById(`dashBlock_${bid}`);
+        if (el) {
+          dashMain.insertBefore(el, pinnedContainer);
+          bindDragAttributes(el, 'dashBlocks', bid);
+          if (isLayoutEditMode) {
+            el.insertAdjacentHTML('afterbegin', makeEditOverlayBar('dashBlocks', bid, BLOCK_LABELS[bid] || bid, true));
+          }
+        }
+      });
+
+      const kpiContainer = document.getElementById('kpiGridContainer');
+      ['net', 'paid', 'daily', 'revpt'].forEach(kid => {
+        const kel = document.getElementById(`kpiCard_${kid}`);
+        if (!kel) return;
+        if (!state.layouts.dashKpis.includes(kid)) {
+          kel.classList.add('hidden');
+        } else {
+          kel.classList.remove('hidden');
+        }
+      });
+      state.layouts.dashKpis.forEach(kid => {
+        const kel = document.getElementById(`kpiCard_${kid}`);
+        if (kel) {
+          kpiContainer.appendChild(kel);
+          bindDragAttributes(kel, 'dashKpis', kid);
+          if (isLayoutEditMode) {
+            kel.insertAdjacentHTML('afterbegin', makeEditOverlayBar('dashKpis', kid, KPI_LABELS[kid] || kid, true));
+          }
+        }
+      });
+
+      const pinned = state.layouts.dashPinnedCharts || [];
+      if (pinned.length === 0) {
+        pinnedContainer.innerHTML = '';
+      } else {
+        pinnedContainer.innerHTML = pinned.map(cid => {
+          const meta = CHART_META[cid] || { title: cid, sub: '' };
+          const isWide = ['forecastCone', 'annualSalaryCone', 'quarterSeasonality'].includes(cid);
+          return `
+            <div id="pinnedChartBlock_${cid}" class="customizable-block ${isWide ? 'lg:col-span-2' : ''} bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm min-w-0">
+              ${makeEditOverlayBar('dashPinnedCharts', cid, `Pinned: ${meta.title}`, true)}
+              <h3 class="font-bold text-sm sm:text-base mb-1">${meta.title}</h3>
+              <p class="text-xs text-slate-500 mb-4">${meta.sub}</p>
+              <div class="h-64"><canvas id="homePinnedChart_${cid}"></canvas></div>
+            </div>
+          `;
+        }).join('');
+        pinned.forEach(cid => {
+          bindDragAttributes(document.getElementById(`pinnedChartBlock_${cid}`), 'dashPinnedCharts', cid);
+          renderSingleChartCanvas(cid, `homePinnedChart_${cid}`);
+        });
+      }
+
+      if (isLayoutEditMode) {
+        const hiddenBlocks = allDashBlocks.filter(b => !state.layouts.dashBlocks.includes(b));
+        const hiddenKpis = ['net', 'paid', 'daily', 'revpt'].filter(k => !state.layouts.dashKpis.includes(k));
+        const hiddenHtml = [
+          ...hiddenBlocks.map(b => `<button onclick="window.restoreLayoutItem('dashBlocks','${b}')" class="px-2.5 py-1 rounded-lg bg-brand-600/20 text-brand-400 font-semibold hover:bg-brand-600 hover:text-white">+ ${BLOCK_LABELS[b]}</button>`),
+          ...hiddenKpis.map(k => `<button onclick="window.restoreLayoutItem('dashKpis','${k}')" class="px-2.5 py-1 rounded-lg bg-purple-600/20 text-purple-400 font-semibold hover:bg-purple-600 hover:text-white">+ ${KPI_LABELS[k]}</button>`)
+        ].join('');
+        document.getElementById('hiddenHomeBlocksList').innerHTML = hiddenHtml || `<span class="text-slate-400 italic">All default blocks visible</span>`;
+
+        const unpinnedCharts = Object.keys(CHART_META).filter(c => !state.layouts.dashPinnedCharts.includes(c));
+        document.getElementById('addableHomeChartsList').innerHTML = unpinnedCharts.length
+          ? unpinnedCharts.map(c => `<button onclick="window.restoreLayoutItem('dashPinnedCharts','${c}')" class="px-2.5 py-1 rounded-lg bg-emerald-600/20 text-emerald-500 font-semibold hover:bg-emerald-600 hover:text-white">+ ${CHART_META[c].title}</button>`).join('')
+          : `<span class="text-slate-400 italic">All charts pinned to Home</span>`;
+      }
     }
 
     function renderKPIs() {
@@ -1129,52 +1620,41 @@
 
     function renderRecordsPage() {
       if (activePage !== 'pageRecords') return;
-      let maxDailyPts = { val: 0, label: '' }, maxDailyNet = { val: 0, label: '' };
-      (state.dailyLogs || []).forEach(l => {
-        if (l.pts > maxDailyPts.val) maxDailyPts = { val: l.pts, label: l.date };
-        if (l.net > maxDailyNet.val) maxDailyNet = { val: l.net, label: l.date };
+      ensureLayoutsValid();
+      const snap = snapshotAllRecords();
+
+      const cardMap = {
+        rec_dailyGross: { title: 'All-Time Daily Gross Record', emoji: '🏆', val: fmtCurr(state.recordHigh.amount), sub: `Set on ${state.recordHigh.date} • ${state.recordHigh.note || ''}`, hi: true, btn: `<button onclick="window.openRecordModal()" class="mt-3 text-xs font-semibold text-amber-400 text-left hover:underline">Update Record →</button>` },
+        rec_yrPaid: { title: 'Highest Amount Paid in a Year', emoji: '💰', val: fmtCurr(snap.yrPaid.val), sub: `Achieved in ${snap.yrPaid.label}` },
+        rec_qtrNet: { title: 'Highest Quarter 24% Net', emoji: '📈', val: fmtCurr(snap.qtrNet.val), sub: `Achieved in ${snap.qtrNet.label}` },
+        rec_mthPts: { title: 'Most Patients Seen in a Month', emoji: '🏥', val: snap.mthPts.val, sub: `Achieved in ${snap.mthPts.label}` },
+        rec_dailyPts: { title: 'Most Patients Seen in a Day', emoji: '👥', val: snap.dailyPts.val || '—', sub: snap.dailyPts.label ? `Logged on ${snap.dailyPts.label}` : 'Log daily shifts to track' },
+        rec_yrDays: { title: 'Most Days Worked in a Year', emoji: '📅', val: `${snap.yrDays.val} days`, sub: `Achieved in ${snap.yrDays.label}` },
+        rec_mthDays: { title: 'Most Days Worked in a Month', emoji: '🗓️', val: `${snap.mthDays.val} days`, sub: `Achieved in ${snap.mthDays.label}` },
+        rec_mthGross: { title: 'Highest Monthly Gross Production', emoji: '🚀', val: fmtCurr(snap.mthGross.val), sub: `Achieved in ${snap.mthGross.label}` },
+        rec_mthDailyAvg: { title: 'Best Monthly Daily Net Pace', emoji: '💎', val: `${fmtCurr(snap.mthDailyAvg.val)}/day`, sub: `Achieved in ${snap.mthDailyAvg.label}` }
+      };
+
+      const grid = document.getElementById('recordsGrid');
+      grid.innerHTML = state.layouts.recordsOrder.map(rk => {
+        const c = cardMap[rk];
+        if (!c) return '';
+        return `<div id="recordCard_${rk}" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl border ${c.hi ? 'border-amber-500/40' : 'border-slate-200 dark:border-slate-800'} p-5 flex flex-col justify-between min-w-0">
+          <div>
+            ${makeEditOverlayBar('recordsOrder', rk, c.title, false)}
+            <div class="flex items-center gap-2 mb-2"><span class="text-xl">${c.emoji}</span><h3 class="text-xs font-bold uppercase text-slate-400 truncate">${c.title}</h3></div>
+            <div class="text-2xl sm:text-3xl font-extrabold mono ${c.hi ? 'text-amber-400' : ''} truncate">${c.val}</div>
+            <div class="text-xs text-slate-500 mt-1">${c.sub || '—'}</div>
+          </div>${c.btn || ''}</div>`;
+      }).join('');
+
+      state.layouts.recordsOrder.forEach(rk => {
+        bindDragAttributes(document.getElementById(`recordCard_${rk}`), 'recordsOrder', rk);
       });
-      let maxMthPts = { val: 0, label: '' }, maxMthDays = { val: 0, label: '' }, maxMthGross = { val: 0, label: '' }, maxYrDays = { val: 0, label: '' }, maxYrPaid = { val: 0, label: '' }, maxQtrNet = { val: 0, label: '' }, maxMthDailyAvg = { val: 0, label: '' };
-      for (const yr in state.years) {
-        let yrDays = 0;
-        state.years[yr].forEach((m, idx) => {
-          const c = calculateMonth(m, state.settings, getEffectiveMonthOhipMode(yr, idx));
-          if (c.patients > maxMthPts.val) maxMthPts = { val: c.patients, label: `${m.month} ${yr}` };
-          if (c.daysWorked > maxMthDays.val) maxMthDays = { val: c.daysWorked, label: `${m.month} ${yr}` };
-          if (c.gross > maxMthGross.val) maxMthGross = { val: c.gross, label: `${m.month} ${yr}` };
-          if (c.dailyAvg > maxMthDailyAvg.val) maxMthDailyAvg = { val: c.dailyAvg, label: `${m.month} ${yr}` };
-          yrDays += c.daysWorked;
-        });
-        if (yrDays > maxYrDays.val) maxYrDays = { val: yrDays, label: yr };
-        const ym = getYearMetrics(yr, 11);
-        if (ym.ytdTotalPaid > maxYrPaid.val) maxYrPaid = { val: ym.ytdTotalPaid, label: yr };
-        ['Q1','Q2','Q3','Q4'].forEach(qk => {
-          const q = calculateQuarterSummary(yr, qk);
-          if (q.displayNet > maxQtrNet.val) maxQtrNet = { val: q.displayNet, label: `${qk} ${yr}` };
-        });
-      }
-      const card = (title, emoji, val, sub, hi = false, btn = '') => `<div class="bg-white dark:bg-slate-900 rounded-2xl border ${hi ? 'border-amber-500/40' : 'border-slate-200 dark:border-slate-800'} p-5 flex flex-col justify-between min-w-0">
-        <div><div class="flex items-center gap-2 mb-2"><span class="text-xl">${emoji}</span><h3 class="text-xs font-bold uppercase text-slate-400 truncate">${title}</h3></div>
-        <div class="text-2xl sm:text-3xl font-extrabold mono ${hi ? 'text-amber-400' : ''} truncate">${val}</div><div class="text-xs text-slate-500 mt-1">${sub || '—'}</div></div>${btn}</div>`;
-      document.getElementById('recordsGrid').innerHTML = [
-        card('All-Time Daily Gross Record', '🏆', fmtCurr(state.recordHigh.amount), `Set on ${state.recordHigh.date} • ${state.recordHigh.note || ''}`, true, `<button onclick="window.openRecordModal()" class="mt-3 text-xs font-semibold text-amber-400 text-left hover:underline">Update Record →</button>`),
-        card('Highest Amount Paid in a Year', '💰', fmtCurr(maxYrPaid.val), `Achieved in ${maxYrPaid.label}`),
-        card('Highest Quarter 24% Net', '📈', fmtCurr(maxQtrNet.val), `Achieved in ${maxQtrNet.label}`),
-        card('Most Patients Seen in a Month', '🏥', maxMthPts.val, `Achieved in ${maxMthPts.label}`),
-        card('Most Patients Seen in a Day', '👥', maxDailyPts.val || '—', maxDailyPts.label ? `Logged on ${maxDailyPts.label}` : 'Log daily shifts to track'),
-        card('Most Days Worked in a Year', '📅', `${maxYrDays.val} days`, `Achieved in ${maxYrDays.label}`),
-        card('Most Days Worked in a Month', '🗓️', `${maxMthDays.val} days`, `Achieved in ${maxMthDays.label}`),
-        card('Highest Monthly Gross Production', '🚀', fmtCurr(maxMthGross.val), `Achieved in ${maxMthGross.label}`),
-        card('Best Monthly Daily Net Pace', '💎', `${fmtCurr(maxMthDailyAvg.val)}/day`, `Achieved in ${maxMthDailyAvg.label}`)
-      ].join('');
     }
 
     window.setConeQuarter = (qk) => { state.coneQuarter = qk; saveAndRender(); };
 
-    // Helper: For any month index in yearStr, returns how many work days remain to be worked.
-    // Completed past months (idx < lastActiveIdx) have 0 remaining days (even if daysWorked < scheduled due to vacation/half-days).
-    // The current in-progress month (idx === lastActiveIdx) has max(0, scheduled - daysWorked) remaining days.
-    // Future unworked months (idx > lastActiveIdx) have their full scheduled (mtDays + fDays) remaining days.
     function getMonthRemainingDaysAndTarget(mCalc, mIdx, lastActiveIdx) {
       const schedDays = (mCalc.mtDays + mCalc.fDays) || 0;
       const baselineDaily = schedDays > 0 ? (mCalc.target / schedDays) : 750;
@@ -1188,8 +1668,10 @@
       }
     }
 
-    function renderChartsPage() {
-      if (activePage !== 'pageCharts') return;
+    function renderSingleChartCanvas(chartKey, canvasId) {
+      const canvasEl = document.getElementById(canvasId);
+      if (!canvasEl) return;
+
       const curYearStr = state.currentYear, prevYearStr = String(Number(curYearStr) - 1);
       const months = state.years[curYearStr] || [], prevMonths = state.years[prevYearStr] || [];
       const labels = months.map(m => m.month);
@@ -1204,206 +1686,257 @@
         });
       });
 
-      const makeChart = (key, id, cfg) => { if (chartsObj[key]) chartsObj[key].destroy(); chartsObj[key] = new Chart(document.getElementById(id), cfg); };
-      makeChart('netTarget', 'chartPageNetTarget', {
-        type: 'bar',
-        data: { labels, datasets: [{ label: '24% Net', data: calcCur.map(c => c.net), backgroundColor: 'rgba(99, 102, 241, 0.8)', borderRadius: 4 }, { label: 'Target', data: calcCur.map(c => c.target), type: 'line', borderColor: '#f59e0b', borderWidth: 2 }] },
-        options: { responsive: true, maintainAspectRatio: false }
-      });
-      makeChart('dailyAvg', 'chartPageDailyAvg', {
-        type: 'line',
-        data: { labels, datasets: [
-          { label: `${curYearStr} Daily Avg ($/d)`, data: calcCur.map(c => c.isActive ? c.dailyAvg : null), borderColor: '#10b981', borderWidth: 2, tension: 0.3 },
-          { label: `${prevYearStr} Daily Avg ($/d)`, data: calcPrev.map(c => c.isActive ? c.dailyAvg : null), borderColor: '#94a3b8', borderDash: [5, 5], borderWidth: 2, tension: 0.3 },
-          { label: 'All-Time Peak Month Pace', data: labels.map(() => allTimeMaxDaily), borderColor: '#f59e0b', borderDash: [2, 2], borderWidth: 1.5, pointRadius: 0 }
-        ]},
-        options: { responsive: true, maintainAspectRatio: false }
-      });
-      makeChart('patients', 'chartPagePatients', {
-        type: 'bar',
-        data: { labels, datasets: [
-          { label: 'Total Patients', data: calcCur.map(c => c.patients), backgroundColor: 'rgba(56, 189, 248, 0.7)', yAxisID: 'y' },
-          { label: 'Rev / Pt ($)', data: calcCur.map(c => c.revPerPt), type: 'line', borderColor: '#a855f7', yAxisID: 'y1' }
-        ]},
-        options: { responsive: true, maintainAspectRatio: false, scales: { y: { position: 'left' }, y1: { position: 'right', grid: { drawOnChartArea: false } } } }
-      });
-      makeChart('breakdown', 'chartPageBreakdown', {
-        type: 'bar',
-        data: { labels, datasets: [
-          { label: "Acct Rec'd", data: calcCur.map(c => c.reci), backgroundColor: 'rgba(99, 102, 241, 0.8)' },
-          { label: 'OHIP (Active Basis)', data: calcCur.map((c, idx) => getEffectiveMonthOhipMode(curYearStr, idx) === 'total' ? (c.totalOhip || c.ohip) : c.ohip), backgroundColor: 'rgba(244, 63, 94, 0.8)' }
-        ]},
-        options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true } } }
-      });
-
       const lastActiveIdx = getLastActiveMonthIndex(curYearStr);
       const yrMetrics = getYearMetrics(curYearStr);
       const runRateDaily = yrMetrics.avgDailyNet > 0 ? yrMetrics.avgDailyNet : 965.25;
       const peakDaily = allTimeMaxDaily > 0 ? allTimeMaxDaily : 1291.68;
 
-      // Chart 5: Quarterly Payout Cone / Forecast
-      // Starts from exact Quarter Net earned so far + (remaining days in quarter * scenario daily rate)
-      const qk = state.coneQuarter || 'Q4';
-      document.getElementById('coneQuarterSelect').value = qk;
-      const qMap = { Q1: [0, 1, 2], Q2: [3, 4, 5], Q3: [6, 7, 8], Q4: [9, 10, 11] };
-      const qIdxs = qMap[qk] || [9, 10, 11];
-      const qMonths = qIdxs.map(i => calcCur[i]);
-      const coneLabels = ['Start', ...qMonths.map(m => m.month)];
+      if (chartsObj[canvasId]) chartsObj[canvasId].destroy();
 
-      let cumTarget = [0], cumActual = [0], cumCons = [0], cumRun = [0], cumPeak = [0];
-      let qRemDaysTotal = 0;
+      if (chartKey === 'netTarget') {
+        chartsObj[canvasId] = new Chart(canvasEl, {
+          type: 'bar',
+          data: { labels, datasets: [{ label: '24% Net', data: calcCur.map(c => c.net), backgroundColor: 'rgba(99, 102, 241, 0.8)', borderRadius: 4 }, { label: 'Target', data: calcCur.map(c => c.target), type: 'line', borderColor: '#f59e0b', borderWidth: 2 }] },
+          options: { responsive: true, maintainAspectRatio: false }
+        });
+      } else if (chartKey === 'dailyAvg') {
+        chartsObj[canvasId] = new Chart(canvasEl, {
+          type: 'line',
+          data: { labels, datasets: [
+            { label: `${curYearStr} Daily Avg ($/d)`, data: calcCur.map(c => c.isActive ? c.dailyAvg : null), borderColor: '#10b981', borderWidth: 2, tension: 0.3 },
+            { label: `${prevYearStr} Daily Avg ($/d)`, data: calcPrev.map(c => c.isActive ? c.dailyAvg : null), borderColor: '#94a3b8', borderDash: [5, 5], borderWidth: 2, tension: 0.3 },
+            { label: 'All-Time Peak Month Pace', data: labels.map(() => allTimeMaxDaily), borderColor: '#f59e0b', borderDash: [2, 2], borderWidth: 1.5, pointRadius: 0 }
+          ]},
+          options: { responsive: true, maintainAspectRatio: false }
+        });
+      } else if (chartKey === 'patients') {
+        chartsObj[canvasId] = new Chart(canvasEl, {
+          type: 'bar',
+          data: { labels, datasets: [
+            { label: 'Total Patients', data: calcCur.map(c => c.patients), backgroundColor: 'rgba(56, 189, 248, 0.7)', yAxisID: 'y' },
+            { label: 'Rev / Pt ($)', data: calcCur.map(c => c.revPerPt), type: 'line', borderColor: '#a855f7', yAxisID: 'y1' }
+          ]},
+          options: { responsive: true, maintainAspectRatio: false, scales: { y: { position: 'left' }, y1: { position: 'right', grid: { drawOnChartArea: false } } } }
+        });
+      } else if (chartKey === 'breakdown') {
+        chartsObj[canvasId] = new Chart(canvasEl, {
+          type: 'bar',
+          data: { labels, datasets: [
+            { label: "Acct Rec'd", data: calcCur.map(c => c.reci), backgroundColor: 'rgba(99, 102, 241, 0.8)' },
+            { label: 'OHIP (Active Basis)', data: calcCur.map((c, idx) => getEffectiveMonthOhipMode(curYearStr, idx) === 'total' ? (c.totalOhip || c.ohip) : c.ohip), backgroundColor: 'rgba(244, 63, 94, 0.8)' }
+          ]},
+          options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true } } }
+        });
+      } else if (chartKey === 'forecastCone') {
+        const qk = state.coneQuarter || 'Q4';
+        const qMap = { Q1: [0, 1, 2], Q2: [3, 4, 5], Q3: [6, 7, 8], Q4: [9, 10, 11] };
+        const qIdxs = qMap[qk] || [9, 10, 11];
+        const qMonths = qIdxs.map(i => calcCur[i]);
+        const coneLabels = ['Start', ...qMonths.map(m => m.month)];
+        let cumTarget = [0], cumActual = [0], cumCons = [0], cumRun = [0], cumPeak = [0], qRemDaysTotal = 0;
 
-      qMonths.forEach((m, i) => {
-        const globalMIdx = qIdxs[i];
-        const { remDays, baselineDaily, isFuture } = getMonthRemainingDaysAndTarget(m, globalMIdx, lastActiveIdx);
-        qRemDaysTotal += remDays;
+        qMonths.forEach((m, i) => {
+          const { remDays, baselineDaily, isFuture } = getMonthRemainingDaysAndTarget(m, qIdxs[i], lastActiveIdx);
+          qRemDaysTotal += remDays;
+          cumTarget.push(cumTarget[i] + m.target);
+          if (!isFuture && m.isActive) {
+            cumActual.push((cumActual[i] ?? 0) + m.net);
+            cumCons.push(cumCons[i] + m.net + (remDays * baselineDaily));
+            cumRun.push(cumRun[i] + m.net + (remDays * runRateDaily));
+            cumPeak.push(cumPeak[i] + m.net + (remDays * peakDaily));
+          } else {
+            cumActual.push(null);
+            cumCons.push(cumCons[i] + (remDays * baselineDaily));
+            cumRun.push(cumRun[i] + (remDays * runRateDaily));
+            cumPeak.push(cumPeak[i] + (remDays * peakDaily));
+          }
+        });
 
-        cumTarget.push(cumTarget[i] + m.target);
+        chartsObj[canvasId] = new Chart(canvasEl, {
+          type: 'line',
+          data: {
+            labels: coneLabels,
+            datasets: [
+              { label: 'Actual Logged Net', data: cumActual, borderColor: '#6366f1', backgroundColor: '#6366f1', borderWidth: 3, pointRadius: 4, tension: 0.2 },
+              { label: `Record Peak Cone (${fmtCurr(peakDaily)}/d)`, data: cumPeak, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.12)', borderDash: [4, 4], borderWidth: 2, fill: '+1', tension: 0.2 },
+              { label: `Current Run-Rate (${fmtCurr(runRateDaily)}/d)`, data: cumRun, borderColor: '#38bdf8', backgroundColor: 'rgba(56, 189, 248, 0.12)', borderDash: [6, 3], borderWidth: 2.5, fill: '+1', tension: 0.2 },
+              { label: 'Conservative (Target Pace)', data: cumCons, borderColor: '#64748b', borderDash: [3, 3], borderWidth: 2, tension: 0.2 },
+              { label: 'Quarter Target Threshold', data: cumTarget, borderColor: '#f59e0b', borderWidth: 2, pointRadius: 2, tension: 0.1 }
+            ]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } }, scales: { x: { ticks: { color: '#94a3b8' } }, y: { ticks: { color: '#94a3b8', callback: v => '$' + (v / 1000).toFixed(0) + 'k' } } } }
+        });
 
-        if (!isFuture && m.isActive) {
-          const earned = m.net;
-          cumActual.push((cumActual[i] ?? 0) + earned);
-          cumCons.push(cumCons[i] + earned + (remDays * baselineDaily));
-          cumRun.push(cumRun[i] + earned + (remDays * runRateDaily));
-          cumPeak.push(cumPeak[i] + earned + (remDays * peakDaily));
-        } else {
-          cumActual.push(null);
-          cumCons.push(cumCons[i] + (remDays * baselineDaily));
-          cumRun.push(cumRun[i] + (remDays * runRateDaily));
-          cumPeak.push(cumPeak[i] + (remDays * peakDaily));
+        if (canvasId === 'chartPageForecastCone') {
+          const totalQTarget = cumTarget[3], consBonus = cumCons[3] - totalQTarget, runBonus = cumRun[3] - totalQTarget, peakBonus = cumPeak[3] - totalQTarget;
+          document.getElementById('coneQuarterSelect').value = qk;
+          document.getElementById('coneSummaryCards').innerHTML = `
+            <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/70">
+              <span class="text-slate-600 dark:text-slate-400 block font-semibold">Conservative Projected Bonus</span>
+              <span class="text-lg font-extrabold mono ${consBonus >= 0 ? 'text-slate-900 dark:text-slate-100' : 'text-rose-600 dark:text-rose-400'}">${fmtCurr(consBonus)}</span>
+              <span class="text-[11px] text-slate-600 dark:text-slate-400 block">Qtr Net: ${fmtCurr(cumCons[3])} vs Target ${fmtCurr(totalQTarget)} (${fmtNum(qRemDaysTotal, 1)}d left)</span>
+            </div>
+            <div class="p-3 rounded-xl bg-sky-500/10 border border-sky-500/30">
+              <span class="text-sky-700 dark:text-sky-400 block font-semibold">Current Run-Rate Bonus (${fmtCurr(runRateDaily)}/d)</span>
+              <span class="text-lg font-extrabold mono ${runBonus >= 0 ? 'text-sky-700 dark:text-sky-400' : 'text-rose-600 dark:text-rose-400'}">${fmtCurr(runBonus)}</span>
+              <span class="text-[11px] text-slate-600 dark:text-slate-400 block">Projected Qtr Net: ${fmtCurr(cumRun[3])}</span>
+            </div>
+            <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
+              <span class="text-emerald-700 dark:text-emerald-400 block font-semibold">Record Peak Pace Bonus (${fmtCurr(peakDaily)}/d)</span>
+              <span class="text-lg font-extrabold mono text-emerald-700 dark:text-emerald-400">${fmtCurr(peakBonus)}</span>
+              <span class="text-[11px] text-slate-600 dark:text-slate-400 block">Projected Qtr Net: ${fmtCurr(cumPeak[3])}</span>
+            </div>`;
         }
-      });
+      } else if (chartKey === 'annualSalaryCone') {
+        const annualLabels = ['Start', ...calcCur.map(m => m.month)];
+        let annTarget = [0], annActual = [0], annCons = [0], annRun = [0], annPeak = [0], totalRemainingDays = 0;
 
-      const totalQTarget = cumTarget[3];
-      const consBonus = cumCons[3] - totalQTarget;
-      const runBonus = cumRun[3] - totalQTarget;
-      const peakBonus = cumPeak[3] - totalQTarget;
+        calcCur.forEach((m, i) => {
+          const { remDays, baselineDaily, isFuture } = getMonthRemainingDaysAndTarget(m, i, lastActiveIdx);
+          totalRemainingDays += remDays;
+          annTarget.push(annTarget[i] + m.target);
+          if (!isFuture && m.isActive) {
+            annActual.push((annActual[i] ?? 0) + m.net);
+            annCons.push(annCons[i] + m.net + (remDays * baselineDaily));
+            annRun.push(annRun[i] + m.net + (remDays * runRateDaily));
+            annPeak.push(annPeak[i] + m.net + (remDays * peakDaily));
+          } else {
+            annActual.push(null);
+            annCons.push(annCons[i] + (remDays * baselineDaily));
+            annRun.push(annRun[i] + (remDays * runRateDaily));
+            annPeak.push(annPeak[i] + (remDays * peakDaily));
+          }
+        });
 
-      makeChart('forecastCone', 'chartPageForecastCone', {
-        type: 'line',
-        data: {
-          labels: coneLabels,
-          datasets: [
-            { label: 'Actual Logged Net', data: cumActual, borderColor: '#6366f1', backgroundColor: '#6366f1', borderWidth: 3, pointRadius: 4, tension: 0.2 },
-            { label: `Record Peak Cone (${fmtCurr(peakDaily)}/d)`, data: cumPeak, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.12)', borderDash: [4, 4], borderWidth: 2, fill: '+1', tension: 0.2 },
-            { label: `Current Run-Rate (${fmtCurr(runRateDaily)}/d)`, data: cumRun, borderColor: '#38bdf8', backgroundColor: 'rgba(56, 189, 248, 0.12)', borderDash: [6, 3], borderWidth: 2.5, fill: '+1', tension: 0.2 },
-            { label: 'Conservative (Target Pace)', data: cumCons, borderColor: '#64748b', borderDash: [3, 3], borderWidth: 2, tension: 0.2 },
-            { label: 'Quarter Target Threshold', data: cumTarget, borderColor: '#f59e0b', borderWidth: 2, pointRadius: 2, tension: 0.1 }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } },
-          scales: {
-            x: { ticks: { color: '#94a3b8' } },
-            y: { ticks: { color: '#94a3b8', callback: v => '$' + (v / 1000).toFixed(0) + 'k' } }
+        chartsObj[canvasId] = new Chart(canvasEl, {
+          type: 'line',
+          data: {
+            labels: annualLabels,
+            datasets: [
+              { label: 'Actual Logged YTD Net', data: annActual, borderColor: '#6366f1', backgroundColor: '#6366f1', borderWidth: 3, pointRadius: 4, tension: 0.2 },
+              { label: `Peak Pace Annual Trajectory (${fmtCurr(peakDaily)}/d)`, data: annPeak, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.10)', borderDash: [4, 4], borderWidth: 2, fill: '+1', tension: 0.2 },
+              { label: `Current Run-Rate Salary (${fmtCurr(runRateDaily)}/d)`, data: annRun, borderColor: '#38bdf8', backgroundColor: 'rgba(56, 189, 248, 0.12)', borderDash: [6, 3], borderWidth: 2.5, fill: '+1', tension: 0.2 },
+              { label: 'Conservative (Target Pace)', data: annCons, borderColor: '#64748b', borderDash: [3, 3], borderWidth: 2, tension: 0.2 },
+              { label: 'Annual Target Baseline', data: annTarget, borderColor: '#f59e0b', borderWidth: 2, pointRadius: 2, tension: 0.1 }
+            ]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } }, scales: { x: { ticks: { color: '#94a3b8' } }, y: { ticks: { color: '#94a3b8', callback: v => '$' + (v / 1000).toFixed(0) + 'k' } } } }
+        });
+
+        if (canvasId === 'chartPageAnnualSalaryCone') {
+          document.getElementById('annualConeYearLbl').textContent = curYearStr;
+          document.getElementById('annualRemainingDaysBadge').textContent = `${fmtNum(totalRemainingDays, 1)} shifts remaining in ${curYearStr}`;
+          document.getElementById('annualConeSummaryCards').innerHTML = `
+            <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/70">
+              <span class="text-slate-600 dark:text-slate-400 block font-semibold">Conservative Annual Salary</span>
+              <span class="text-lg font-extrabold mono text-slate-900 dark:text-slate-100">${fmtCurr(annCons[12])}</span>
+              <span class="text-[11px] text-slate-600 dark:text-slate-400 block">YTD Net (${fmtCurr(yrMetrics.ytdNet)}) + ${fmtNum(totalRemainingDays, 1)}d @ Target Pace</span>
+            </div>
+            <div class="p-3 rounded-xl bg-sky-500/10 border border-sky-500/30">
+              <span class="text-sky-700 dark:text-sky-400 block font-semibold">Run-Rate Projected Salary (${fmtCurr(runRateDaily)}/d)</span>
+              <span class="text-lg font-extrabold mono text-sky-700 dark:text-sky-400">${fmtCurr(annRun[12])}</span>
+              <span class="text-[11px] text-slate-600 dark:text-slate-400 block">YTD Net (${fmtCurr(yrMetrics.ytdNet)}) + ${fmtCurr(totalRemainingDays * runRateDaily)} (${fmtNum(totalRemainingDays, 1)}d)</span>
+            </div>
+            <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
+              <span class="text-emerald-700 dark:text-emerald-400 block font-semibold">Peak Pace Projected Salary (${fmtCurr(peakDaily)}/d)</span>
+              <span class="text-lg font-extrabold mono text-emerald-700 dark:text-emerald-400">${fmtCurr(annPeak[12])}</span>
+              <span class="text-[11px] text-slate-600 dark:text-slate-400 block">YTD Net (${fmtCurr(yrMetrics.ytdNet)}) + ${fmtCurr(totalRemainingDays * peakDaily)} (${fmtNum(totalRemainingDays, 1)}d)</span>
+            </div>`;
+        }
+      } else if (chartKey === 'quarterSeasonality') {
+        const qKeys = ['Q1', 'Q2', 'Q3', 'Q4'];
+        const qTitleMap = { Q1: 'Q1 (Jan–Mar)', Q2: 'Q2 (Apr–Jun)', Q3: 'Q3 (Jul–Sep)', Q4: 'Q4 (Oct–Dec)' };
+        const qStats = qKeys.map(qk => {
+          const nets = [], bonuses = [];
+          Object.keys(state.years || {}).forEach(yr => {
+            const qSum = calculateQuarterSummary(yr, qk, state.quarterOhipMode);
+            if ((qSum.activeMonthsCount === 3 || qSum.isConfirmed) && qSum.displayNet > 0) {
+              nets.push(qSum.displayNet); bonuses.push(qSum.displayBonus);
+            }
+          });
+          if (nets.length === 0) {
+            Object.keys(state.years || {}).forEach(yr => {
+              const qSum = calculateQuarterSummary(yr, qk, state.quarterOhipMode);
+              if (qSum.displayNet > 0) { nets.push(qSum.displayNet); bonuses.push(qSum.displayBonus); }
+            });
+          }
+          const avgNet = nets.length ? nets.reduce((a, b) => a + b, 0) / nets.length : 0;
+          const avgBonus = bonuses.length ? bonuses.reduce((a, b) => a + b, 0) / bonuses.length : 0;
+          return { qKey: qk, avgNet, avgBonus, count: nets.length };
+        });
+
+        let bestQ = qStats[0];
+        qStats.forEach(s => { if (s.avgNet > bestQ.avgNet) bestQ = s; });
+
+        chartsObj[canvasId] = new Chart(canvasEl, {
+          type: 'bar',
+          data: {
+            labels: qKeys.map(k => qTitleMap[k]),
+            datasets: [
+              { label: 'Average 24% Net Earnings', data: qStats.map(s => Number(s.avgNet.toFixed(2))), backgroundColor: 'rgba(16, 185, 129, 0.82)', borderRadius: 6 },
+              { label: 'Average Quarter Bonus', data: qStats.map(s => Number(s.avgBonus.toFixed(2))), type: 'line', borderColor: '#f59e0b', backgroundColor: '#f59e0b', borderWidth: 2.5, pointRadius: 4, tension: 0.25 }
+            ]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } }, scales: { x: { ticks: { color: '#94a3b8' } }, y: { ticks: { color: '#94a3b8', callback: v => '$' + (v / 1000).toFixed(0) + 'k' } } } }
+        });
+
+        if (canvasId === 'chartPageQuarterSeasonality') {
+          document.getElementById('bestSeasonalityBadge').textContent = bestQ && bestQ.avgNet > 0 ? `Strongest Quarter: ${bestQ.qKey} (${fmtCurr(bestQ.avgNet)})` : 'Strongest Quarter: —';
+          document.getElementById('seasonalitySummaryCards').innerHTML = qStats.map(s => {
+            const isBest = s.qKey === bestQ.qKey && s.avgNet > 0;
+            return `<div class="p-3 rounded-xl ${isBest ? 'bg-emerald-500/10 border border-emerald-500/30' : 'bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/70'}">
+              <div class="flex items-center justify-between mb-1"><span class="font-bold text-slate-900 dark:text-white">${qTitleMap[s.qKey]}</span>${isBest ? '<span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500 text-white">★ #1</span>' : ''}</div>
+              <div class="space-y-0.5 text-[11px]">
+                <div class="flex justify-between"><span class="text-slate-500 dark:text-slate-400">Avg 24% Net:</span><span class="mono font-bold text-emerald-600 dark:text-emerald-400">${fmtCurr(s.avgNet)}</span></div>
+                <div class="flex justify-between"><span class="text-slate-500 dark:text-slate-400">Avg Bonus:</span><span class="mono font-semibold text-amber-600 dark:text-amber-400">${fmtCurr(s.avgBonus)}</span></div>
+              </div></div>`;
+          }).join('');
+        }
+      }
+    }
+
+    function renderChartsPage() {
+      if (activePage !== 'pageCharts') return;
+      ensureLayoutsValid();
+      const grid = document.getElementById('chartsGridContainer');
+      document.querySelectorAll('#chartsGridContainer .layout-ctrl-bar').forEach(el => el.remove());
+
+      state.layouts.chartsOrder.forEach(cid => {
+        const block = document.getElementById(`chartBlock_${cid}`);
+        if (block) {
+          grid.appendChild(block);
+          bindDragAttributes(block, 'chartsOrder', cid);
+          if (isLayoutEditMode) {
+            block.insertAdjacentHTML('afterbegin', makeEditOverlayBar('chartsOrder', cid, CHART_META[cid]?.title || cid, false));
           }
         }
       });
 
-      document.getElementById('coneSummaryCards').innerHTML = `
-        <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/70">
-          <span class="text-slate-600 dark:text-slate-400 block font-semibold">Conservative Projected Bonus</span>
-          <span class="text-lg font-extrabold mono ${consBonus >= 0 ? 'text-slate-900 dark:text-slate-100' : 'text-rose-600 dark:text-rose-400'}">${fmtCurr(consBonus)}</span>
-          <span class="text-[11px] text-slate-600 dark:text-slate-400 block">Qtr Net: ${fmtCurr(cumCons[3])} vs Target ${fmtCurr(totalQTarget)} (${fmtNum(qRemDaysTotal, 1)}d left)</span>
-        </div>
-        <div class="p-3 rounded-xl bg-sky-500/10 border border-sky-500/30">
-          <span class="text-sky-700 dark:text-sky-400 block font-semibold">Current Run-Rate Bonus (${fmtCurr(runRateDaily)}/d)</span>
-          <span class="text-lg font-extrabold mono ${runBonus >= 0 ? 'text-sky-700 dark:text-sky-400' : 'text-rose-600 dark:text-rose-400'}">${fmtCurr(runBonus)}</span>
-          <span class="text-[11px] text-slate-600 dark:text-slate-400 block">Projected Qtr Net: ${fmtCurr(cumRun[3])}</span>
-        </div>
-        <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
-          <span class="text-emerald-700 dark:text-emerald-400 block font-semibold">Record Peak Pace Bonus (${fmtCurr(peakDaily)}/d)</span>
-          <span class="text-lg font-extrabold mono text-emerald-700 dark:text-emerald-400">${fmtCurr(peakBonus)}</span>
-          <span class="text-[11px] text-slate-600 dark:text-slate-400 block">Projected Qtr Net: ${fmtCurr(cumPeak[3])}</span>
-        </div>
-      `;
-
-      // Chart 6: Annual Projected Salary & Total Earnings Trajectory (Jan - Dec)
-      // Uses exact YTD Net Cut earned so far + (remaining work days in year * scenario daily rate)
-      document.getElementById('annualConeYearLbl').textContent = curYearStr;
-      const annualLabels = ['Start', ...calcCur.map(m => m.month)];
-
-      let annTarget = [0], annActual = [0], annCons = [0], annRun = [0], annPeak = [0];
-      let totalRemainingDays = 0;
-
-      calcCur.forEach((m, i) => {
-        const { remDays, baselineDaily, isFuture } = getMonthRemainingDaysAndTarget(m, i, lastActiveIdx);
-        totalRemainingDays += remDays;
-
-        annTarget.push(annTarget[i] + m.target);
-
-        if (!isFuture && m.isActive) {
-          const earned = m.net;
-          annActual.push((annActual[i] ?? 0) + earned);
-          annCons.push(annCons[i] + earned + (remDays * baselineDaily));
-          annRun.push(annRun[i] + earned + (remDays * runRateDaily));
-          annPeak.push(annPeak[i] + earned + (remDays * peakDaily));
-        } else {
-          annActual.push(null);
-          annCons.push(annCons[i] + (remDays * baselineDaily));
-          annRun.push(annRun[i] + (remDays * runRateDaily));
-          annPeak.push(annPeak[i] + (remDays * peakDaily));
-        }
-      });
-
-      const finalAnnTarget = annTarget[12];
-      // Guaranteed exact match: YTD Net Cut + Remaining Days * Rate
-      const finalConsSalary = annCons[12];
-      const finalRunSalary = annRun[12];
-      const finalPeakSalary = annPeak[12];
-
-      document.getElementById('annualRemainingDaysBadge').textContent = `${fmtNum(totalRemainingDays, 1)} shifts remaining in ${curYearStr}`;
-
-      makeChart('annualSalaryCone', 'chartPageAnnualSalaryCone', {
-        type: 'line',
-        data: {
-          labels: annualLabels,
-          datasets: [
-            { label: 'Actual Logged YTD Net', data: annActual, borderColor: '#6366f1', backgroundColor: '#6366f1', borderWidth: 3, pointRadius: 4, tension: 0.2 },
-            { label: `Peak Pace Annual Trajectory (${fmtCurr(peakDaily)}/d)`, data: annPeak, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.10)', borderDash: [4, 4], borderWidth: 2, fill: '+1', tension: 0.2 },
-            { label: `Current Run-Rate Salary (${fmtCurr(runRateDaily)}/d)`, data: annRun, borderColor: '#38bdf8', backgroundColor: 'rgba(56, 189, 248, 0.12)', borderDash: [6, 3], borderWidth: 2.5, fill: '+1', tension: 0.2 },
-            { label: 'Conservative (Target Pace)', data: annCons, borderColor: '#64748b', borderDash: [3, 3], borderWidth: 2, tension: 0.2 },
-            { label: 'Annual Target Baseline', data: annTarget, borderColor: '#f59e0b', borderWidth: 2, pointRadius: 2, tension: 0.1 }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } },
-          scales: {
-            x: { ticks: { color: '#94a3b8' } },
-            y: { ticks: { color: '#94a3b8', callback: v => '$' + (v / 1000).toFixed(0) + 'k' } }
-          }
-        }
-      });
-
-      document.getElementById('annualConeSummaryCards').innerHTML = `
-        <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/70">
-          <span class="text-slate-600 dark:text-slate-400 block font-semibold">Conservative Annual Salary</span>
-          <span class="text-lg font-extrabold mono text-slate-900 dark:text-slate-100">${fmtCurr(finalConsSalary)}</span>
-          <span class="text-[11px] text-slate-600 dark:text-slate-400 block">YTD Net (${fmtCurr(yrMetrics.ytdNet)}) + ${fmtNum(totalRemainingDays, 1)}d @ Target Pace</span>
-        </div>
-        <div class="p-3 rounded-xl bg-sky-500/10 border border-sky-500/30">
-          <span class="text-sky-700 dark:text-sky-400 block font-semibold">Run-Rate Projected Salary (${fmtCurr(runRateDaily)}/d)</span>
-          <span class="text-lg font-extrabold mono text-sky-700 dark:text-sky-400">${fmtCurr(finalRunSalary)}</span>
-          <span class="text-[11px] text-slate-600 dark:text-slate-400 block">YTD Net (${fmtCurr(yrMetrics.ytdNet)}) + ${fmtCurr(totalRemainingDays * runRateDaily)} (${fmtNum(totalRemainingDays, 1)}d)</span>
-        </div>
-        <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
-          <span class="text-emerald-700 dark:text-emerald-400 block font-semibold">Peak Pace Projected Salary (${fmtCurr(peakDaily)}/d)</span>
-          <span class="text-lg font-extrabold mono text-emerald-700 dark:text-emerald-400">${fmtCurr(finalPeakSalary)}</span>
-          <span class="text-[11px] text-slate-600 dark:text-slate-400 block">YTD Net (${fmtCurr(yrMetrics.ytdNet)}) + ${fmtCurr(totalRemainingDays * peakDaily)} (${fmtNum(totalRemainingDays, 1)}d)</span>
-        </div>
-      `;
+      renderSingleChartCanvas('netTarget', 'chartPageNetTarget');
+      renderSingleChartCanvas('dailyAvg', 'chartPageDailyAvg');
+      renderSingleChartCanvas('patients', 'chartPagePatients');
+      renderSingleChartCanvas('breakdown', 'chartPageBreakdown');
+      renderSingleChartCanvas('forecastCone', 'chartPageForecastCone');
+      renderSingleChartCanvas('annualSalaryCone', 'chartPageAnnualSalaryCone');
+      renderSingleChartCanvas('quarterSeasonality', 'chartPageQuarterSeasonality');
     }
 
     function renderAll() {
       if (!currentUser) return;
+      ensureLayoutsValid();
       populateYearDropdowns();
-      if (activePage === 'pageDashboard') { renderKPIs(); renderQuarterCards(); renderLedgerTable(); renderChart(); renderDailyLogs(); }
-      else if (activePage === 'pageRecords') { renderRecordsPage(); }
-      else if (activePage === 'pageCharts') { renderChartsPage(); }
+      if (activePage === 'pageDashboard') {
+        renderKPIs();
+        renderQuarterCards();
+        renderLedgerTable();
+        renderChart();
+        renderDailyLogs();
+        applyDashboardLayoutAndControls();
+      } else if (activePage === 'pageRecords') {
+        renderRecordsPage();
+      } else if (activePage === 'pageCharts') {
+        renderChartsPage();
+      }
     }
 
     window.switchYear = (yr) => {
@@ -1469,6 +2002,7 @@
     };
     window.closeMonthModal = () => document.getElementById('monthModal').classList.add('hidden');
     window.saveMonthModal = () => {
+      const beforeSnap = snapshotAllRecords();
       const m = state.years[state.currentYear][editingMonthIdx];
       m.mtDays = Number(document.getElementById('editMtDays').value) || 0; m.fDays = Number(document.getElementById('editFDays').value) || 0;
       m.daysWorked = Number(document.getElementById('editDaysWorked').value) || 0;
@@ -1476,7 +2010,9 @@
       m.gross = Number(document.getElementById('editGross').value) || 0; m.reci = Number(document.getElementById('editReci').value) || 0;
       m.ohip = Number(document.getElementById('editOhip').value) || 0; m.totalOhip = Number(document.getElementById('editTotalOhip').value) || 0;
       m.paid = Number(document.getElementById('editPaid').value) || 0; m.patients = Number(document.getElementById('editPatients').value) || 0;
-      window.closeMonthModal(); saveAndRender();
+      window.closeMonthModal();
+      checkAndCelebrateNewRecords(beforeSnap);
+      saveAndRender();
     };
 
     let editingQuarterKey = null;
@@ -1502,9 +2038,12 @@
     window.resetQuarterActuals = () => { state.quarterConfirmations[state.currentYear][editingQuarterKey] = { confirmed: false, actualNet: null, actualBonus: null }; window.closeQuarterModal(); saveAndRender(); };
     window.closeQuarterModal = () => document.getElementById('quarterModal').classList.add('hidden');
     window.saveQuarterModal = () => {
+      const beforeSnap = snapshotAllRecords();
       const nr = document.getElementById('qEditActualNet').value.trim(), br = document.getElementById('qEditActualBonus').value.trim();
       state.quarterConfirmations[state.currentYear][editingQuarterKey] = { confirmed: document.getElementById('qEditConfirmed').checked || nr !== '' || br !== '', actualNet: nr === '' ? null : Number(nr), actualBonus: br === '' ? null : Number(br) };
-      window.closeQuarterModal(); saveAndRender();
+      window.closeQuarterModal();
+      checkAndCelebrateNewRecords(beforeSnap);
+      saveAndRender();
     };
 
     window.openDailyLogModal = () => {
@@ -1537,17 +2076,77 @@
     };
     window.closeDailyLogModal = () => document.getElementById('dailyLogModal').classList.add('hidden');
     window.saveDailyLog = () => {
-      const m = state.years[state.currentYear][Number(document.getElementById('logMonthIdx').value) || 0];
-      const newGross = Number(document.getElementById('logMtdGross').value) || 0, newReci = Number(document.getElementById('logMtdReci').value) || 0;
-      const newOhip = Number(document.getElementById('logMtdOhip').value) || 0, newTotOhip = Number(document.getElementById('logMtdTotalOhip').value) || 0;
-      const newPaid = Number(document.getElementById('logMtdPaid').value) || 0, newPts = Number(document.getElementById('logMtdPatients').value) || 0;
-      const dGross = newGross - (m.gross || 0), dNet = ((newReci - (m.reci || 0)) + (newOhip - (m.ohip || 0))) * ((state.settings.netPct || 24) / 100), dPts = newPts - (m.patients || 0);
-      m.daysWorked = (Number(m.daysWorked) || 0) + (Number(document.getElementById('logDayIncrement').value) || 0);
-      m.gross = newGross; m.reci = newReci; m.ohip = newOhip; m.totalOhip = newTotOhip; m.paid = newPaid; m.patients = newPts;
-      state.dailyLogs.push({ date: document.getElementById('logDate').value, month: m.month, gross: Number(dGross.toFixed(2)), net: Number(dNet.toFixed(2)), pts: dPts, note: document.getElementById('logNote').value.trim() });
-      if (dGross > (state.recordHigh?.amount || 0)) state.recordHigh = { amount: Number(dGross.toFixed(2)), date: document.getElementById('logDate').value, note: 'New All-Time Daily Gross High!' };
-      window.closeDailyLogModal(); saveAndRender();
+      const beforeSnap = snapshotAllRecords();
+      const monthIdx = Number(document.getElementById('logMonthIdx').value) || 0;
+      const m = state.years[state.currentYear][monthIdx];
+      const dayInc = Number(document.getElementById('logDayIncrement').value) || 0;
+      const newGross = Number(document.getElementById('logMtdGross').value) || 0;
+      const newReci = Number(document.getElementById('logMtdReci').value) || 0;
+      const newOhip = Number(document.getElementById('logMtdOhip').value) || 0;
+      const newTotOhip = Number(document.getElementById('logMtdTotalOhip').value) || 0;
+      const newPaid = Number(document.getElementById('logMtdPaid').value) || 0;
+      const newPts = Number(document.getElementById('logMtdPatients').value) || 0;
+
+      const dGross = newGross - (Number(m.gross) || 0);
+      const dReci = newReci - (Number(m.reci) || 0);
+      const dOhip = newOhip - (Number(m.ohip) || 0);
+      const dTotOhip = newTotOhip - (Number(m.totalOhip) || 0);
+      const dPaid = newPaid - (Number(m.paid) || 0);
+      const dPts = newPts - (Number(m.patients) || 0);
+      const dNet = (dReci + dOhip) * ((state.settings.netPct || 24) / 100);
+
+      m.daysWorked = (Number(m.daysWorked) || 0) + dayInc;
+      m.gross = newGross;
+      m.reci = newReci;
+      m.ohip = newOhip;
+      m.totalOhip = newTotOhip;
+      m.paid = newPaid;
+      m.patients = newPts;
+
+      state.dailyLogs.push({
+        date: document.getElementById('logDate').value,
+        year: state.currentYear,
+        monthIdx,
+        month: m.month,
+        dayInc,
+        gross: Number(dGross.toFixed(2)),
+        net: Number(dNet.toFixed(2)),
+        pts: dPts,
+        dGross: Number(dGross.toFixed(2)),
+        dReci: Number(dReci.toFixed(2)),
+        dOhip: Number(dOhip.toFixed(2)),
+        dTotOhip: Number(dTotOhip.toFixed(2)),
+        dPaid: Number(dPaid.toFixed(2)),
+        note: document.getElementById('logNote').value.trim()
+      });
+
+      const prevRecord = Number(state.recordHigh?.amount) || 0;
+      if (dGross > prevRecord) {
+        state.recordHigh = { amount: Number(dGross.toFixed(2)), date: document.getElementById('logDate').value, note: document.getElementById('logNote').value.trim() || 'New All-Time Daily Gross High!' };
+      }
+      window.closeDailyLogModal();
+      checkAndCelebrateNewRecords(beforeSnap);
+      saveAndRender();
     };
+
+    // Helper to locate the target monthly ledger row for any daily log (including legacy logs)
+    function findLedgerMonthForLog(log) {
+      const yr = log.year || (log.date && log.date.length >= 4 ? log.date.substring(0, 4) : state.currentYear);
+      const yearArr = state.years[yr] || state.years[state.currentYear];
+      if (!yearArr) return null;
+      if (log.monthIdx !== undefined && log.monthIdx !== null && yearArr[log.monthIdx]) {
+        return yearArr[log.monthIdx];
+      }
+      if (log.month) {
+        const found = yearArr.find(x => x.month === log.month);
+        if (found) return found;
+      }
+      if (log.date && log.date.includes('-')) {
+        const mPart = Number(log.date.split('-')[1]) - 1;
+        if (mPart >= 0 && mPart < 12 && yearArr[mPart]) return yearArr[mPart];
+      }
+      return null;
+    }
 
     let editingLogIdx = null;
     window.openEditLogModal = (idx) => {
@@ -1558,12 +2157,73 @@
     };
     window.closeEditLogModal = () => document.getElementById('editLogModal').classList.add('hidden');
     window.saveEditedDailyLog = () => {
+      if (editingLogIdx === null) return;
+      const beforeSnap = snapshotAllRecords();
       const l = state.dailyLogs[editingLogIdx];
-      l.date = document.getElementById('editLogDate').value; l.gross = Number(document.getElementById('editLogGross').value) || 0;
-      l.net = Number(document.getElementById('editLogNet').value) || 0; l.pts = Number(document.getElementById('editLogPts').value) || 0; l.note = document.getElementById('editLogNote').value.trim();
-      window.closeEditLogModal(); saveAndRender();
+      const newDate = document.getElementById('editLogDate').value;
+      const newGross = Number(document.getElementById('editLogGross').value) || 0;
+      const newNet = Number(document.getElementById('editLogNet').value) || 0;
+      const newPts = Number(document.getElementById('editLogPts').value) || 0;
+      const newNote = document.getElementById('editLogNote').value.trim();
+
+      const diffGross = newGross - (Number(l.gross) || 0);
+      const diffNet = newNet - (Number(l.net) || 0);
+      const diffPts = newPts - (Number(l.pts) || 0);
+      const netRate = (Number(state.settings.netPct) || 24) / 100;
+      const diffReci = netRate > 0 ? (diffNet / netRate) : 0;
+
+      const m = findLedgerMonthForLog(l);
+      if (m) {
+        m.gross = Math.max(0, Number(((Number(m.gross) || 0) + diffGross).toFixed(2)));
+        m.reci = Math.max(0, Number(((Number(m.reci) || 0) + diffReci).toFixed(2)));
+        m.patients = Math.max(0, Math.round((Number(m.patients) || 0) + diffPts));
+      }
+
+      l.date = newDate;
+      l.gross = newGross;
+      l.net = newNet;
+      l.pts = newPts;
+      l.dGross = newGross;
+      if (l.dReci !== undefined) l.dReci = Number(((Number(l.dReci) || 0) + diffReci).toFixed(2));
+      l.note = newNote;
+
+      if (l.gross > (Number(state.recordHigh?.amount) || 0)) {
+        state.recordHigh = { amount: l.gross, date: l.date, note: l.note || 'Updated Daily High' };
+      }
+      window.closeEditLogModal();
+      checkAndCelebrateNewRecords(beforeSnap);
+      saveAndRender();
     };
-    window.deleteCurrentEditingLog = () => { state.dailyLogs.splice(editingLogIdx, 1); window.closeEditLogModal(); saveAndRender(); };
+
+    window.deleteCurrentEditingLog = () => {
+      if (editingLogIdx === null) return;
+      const l = state.dailyLogs[editingLogIdx];
+      if (l) {
+        const m = findLedgerMonthForLog(l);
+        if (m) {
+          const dayInc = l.dayInc !== undefined ? Number(l.dayInc) : 1;
+          const dGross = l.dGross !== undefined ? Number(l.dGross) : (Number(l.gross) || 0);
+          const netRate = (Number(state.settings.netPct) || 24) / 100;
+          const dReci = l.dReci !== undefined ? Number(l.dReci) : (netRate > 0 ? ((Number(l.net) || 0) / netRate) : 0);
+          const dOhip = l.dOhip !== undefined ? Number(l.dOhip) : 0;
+          const dTotOhip = l.dTotOhip !== undefined ? Number(l.dTotOhip) : 0;
+          const dPaid = l.dPaid !== undefined ? Number(l.dPaid) : 0;
+          const dPts = Number(l.pts) || 0;
+
+          m.daysWorked = Math.max(0, Number(((Number(m.daysWorked) || 0) - dayInc).toFixed(2)));
+          m.gross = Math.max(0, Number(((Number(m.gross) || 0) - dGross).toFixed(2)));
+          m.reci = Math.max(0, Number(((Number(m.reci) || 0) - dReci).toFixed(2)));
+          m.ohip = Math.max(0, Number(((Number(m.ohip) || 0) - dOhip).toFixed(2)));
+          m.totalOhip = Math.max(0, Number(((Number(m.totalOhip) || 0) - dTotOhip).toFixed(2)));
+          m.paid = Math.max(0, Number(((Number(m.paid) || 0) - dPaid).toFixed(2)));
+          m.patients = Math.max(0, Math.round((Number(m.patients) || 0) - dPts));
+        }
+      }
+      state.dailyLogs.splice(editingLogIdx, 1);
+      editingLogIdx = null;
+      window.closeEditLogModal();
+      saveAndRender();
+    };
 
     window.openRecordModal = () => {
       document.getElementById('inputRecordAmount').value = state.recordHigh.amount; document.getElementById('inputRecordDate').value = state.recordHigh.date; document.getElementById('inputRecordNote').value = state.recordHigh.note || '';
@@ -1571,8 +2231,12 @@
     };
     window.closeRecordModal = () => document.getElementById('recordModal').classList.add('hidden');
     window.saveRecordModal = () => {
-      state.recordHigh = { amount: Number(document.getElementById('inputRecordAmount').value) || 0, date: document.getElementById('inputRecordDate').value.trim(), note: document.getElementById('inputRecordNote').value.trim() };
-      window.closeRecordModal(); saveAndRender();
+      const beforeSnap = snapshotAllRecords();
+      const newAmt = Number(document.getElementById('inputRecordAmount').value) || 0;
+      state.recordHigh = { amount: newAmt, date: document.getElementById('inputRecordDate').value.trim(), note: document.getElementById('inputRecordNote').value.trim() };
+      window.closeRecordModal();
+      checkAndCelebrateNewRecords(beforeSnap);
+      saveAndRender();
     };
 
     window.openExtrasModal = () => {
@@ -1585,8 +2249,11 @@
     };
     window.closeExtrasModal = () => document.getElementById('extrasModal').classList.add('hidden');
     window.saveExtrasModal = () => {
+      const beforeSnap = snapshotAllRecords();
       state.yearPaidExtras[state.currentYear] = { health: Math.min(1000, Math.max(0, Number(document.getElementById('inputHealthPaid').value) || 0)), bonusPaid: Number(document.getElementById('inputBonusPaid').value) || 0 };
-      window.closeExtrasModal(); saveAndRender();
+      window.closeExtrasModal();
+      checkAndCelebrateNewRecords(beforeSnap);
+      saveAndRender();
     };
 
     window.openSettingsModal = () => {
@@ -1613,6 +2280,7 @@
       const gErr = document.getElementById('gateErrorMsg');
       gErr.classList.add('hidden');
       try {
+        await setPersistence(auth, browserSessionPersistence);
         await signInWithPopup(auth, new GoogleAuthProvider());
       } catch (e) {
         gErr.textContent = e.message;
@@ -1625,6 +2293,7 @@
       const em = document.getElementById('gateEmail').value.trim();
       const pw = document.getElementById('gatePassword').value;
       try {
+        await setPersistence(auth, browserSessionPersistence);
         await signInWithEmailAndPassword(auth, em, pw);
       } catch (e) {
         gErr.textContent = e.message;
@@ -1638,17 +2307,54 @@
     window.forcePushToCloud = async () => { await pushStateToCloud(); window.closeCloudModal(); };
 
     window.exportCSV = () => {
-      const rows = (state.years[state.currentYear] || []).map((m, idx) => { const c = calculateMonth(m, state.settings, getEffectiveMonthOhipMode(state.currentYear, idx)); return [c.month, c.mtDays, c.fDays, c.daysWorked, c.gross, c.reci, c.ohip, c.totalOhip, c.totalRecd, c.net.toFixed(2), c.paid, c.target, c.diff.toFixed(2), c.dailyAvg.toFixed(2), c.revPerPt.toFixed(2), c.patients, c.ptsPerDay.toFixed(2)].join(','); });
-      const a = document.createElement('a'); a.href = encodeURI('data:text/csv;charset=utf-8,Month,# M-T,# F,Days,Gross,Acct Recd,OHIP Recon,Total OHIP,Received,24% Net,Paid,Target,Diff,Daily Avg,Rev/Pt,Pts,Pts/Day\n' + rows.join('\n'));
-      a.download = `OptoTrack_${state.currentYear}.csv`; a.click();
+      const months = state.years[state.currentYear] || [];
+      const cur = getYearMetrics(state.currentYear);
+      const header = ['Month','# M-T','# F','Days Worked','Gross','Acct Recd','OHIP Recon','Total OHIP','Received','24% Net','Paid','Target','Diff','Daily Avg','Rev/Pt','Total Pts','Pts/Day'];
+      const rows = months.map((m, idx) => {
+        const c = calculateMonth(m, state.settings, getEffectiveMonthOhipMode(state.currentYear, idx));
+        return [
+          c.month, c.mtDays, c.fDays, c.daysWorked,
+          c.gross.toFixed(2), c.reci.toFixed(2), c.ohip.toFixed(2), c.totalOhip.toFixed(2),
+          c.totalRecd.toFixed(2), c.net.toFixed(2), c.paid.toFixed(2), c.target.toFixed(2),
+          c.diff.toFixed(2), c.dailyAvg.toFixed(2), c.revPerPt.toFixed(2), c.patients, c.ptsPerDay.toFixed(2)
+        ];
+      });
+      const totalMt = months.reduce((a, m) => a + (Number(m.mtDays) || 0), 0);
+      const totalF = months.reduce((a, m) => a + (Number(m.fDays) || 0), 0);
+      rows.push(['Health Reimbursement','','','','','','','','','',cur.healthPaid.toFixed(2),'','','','','','']);
+      rows.push(['Confirmed Bonus Paid','','','','','','','','','',cur.bonusPaid.toFixed(2),'','','','','','']);
+      rows.push([
+        'Total (YTD)', totalMt, totalF, cur.ytdDaysWorked,
+        cur.ytdGross.toFixed(2), cur.ytdReci.toFixed(2), cur.ytdOhip.toFixed(2), cur.ytdTotalOhip.toFixed(2),
+        cur.ytdRecd.toFixed(2), cur.ytdNet.toFixed(2), cur.ytdTotalPaid.toFixed(2), cur.ytdTarget.toFixed(2),
+        cur.ytdDiff.toFixed(2), '', '', cur.ytdPatients, ''
+      ]);
+      rows.push([
+        'Average', '', '', cur.avgDaysPerMth.toFixed(1),
+        cur.avgGross.toFixed(2), cur.avgReci.toFixed(2), cur.avgOhip.toFixed(2), cur.avgTotalOhip.toFixed(2),
+        cur.avgRecd.toFixed(2), cur.avgNet.toFixed(2), cur.avgPaid.toFixed(2), cur.avgTarget.toFixed(2),
+        cur.avgDiff.toFixed(2), cur.avgDailyNet.toFixed(2), cur.avgRevPerPt.toFixed(2), cur.avgPtsPerMth.toFixed(1), cur.avgPtsPerDay.toFixed(2)
+      ]);
+
+      const csvLines = [header.join(','), ...rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))].join('\r\n');
+      const blob = new Blob(['\uFEFF' + csvLines], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `OptoTrack_${state.currentYear}_Ledger.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
     };
+
     window.downloadBackupJSON = () => {
       const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' }));
       a.download = `OptoTrack_Backup.json`; a.click();
     };
     window.restoreBackupJSON = (ev) => {
       const f = ev.target.files[0]; if (!f) return;
-      const r = new FileReader(); r.onload = (e) => { try { state = { ...getEmptyState(), ...JSON.parse(e.target.result) }; saveAndRender(); } catch (err) {} }; r.readAsText(f);
+      const r = new FileReader(); r.onload = (e) => { try { state = { ...getEmptyState(), ...JSON.parse(e.target.result) }; ensureLayoutsValid(); saveAndRender(); } catch (err) {} }; r.readAsText(f);
     };
 
     initFirebase();
