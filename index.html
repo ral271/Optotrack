@@ -16,6 +16,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script>
     tailwind.config = {
@@ -431,7 +432,7 @@
           <div id="quarterCardsGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4"></div>
         </section>
 
-        <!-- BLOCK: MONTHLY LEDGER (Export/Backup buttons moved exclusively to Settings) -->
+        <!-- BLOCK: MONTHLY LEDGER -->
         <section id="dashBlock_ledger" data-block-id="ledger" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
           <div class="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
@@ -560,7 +561,7 @@
 
     </div><!-- END MAIN CONTENT COLUMN -->
 
-    <!-- MOBILE BOTTOM NAVIGATION BAR (Includes Settings icon for one-handed reach) -->
+    <!-- MOBILE BOTTOM NAVIGATION BAR (Log Day Centered in Middle) -->
     <nav class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-slate-900/95 backdrop-blur-xl border-t border-slate-800 px-1.5 py-1.5 flex items-center justify-around text-[10px] font-semibold text-slate-400">
       <button onclick="window.navigatePage('pageDashboard')" id="mobNavDashboard" class="flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl text-white bg-slate-800">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1h-5.5v-6h-5v6H4a1 1 0 01-1-1v-9.5z"/></svg>
@@ -570,13 +571,13 @@
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 21h8m-4-4v4m-5.5-9a6.5 6.5 0 0011 0V4h-11v8zM4 4h2.5v5a2.5 2.5 0 01-2.5-2.5V4zm16 0h-2.5v5A2.5 2.5 0 0020 6.5V4z"/></svg>
         <span>Records</span>
       </button>
-      <button onclick="window.navigatePage('pageCharts')" id="mobNavCharts" class="flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3v18h18M7 16v-5m5 5V7m5 9v-3"/></svg>
-        <span>Charts</span>
-      </button>
       <button onclick="window.openDailyLogModal()" class="flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl text-brand-400">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
         <span>Log Day</span>
+      </button>
+      <button onclick="window.navigatePage('pageCharts')" id="mobNavCharts" class="flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3v18h18M7 16v-5m5 5V7m5 9v-3"/></svg>
+        <span>Charts</span>
       </button>
       <button onclick="window.openSettingsModal()" class="flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl text-slate-400 hover:text-white">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -714,13 +715,13 @@
     </div>
   </div>
 
-  <!-- UNIFIED SETTINGS MODAL (Contract Rates, Targets, Excel/CSV Exports & JSON Backups) -->
+  <!-- UNIFIED SETTINGS MODAL (Contract Rates, Targets, Automated Google Drive Backup, Excel/CSV Exports & JSON Backups) -->
   <div id="settingsModal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-5 space-y-5 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
         <div>
           <h3 class="font-bold text-lg">Settings & Data Management</h3>
-          <p class="text-xs text-slate-500">Contract rates, targets, exports, and backups</p>
+          <p class="text-xs text-slate-500">Contract rates, targets, exports, and automated backups</p>
         </div>
         <button onclick="window.closeSettingsModal()" class="p-1 text-slate-400 hover:text-white">✕</button>
       </div>
@@ -747,9 +748,34 @@
         </div>
       </div>
 
-      <!-- Section 2: Exports & Backups -->
+      <!-- Section 2: Automated Monthly Google Drive Backup (Option 1: In-Place 2-File Replacement) -->
       <div class="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-3 text-xs">
-        <h4 class="font-bold uppercase tracking-wider text-[11px] text-emerald-500">Spreadsheet Exports & Full Backups</h4>
+        <div class="flex items-center justify-between">
+          <h4 class="font-bold uppercase tracking-wider text-[11px] text-sky-500">Automated Google Drive Backup</h4>
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/15 text-sky-500">Monthly Overwrite</span>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700/70 space-y-1.5">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500 font-medium">Last Automated Backup:</span>
+            <span id="lastDriveBackupLabel" class="mono font-bold text-slate-900 dark:text-slate-100">Never</span>
+          </div>
+          <div class="text-[11px] text-slate-500">
+            Updates <span class="mono font-semibold">OptoTrack_Backup.json</span> & <span class="mono font-semibold">OptoTrack_Master_Ledger.xlsx</span> in-place on Google Drive (no duplicate files).
+          </div>
+          <div id="driveSyncStatusMsg" class="hidden text-[11px] font-semibold pt-1"></div>
+        </div>
+        <div>
+          <label class="block font-semibold mb-1 text-slate-500">Google OAuth Client ID (Optional if using Email Login)</label>
+          <input type="text" id="setDriveClientId" placeholder="xxxx.apps.googleusercontent.com" onchange="window.saveDriveClientId(this.value)" class="w-full px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 mono text-[11px]" />
+        </div>
+        <button onclick="window.triggerManualDriveBackup()" id="manualDriveBackupBtn" class="w-full py-2.5 rounded-xl font-bold bg-sky-600 hover:bg-sky-500 text-white shadow-sm transition flex items-center justify-center gap-2">
+          <span>☁️ Backup JSON + Master Excel to Google Drive Now</span>
+        </button>
+      </div>
+
+      <!-- Section 3: Local Exports & Backups -->
+      <div class="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-3 text-xs">
+        <h4 class="font-bold uppercase tracking-wider text-[11px] text-emerald-500">Local Spreadsheet Exports & Backups</h4>
         <div class="grid grid-cols-2 gap-2.5">
           <button onclick="window.exportMasterExcel()" class="p-2.5 rounded-xl font-bold bg-emerald-600/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 hover:bg-emerald-600 hover:text-white transition flex items-center justify-center gap-2">
             <span>📊 Export Excel (.xlsx)</span>
@@ -830,6 +856,10 @@
     document.querySelectorAll('.clinic-logo-img').forEach(img => { img.src = CLINIC_LOGO_B64; });
 
     const REMEMBER_EMAIL_KEY = 'optotrack_remembered_email';
+    const DRIVE_TOKEN_KEY = 'optotrack_drive_access_token';
+    const DRIVE_CLIENT_ID_KEY = 'optotrack_drive_client_id';
+    let driveAccessToken = sessionStorage.getItem(DRIVE_TOKEN_KEY) || null;
+
     function initRememberedEmail() {
       const savedEmail = localStorage.getItem(REMEMBER_EMAIL_KEY);
       const emailInput = document.getElementById('gateEmail');
@@ -968,6 +998,9 @@
     function getEmptyState() {
       return {
         currentYear: '2026', includeCurrentMonthInAverages: true, benchmarkMode: 'prev_year', quarterOhipMode: 'recon', coneQuarter: 'Q4',
+        lastDriveSyncMonth: null,
+        lastDriveBackupTimestamp: null,
+        driveClientId: localStorage.getItem(DRIVE_CLIENT_ID_KEY) || '',
         settings: { netPct: 24, mtRate: 780, fRate: 630 },
         recordHigh: { amount: 0, date: '—', note: '', baselineAmount: 0, baselineDate: '—', baselineNote: '', fromLog: false },
         layouts: getDefaultLayouts(),
@@ -1083,6 +1116,7 @@
                 ensureRecordBaselineInitialized();
                 renderAll();
                 isApplyingRemote = false;
+                checkMonthlyAutoSync();
               } else {
                 ensureLayoutsValid();
                 ensureRecordBaselineInitialized();
@@ -2095,11 +2129,23 @@
       renderSingleChartCanvas('quarterSeasonality', 'chartPageQuarterSeasonality');
     }
 
+    function updateDriveSettingsLabels() {
+      const lbl = document.getElementById('lastDriveBackupLabel');
+      if (lbl) {
+        lbl.textContent = state.lastDriveBackupTimestamp || 'Never';
+      }
+      const cidInput = document.getElementById('setDriveClientId');
+      if (cidInput) {
+        cidInput.value = state.driveClientId || localStorage.getItem(DRIVE_CLIENT_ID_KEY) || '';
+      }
+    }
+
     function renderAll() {
       if (!currentUser) return;
       ensureLayoutsValid();
       syncRecordHighWithBaselineAndLogs();
       populateYearDropdowns();
+      updateDriveSettingsLabels();
       if (activePage === 'pageDashboard') {
         renderKPIs();
         renderQuarterCards();
@@ -2440,6 +2486,7 @@
 
     window.openSettingsModal = () => {
       document.getElementById('setNetPct').value = state.settings.netPct; document.getElementById('setMtRate').value = state.settings.mtRate; document.getElementById('setFRate').value = state.settings.fRate;
+      updateDriveSettingsLabels();
       document.getElementById('settingsModal').classList.remove('hidden');
     };
     window.closeSettingsModal = () => document.getElementById('settingsModal').classList.add('hidden');
@@ -2462,7 +2509,14 @@
       gErr.classList.add('hidden');
       try {
         await setPersistence(auth, browserSessionPersistence);
-        await signInWithPopup(auth, new GoogleAuthProvider());
+        const provider = new GoogleAuthProvider();
+        provider.addScope('https://www.googleapis.com/auth/drive.file');
+        const res = await signInWithPopup(auth, provider);
+        const cred = GoogleAuthProvider.credentialFromResult(res);
+        if (cred && cred.accessToken) {
+          driveAccessToken = cred.accessToken;
+          sessionStorage.setItem(DRIVE_TOKEN_KEY, driveAccessToken);
+        }
       } catch (e) {
         gErr.textContent = e.message;
         gErr.classList.remove('hidden');
@@ -2490,15 +2544,21 @@
     };
     window.signOutUser = async () => {
       window.closeCloudModal();
+      driveAccessToken = null;
+      sessionStorage.removeItem(DRIVE_TOKEN_KEY);
       if (auth) await signOut(auth);
     };
     window.forcePushToCloud = async () => { await pushStateToCloud(); window.closeCloudModal(); };
 
-    window.exportMasterExcel = () => {
-      if (typeof XLSX === 'undefined') {
-        alert('Excel library is still loading. Please try again in a moment.');
-        return;
-      }
+    // ================= GOOGLE DRIVE OPTION 1: IN-PLACE 2-FILE OVERWRITE BACKUP =================
+    window.saveDriveClientId = (val) => {
+      const clean = (val || '').trim();
+      state.driveClientId = clean;
+      localStorage.setItem(DRIVE_CLIENT_ID_KEY, clean);
+      pushStateToCloud();
+    };
+
+    function buildMasterExcelWorkbook() {
       const wb = XLSX.utils.book_new();
       const sortedYears = Object.keys(state.years || {}).sort();
 
@@ -2542,7 +2602,142 @@
         const ws = XLSX.utils.aoa_to_sheet(sheetData);
         XLSX.utils.book_append_sheet(wb, ws, yearStr);
       });
+      return wb;
+    }
 
+    async function uploadOrUpdateDriveFile(filename, mimeType, fileBlob, token) {
+      const q = encodeURIComponent(`name = '${filename}' and trashed = false`);
+      const searchRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!searchRes.ok) throw new Error(`Drive search failed (${searchRes.status})`);
+      const { files } = await searchRes.json();
+
+      if (files && files.length > 0) {
+        const fileId = files[0].id;
+        const patchRes = await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, {
+          method: 'PATCH',
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': mimeType },
+          body: fileBlob
+        });
+        if (!patchRes.ok) throw new Error(`Drive update failed (${patchRes.status})`);
+      } else {
+        const metadata = { name: filename, mimeType };
+        const form = new FormData();
+        form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+        form.append('file', fileBlob);
+        const postRes = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` },
+          body: form
+        });
+        if (!postRes.ok) throw new Error(`Drive create failed (${postRes.status})`);
+      }
+    }
+
+    async function executeDriveUpload(token, isAuto = false) {
+      const statusEl = document.getElementById('driveSyncStatusMsg');
+      if (statusEl) {
+        statusEl.textContent = 'Uploading OptoTrack_Backup.json & OptoTrack_Master_Ledger.xlsx to Google Drive...';
+        statusEl.className = 'text-[11px] font-semibold pt-1 text-sky-500 block';
+      }
+
+      try {
+        // 1. Upload / Update JSON Backup
+        const jsonBlob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+        await uploadOrUpdateDriveFile('OptoTrack_Backup.json', 'application/json', jsonBlob, token);
+
+        // 2. Upload / Update Multi-Year Excel Workbook (.xlsx)
+        if (typeof XLSX !== 'undefined') {
+          const wb = buildMasterExcelWorkbook();
+          const wbArrayBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+          const xlsxMime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+          const xlsxBlob = new Blob([wbArrayBuffer], { type: xlsxMime });
+          await uploadOrUpdateDriveFile('OptoTrack_Master_Ledger.xlsx', xlsxMime, xlsxBlob, token);
+        }
+
+        const now = new Date();
+        const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        const formattedStamp = now.toLocaleString('en-US', {
+          month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit'
+        });
+
+        state.lastDriveSyncMonth = ym;
+        state.lastDriveBackupTimestamp = formattedStamp;
+        updateDriveSettingsLabels();
+        await pushStateToCloud();
+
+        if (statusEl) {
+          statusEl.textContent = `✓ Backed up both files in-place on ${formattedStamp}`;
+          statusEl.className = 'text-[11px] font-semibold pt-1 text-emerald-500 block';
+        }
+      } catch (err) {
+        if (!isAuto && statusEl) {
+          statusEl.textContent = `Drive upload error: ${err.message}. Try clicking Backup again to re-authorize.`;
+          statusEl.className = 'text-[11px] font-semibold pt-1 text-rose-500 block';
+        }
+        driveAccessToken = null;
+        sessionStorage.removeItem(DRIVE_TOKEN_KEY);
+      }
+    }
+
+    async function checkMonthlyAutoSync() {
+      const now = new Date();
+      const currentYm = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      if (state.lastDriveSyncMonth === currentYm) return;
+      if (driveAccessToken) {
+        await executeDriveUpload(driveAccessToken, true);
+      }
+    }
+
+    window.triggerManualDriveBackup = async () => {
+      if (driveAccessToken) {
+        await executeDriveUpload(driveAccessToken, false);
+        return;
+      }
+      const clientId = (document.getElementById('setDriveClientId')?.value || state.driveClientId || localStorage.getItem(DRIVE_CLIENT_ID_KEY) || '').trim();
+      if (clientId && window.google?.accounts?.oauth2) {
+        window.saveDriveClientId(clientId);
+        const tokenClient = window.google.accounts.oauth2.initTokenClient({
+          client_id: clientId,
+          scope: 'https://www.googleapis.com/auth/drive.file',
+          callback: async (resp) => {
+            if (resp.access_token) {
+              driveAccessToken = resp.access_token;
+              sessionStorage.setItem(DRIVE_TOKEN_KEY, driveAccessToken);
+              await executeDriveUpload(driveAccessToken, false);
+            }
+          }
+        });
+        tokenClient.requestAccessToken({ prompt: 'consent' });
+        return;
+      }
+      // Fallback: use Firebase Google Auth Popup with Drive scope
+      try {
+        const provider = new GoogleAuthProvider();
+        provider.addScope('https://www.googleapis.com/auth/drive.file');
+        const res = await signInWithPopup(auth, provider);
+        const cred = GoogleAuthProvider.credentialFromResult(res);
+        if (cred && cred.accessToken) {
+          driveAccessToken = cred.accessToken;
+          sessionStorage.setItem(DRIVE_TOKEN_KEY, driveAccessToken);
+          await executeDriveUpload(driveAccessToken, false);
+        }
+      } catch (e) {
+        const statusEl = document.getElementById('driveSyncStatusMsg');
+        if (statusEl) {
+          statusEl.textContent = `Authorization needed: Enter a Google OAuth Client ID above or enable Google Sign-In in Firebase.`;
+          statusEl.className = 'text-[11px] font-semibold pt-1 text-amber-500 block';
+        }
+      }
+    };
+
+    window.exportMasterExcel = () => {
+      if (typeof XLSX === 'undefined') {
+        alert('Excel library is still loading. Please try again in a moment.');
+        return;
+      }
+      const wb = buildMasterExcelWorkbook();
       XLSX.writeFile(wb, `OptoTrack_Master_Ledger.xlsx`);
     };
 
