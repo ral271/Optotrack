@@ -97,7 +97,7 @@
         </button>
         <div class="relative flex py-1 items-center">
           <div class="flex-grow border-t border-slate-800"></div>
-          <span class="flex-shrink mx-3 text-slate-500 text-[11px]">Or Email & Password</span>
+          <span class="flex-shrink mx-3 text-slate-500 text-[11px]">Or Email & Numeric PIN / Password</span>
           <div class="flex-grow border-t border-slate-800"></div>
         </div>
         <div>
@@ -105,8 +105,9 @@
           <input type="email" id="gateEmail" placeholder="dr.email@domain.com" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white focus:outline-none focus:border-brand-500" />
         </div>
         <div>
-          <label class="block text-slate-400 font-semibold mb-1">Password</label>
-          <input type="password" id="gatePassword" onkeydown="if(event.key==='Enter') window.gateEmailSignIn()" placeholder="••••••••" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white focus:outline-none focus:border-brand-500" />
+          <label class="block text-slate-400 font-semibold mb-1">Password / PIN</label>
+          <!-- #3: Numeric keypad on Android while masked -->
+          <input type="text" inputmode="numeric" pattern="[0-9]*" style="-webkit-text-security: disc;" autocomplete="current-password" id="gatePassword" onkeydown="if(event.key==='Enter') window.gateEmailSignIn()" placeholder="••••••••" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white focus:outline-none focus:border-brand-500 mono tracking-widest" />
         </div>
         <div class="flex items-center justify-between pt-0.5">
           <label class="inline-flex items-center gap-2 cursor-pointer text-slate-300 select-none">
@@ -128,9 +129,8 @@
   <!-- PROTECTED APPLICATION SHELL -->
   <div id="protectedAppShell" class="hidden min-h-screen flex flex-col md:flex-row pb-20 md:pb-0">
 
-    <!-- DESKTOP / TABLET COLLAPSIBLE SIDEBAR RAIL (Hidden on Phone <768px) -->
+    <!-- DESKTOP / TABLET COLLAPSIBLE SIDEBAR RAIL -->
     <aside id="desktopSidebar" class="hidden md:flex flex-col shrink-0 w-[68px] bg-slate-900 text-slate-300 border-r border-slate-800/90 select-none z-40 sticky top-0 h-screen">
-      <!-- Top Logo Row -->
       <div class="h-16 px-3 flex items-center justify-between border-b border-slate-800/80">
         <div class="flex items-center gap-2.5 min-w-0">
           <img class="clinic-logo-img w-9 h-9 rounded-xl object-contain bg-[#e6e6e6] p-0.5 border border-slate-700 shrink-0" alt="Logo" />
@@ -141,7 +141,6 @@
         </div>
       </div>
 
-      <!-- Navigation Icons / Expandable Labels -->
       <nav class="flex-1 py-4 px-2.5 space-y-2">
         <button onclick="window.navigatePage('pageDashboard')" id="sideNavDashboard" title="Dashboard" class="w-full flex items-center gap-3.5 p-2.5 rounded-xl text-sm font-semibold transition bg-slate-800 text-white shadow-sm">
           <svg class="w-5 h-5 shrink-0 mx-auto md:mx-0" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1h-5.5v-6h-5v6H4a1 1 0 01-1-1v-9.5z"/></svg>
@@ -166,7 +165,6 @@
         </div>
       </nav>
 
-      <!-- Bottom Settings + Lock OptoTrack Section -->
       <div class="p-2.5 border-t border-slate-800/80 space-y-1.5">
         <button onclick="window.openSettingsModal()" title="Settings, Exports & Backups" class="w-full flex items-center gap-3.5 p-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800/60 transition">
           <svg class="w-5 h-5 shrink-0 mx-auto md:mx-0" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24">
@@ -186,44 +184,32 @@
     <!-- MAIN CONTENT COLUMN -->
     <div class="flex-1 min-w-0 flex flex-col">
 
-      <!-- HEADER (Full-width container so sidebar toggle stays flush left on 27" monitors) -->
+      <!-- HEADER (#5: De-cluttered on Android/Mobile by moving Year Picker below header) -->
       <header class="sticky top-0 z-30 backdrop-blur-xl bg-white/85 dark:bg-slate-900/85 border-b border-slate-200 dark:border-slate-800">
-        <div class="w-full px-4 sm:px-6 h-16 flex items-center justify-between gap-2 sm:gap-3">
-          <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
-            <!-- Sidebar Pane Toggle Button Flush Left -->
+        <div class="w-full px-3.5 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2.5 min-w-0">
             <button onclick="window.toggleSidebarPane()" class="hidden md:flex p-2 -ml-1 rounded-xl text-slate-500 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition" title="Toggle Navigation Pane">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <rect x="3" y="4" width="18" height="16" rx="2" stroke-linecap="round" stroke-linejoin="round"/>
                 <line x1="9" y1="4" x2="9" y2="20" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </button>
-            <img class="clinic-logo-img md:hidden w-9 h-9 rounded-xl object-contain bg-[#e6e6e6] p-0.5 shadow-sm border border-slate-300 dark:border-slate-700 shrink-0" alt="Brockville Optometric Centre" />
+            <img class="clinic-logo-img md:hidden w-8 h-8 rounded-xl object-contain bg-[#e6e6e6] p-0.5 shadow-sm border border-slate-300 dark:border-slate-700 shrink-0" alt="Brockville Optometric Centre" />
             <div class="min-w-0">
-              <div class="flex items-center gap-2">
-                <h1 class="font-bold text-sm sm:text-lg truncate">OptoTrack</h1>
-              </div>
-              <p id="headerSubtitle" class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">Dashboard</p>
+              <h1 class="font-bold text-sm sm:text-lg truncate leading-tight">OptoTrack</h1>
+              <p id="headerSubtitle" class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 truncate leading-tight">Dashboard</p>
             </div>
           </div>
 
           <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            <button id="installPwaBtn" onclick="window.installPWA()" class="hidden items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition">
-              <span>📲 Install App</span>
+            <button id="installPwaBtn" onclick="window.installPWA()" class="hidden items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition">
+              <span>📲 Install</span>
             </button>
 
-            <select id="yearSelect" onchange="window.switchYear(this.value)" class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-              <option value="2025">2025</option>
-              <option value="2026" selected>2026</option>
-              <option value="2027">2027</option>
-              <option value="__add_year__">+ Add Year...</option>
-            </select>
-
-            <!-- Customize Layout Button (Icon Only) -->
-            <button id="editLayoutBtn" onclick="window.toggleLayoutEditMode()" class="p-1.5 sm:p-2 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-brand-500/15 border border-slate-200 dark:border-slate-700 transition flex items-center justify-center" title="Customize Layout (Drag & Drop, Add, or Hide Blocks)">
+            <button id="editLayoutBtn" onclick="window.toggleLayoutEditMode()" class="p-1.5 sm:p-2 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-brand-500/15 border border-slate-200 dark:border-slate-700 transition flex items-center justify-center" title="Customize Layout">
               <span>✨</span>
             </button>
 
-            <!-- Compact Cloud Status + Quick Sync Refresh Pill (Moved to Right, No Text) -->
             <div class="inline-flex items-center rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-0.5">
               <button onclick="window.openCloudModal()" id="cloudBtn" class="flex items-center gap-1.5 px-2 py-1.5 rounded-md text-xs font-medium hover:bg-slate-200/70 dark:hover:bg-slate-700/70 transition" title="Account & Cloud Settings">
                 <span id="syncDot" class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
@@ -234,13 +220,33 @@
               </button>
             </div>
 
-            <button onclick="window.toggleTheme()" class="p-1.5 sm:p-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700" title="Theme">🌗</button>
+            <!-- #2: Cycles Auto (System) -> Dark -> Light -->
+            <button id="themeToggleBtn" onclick="window.cycleThemeMode()" class="px-2 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold flex items-center gap-1" title="Theme Mode (System Auto / Dark / Light)">
+              <span id="themeToggleIcon">🌗</span>
+              <span id="themeToggleModeLbl" class="hidden sm:inline text-[10px] text-slate-500 dark:text-slate-400">Auto</span>
+            </button>
           </div>
         </div>
       </header>
 
+      <!-- #5: CENTERED YEAR BAR WITH LEFT/RIGHT ARROWS & POPUP PICKER -->
+      <div id="centeredYearBar" class="max-w-7xl w-full mx-auto px-3 sm:px-6 pt-3.5 pb-1 flex items-center justify-center">
+        <div class="inline-flex items-center gap-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-2 py-1 shadow-sm">
+          <button onclick="window.stepYear(-1)" id="prevYearArrowBtn" class="p-1.5 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition disabled:opacity-30" title="Previous Year">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+          </button>
+          <button onclick="window.openYearPickerModal()" class="px-4 py-1 rounded-xl hover:bg-brand-500/10 transition flex items-center gap-1.5" title="Click to choose or add a year">
+            <span id="centerYearLabel" class="font-extrabold text-base sm:text-lg mono tracking-tight text-brand-600 dark:text-brand-400">2026</span>
+            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <button onclick="window.stepYear(1)" id="nextYearArrowBtn" class="p-1.5 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition" title="Next Year">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      </div>
+
       <!-- LAYOUT CUSTOMIZATION DRAWER -->
-      <div id="layoutEditorDrawer" class="hidden max-w-7xl w-full mx-auto px-3 sm:px-6 pt-4">
+      <div id="layoutEditorDrawer" class="hidden max-w-7xl w-full mx-auto px-3 sm:px-6 pt-3">
         <div class="bg-brand-500/10 border-2 border-dashed border-brand-500/40 rounded-2xl p-4 space-y-3 text-xs">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div class="flex items-center gap-2">
@@ -268,32 +274,32 @@
         </div>
       </div>
 
-      <!-- GLOBAL TOP CONTROL BAR -->
-      <div id="globalTopControlBar" class="max-w-7xl w-full mx-auto px-3 sm:px-6 pt-5">
-        <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-3 sm:p-3.5 flex flex-col xl:flex-row xl:items-center justify-between gap-3 text-xs">
-          <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
-            <span class="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+      <!-- GLOBAL TOP CONTROL BAR (#4: Concise Avg Scope text so checkbox fits on 1 line on mobile) -->
+      <div id="globalTopControlBar" class="max-w-7xl w-full mx-auto px-3 sm:px-6 pt-3">
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-2.5 sm:p-3.5 flex flex-col xl:flex-row xl:items-center justify-between gap-2.5 text-xs">
+          <div class="flex items-center justify-between sm:justify-start gap-2 whitespace-nowrap overflow-x-auto">
+            <span class="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 shrink-0">
               <span class="w-2 h-2 rounded-full bg-brand-500 shrink-0"></span>
-              <span id="avgScopeText">Averages Scope: Completed Months Only</span>
+              <span id="avgScopeText">Avg Scope: Jan – Oct</span>
             </span>
-            <label class="inline-flex items-center gap-2 cursor-pointer px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+            <label class="inline-flex items-center gap-1.5 cursor-pointer px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shrink-0">
               <input type="checkbox" id="includeCurrentMonthToggle" onchange="window.toggleIncludeCurrentMonth(this.checked)" class="rounded text-brand-600">
-              <span class="font-medium">Include in-progress month</span>
+              <span class="font-medium text-[11px] sm:text-xs">Incl. in-progress month</span>
             </label>
           </div>
 
-          <div class="flex flex-wrap items-center gap-3">
+          <div class="flex flex-wrap items-center justify-between sm:justify-end gap-2.5">
             <div class="flex items-center gap-1.5">
-              <span class="font-semibold text-slate-500" title="Uses Total OHIP for the current/unconfirmed quarter while keeping confirmed quarters on OHIP Recon">Current Qtr OHIP:</span>
+              <span class="font-semibold text-slate-500 text-[11px] sm:text-xs">Current Qtr OHIP:</span>
               <div class="inline-flex rounded-lg p-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[11px] font-semibold">
-                <button id="ohipModeReconBtn" onclick="window.setQuarterOhipMode('recon')" class="px-2.5 py-1 rounded-md transition">OHIP Recon</button>
-                <button id="ohipModeTotalBtn" onclick="window.setQuarterOhipMode('total')" class="px-2.5 py-1 rounded-md transition">Total OHIP</button>
+                <button id="ohipModeReconBtn" onclick="window.setQuarterOhipMode('recon')" class="px-2 py-1 rounded-md transition">OHIP Recon</button>
+                <button id="ohipModeTotalBtn" onclick="window.setQuarterOhipMode('total')" class="px-2 py-1 rounded-md transition">Total OHIP</button>
               </div>
             </div>
 
-            <div class="flex items-center gap-2">
-              <span class="font-semibold text-slate-500">Benchmark:</span>
-              <select id="benchmarkSelect" onchange="window.setBenchmarkMode(this.value)" class="px-2.5 py-1 rounded-lg font-semibold bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+            <div class="flex items-center gap-1.5">
+              <span class="font-semibold text-slate-500 text-[11px] sm:text-xs">Benchmark:</span>
+              <select id="benchmarkSelect" onchange="window.setBenchmarkMode(this.value)" class="px-2 py-1 rounded-lg font-semibold bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[11px] sm:text-xs">
                 <option value="prev_year" selected>Previous Year (Same Period)</option>
                 <option value="2025">2025 Actuals</option>
                 <option value="2026">2026 Actuals</option>
@@ -305,7 +311,7 @@
       </div>
 
       <!-- PAGE 1: DASHBOARD -->
-      <main id="pageDashboard" class="max-w-7xl w-full mx-auto px-3 sm:px-6 py-5 sm:py-6 flex flex-col gap-6 block">
+      <main id="pageDashboard" class="max-w-7xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-6 flex flex-col gap-6 block">
 
         <!-- BLOCK: KPI CARDS -->
         <div id="dashBlock_kpis" data-block-id="kpis" class="customizable-block">
@@ -456,19 +462,27 @@
           </div>
         </section>
 
-        <!-- BLOCK: DASHBOARD CHART & DAILY LOGS -->
+        <!-- BLOCK: DASHBOARD CHART & DAILY LOGS (#6: Filtered by selected year + Capped at 5 with See More) -->
         <div id="dashBlock_bottomRow" data-block-id="bottomRow" class="customizable-block grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm min-w-0">
             <h3 class="font-bold text-sm sm:text-base mb-1">Monthly 24% Net vs. Baseline Target</h3>
             <p class="text-xs text-slate-500 mb-4">Visualizing monthly surplus above target draw</p>
             <div class="h-64 sm:h-72"><canvas id="productionChart"></canvas></div>
           </div>
-          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm min-w-0">
-            <div class="flex items-center justify-between mb-3">
-              <div><h3 class="font-bold text-sm sm:text-base">Daily Clinic Shift Logs</h3><p class="text-xs text-slate-500">Calculated from MTD EMR deltas</p></div>
-              <button onclick="window.openDailyLogModal()" class="text-xs font-semibold text-brand-500 hover:underline">+ Log Shift</button>
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm min-w-0 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <div>
+                  <h3 class="font-bold text-sm sm:text-base">Daily Shift Logs (<span id="dailyLogsYearLbl">2026</span>)</h3>
+                  <p class="text-xs text-slate-500">Calculated from MTD EMR deltas</p>
+                </div>
+                <button onclick="window.openDailyLogModal()" class="text-xs font-semibold text-brand-500 hover:underline">+ Log Shift</button>
+              </div>
+              <div id="dailyLogsContainer" class="space-y-2.5 max-h-72 overflow-y-auto pr-1"></div>
             </div>
-            <div id="dailyLogsContainer" class="space-y-2.5 max-h-64 overflow-y-auto pr-1"></div>
+            <div id="dailyLogsMoreWrap" class="hidden pt-3 mt-2 border-t border-slate-100 dark:border-slate-800 text-center">
+              <button id="dailyLogsToggleAllBtn" onclick="window.toggleShowAllYearLogs()" class="text-xs font-bold text-brand-500 hover:underline"></button>
+            </div>
           </div>
         </div>
 
@@ -477,7 +491,7 @@
       </main>
 
       <!-- PAGE 2: RECORDS & MILESTONES -->
-      <main id="pageRecords" class="hidden max-w-7xl w-full mx-auto px-3 sm:px-6 py-8 space-y-6">
+      <main id="pageRecords" class="hidden max-w-7xl w-full mx-auto px-3 sm:px-6 py-6 space-y-6">
         <div class="border-b border-slate-200 dark:border-slate-800 pb-5">
           <h2 class="text-2xl sm:text-3xl font-extrabold">Records & Milestones</h2>
           <p class="text-slate-500 mt-1 text-sm">Your all-time personal bests across all recorded years.</p>
@@ -497,9 +511,10 @@
             <p class="text-xs text-slate-500 mb-4">Monthly associate cut compared to baseline target draw.</p>
             <div class="h-64"><canvas id="chartPageNetTarget"></canvas></div>
           </div>
+          <!-- #7: Multi-year Grouped Bar Chart + Outlier-Filtered All-Time Peak Line -->
           <div id="chartBlock_dailyAvg" data-chart-id="dailyAvg" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm min-w-0">
-            <h3 class="font-bold text-sm sm:text-base mb-1">Daily Average Income Across the Year (YoY & Peak)</h3>
-            <p class="text-xs text-slate-500 mb-4">Comparing $/day earning pace across years vs. all-time peak pace.</p>
+            <h3 class="font-bold text-sm sm:text-base mb-1">Daily Average Income Across the Year (Multi-Year Bar & Peak)</h3>
+            <p class="text-xs text-slate-500 mb-4">Grouped monthly $/day bars across all active years vs. all-time peak month pace (excludes 0-day / outlier months &lt;3 shifts).</p>
             <div class="h-64"><canvas id="chartPageDailyAvg"></canvas></div>
           </div>
           <div id="chartBlock_patients" data-chart-id="patients" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm min-w-0">
@@ -545,11 +560,12 @@
             <div id="annualConeSummaryCards" class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-xs"></div>
           </div>
 
+          <!-- #8: Excludes incomplete pre-start quarters (like Q1/Q2 2025) unless all 3 months are active -->
           <div id="chartBlock_quarterSeasonality" data-chart-id="quarterSeasonality" class="customizable-block lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-6 shadow-sm min-w-0">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
               <div>
-                <h3 class="font-bold text-sm sm:text-base">Historical Quarterly Seasonality — Average Quarterly Earnings (All Recorded Years)</h3>
-                <p class="text-xs text-slate-500">Compares average 24% Net earnings and quarterly bonus payouts across Q1–Q4 to highlight your strongest quarters of the year.</p>
+                <h3 class="font-bold text-sm sm:text-base">Historical Quarterly Seasonality — Average Quarterly Earnings (Full Quarters Only)</h3>
+                <p class="text-xs text-slate-500">Compares average 24% Net & Bonus across Q1–Q4 (automatically excludes pre-start / partial quarters with &lt;3 active months such as Q1–Q2 2025).</p>
               </div>
               <span id="bestSeasonalityBadge" class="self-start sm:self-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">Top Quarter: —</span>
             </div>
@@ -561,7 +577,7 @@
 
     </div><!-- END MAIN CONTENT COLUMN -->
 
-    <!-- MOBILE BOTTOM NAVIGATION BAR (Log Day Centered in Middle) -->
+    <!-- MOBILE BOTTOM NAVIGATION BAR -->
     <nav class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-slate-900/95 backdrop-blur-xl border-t border-slate-800 px-1.5 py-1.5 flex items-center justify-around text-[10px] font-semibold text-slate-400">
       <button onclick="window.navigatePage('pageDashboard')" id="mobNavDashboard" class="flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl text-white bg-slate-800">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1h-5.5v-6h-5v6H4a1 1 0 01-1-1v-9.5z"/></svg>
@@ -589,6 +605,23 @@
     </nav>
 
   </div><!-- END PROTECTED APP SHELL -->
+
+  <!-- #5: YEAR PICKER & ADD YEAR POPUP MODAL -->
+  <div id="yearPickerModal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-sm w-full p-5 space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
+        <div>
+          <h3 class="font-bold text-lg">Select or Add Year</h3>
+          <p class="text-xs text-slate-500">Switch active ledger year or create a new one</p>
+        </div>
+        <button onclick="window.closeYearPickerModal()" class="p-1 text-slate-400 hover:text-white">✕</button>
+      </div>
+      <div id="yearPickerGrid" class="grid grid-cols-3 gap-2.5 text-sm"></div>
+      <div class="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+        <button onclick="window.openAddYearFromPicker()" class="w-full py-2.5 rounded-xl text-xs font-bold bg-brand-600 hover:bg-brand-500 text-white shadow-sm transition">+ Add New Year...</button>
+      </div>
+    </div>
+  </div>
 
   <!-- MODALS -->
   <div id="monthModal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
@@ -715,7 +748,7 @@
     </div>
   </div>
 
-  <!-- UNIFIED SETTINGS MODAL (Contract Rates, Targets, Automated Google Drive Backup, Excel/CSV Exports & JSON Backups) -->
+  <!-- UNIFIED SETTINGS MODAL -->
   <div id="settingsModal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-5 space-y-5 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
@@ -726,7 +759,6 @@
         <button onclick="window.closeSettingsModal()" class="p-1 text-slate-400 hover:text-white">✕</button>
       </div>
 
-      <!-- Section 1: Contract Rates & Targets -->
       <div class="space-y-3 text-xs">
         <h4 class="font-bold uppercase tracking-wider text-[11px] text-brand-500">Contract Rates & Daily Targets</h4>
         <div>
@@ -748,7 +780,7 @@
         </div>
       </div>
 
-      <!-- Section 2: Automated Monthly Google Drive Backup (Option 1: In-Place 2-File Replacement) -->
+      <!-- #1: Google Drive Backup with Forced Account Picker Option -->
       <div class="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-3 text-xs">
         <div class="flex items-center justify-between">
           <h4 class="font-bold uppercase tracking-wider text-[11px] text-sky-500">Automated Google Drive Backup</h4>
@@ -760,24 +792,23 @@
             <span id="lastDriveBackupLabel" class="mono font-bold text-slate-900 dark:text-slate-100">Never</span>
           </div>
           <div class="text-[11px] text-slate-500">
-            Updates <span class="mono font-semibold">OptoTrack_Backup.json</span> & <span class="mono font-semibold">OptoTrack_Master_Ledger.xlsx</span> in-place on Google Drive (no duplicate files).
+            Updates <span class="mono font-semibold">OptoTrack_Backup.json</span> & <span class="mono font-semibold">OptoTrack_Master_Ledger.xlsx</span> in-place on Google Drive.
           </div>
           <div id="driveSyncStatusMsg" class="hidden text-[11px] font-semibold pt-1"></div>
         </div>
         <div>
           <label class="block font-semibold mb-1 text-slate-500">Target Personal Google Account Email (For Silent Auto-Backup)</label>
-          <input type="email" id="setBackupAccountEmail" placeholder="your.personal@gmail.com" onchange="window.saveBackupAccountEmail(this.value)" class="w-full px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 mono text-[11px]" />
+          <input type="email" id="setBackupAccountEmail" placeholder="rolandlewis2812@gmail.com" onchange="window.saveBackupAccountEmail(this.value)" class="w-full px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 mono text-[11px]" />
         </div>
         <div>
-          <label class="block font-semibold mb-1 text-slate-500">Google OAuth Client ID (Optional if using Email Login)</label>
+          <label class="block font-semibold mb-1 text-slate-500">Google OAuth Client ID</label>
           <input type="text" id="setDriveClientId" placeholder="xxxx.apps.googleusercontent.com" onchange="window.saveDriveClientId(this.value)" class="w-full px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 mono text-[11px]" />
         </div>
         <button onclick="window.triggerManualDriveBackup()" id="manualDriveBackupBtn" class="w-full py-2.5 rounded-xl font-bold bg-sky-600 hover:bg-sky-500 text-white shadow-sm transition flex items-center justify-center gap-2">
-          <span>☁️ Backup JSON + Master Excel to Google Drive Now</span>
+          <span>☁️ Choose Google Account & Backup Now</span>
         </button>
       </div>
 
-      <!-- Section 3: Local Exports & Backups -->
       <div class="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-3 text-xs">
         <h4 class="font-bold uppercase tracking-wider text-[11px] text-emerald-500">Local Spreadsheet Exports & Backups</h4>
         <div class="grid grid-cols-2 gap-2.5">
@@ -848,8 +879,7 @@
       <div id="authErrorMsg" class="hidden p-2.5 rounded-lg bg-rose-500/10 text-rose-400 text-xs"></div>
     </div>
   </div>
-
-  <script type="module">
+<script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
     import { getAuth, setPersistence, browserSessionPersistence, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
@@ -863,7 +893,34 @@
     const DRIVE_TOKEN_KEY = 'optotrack_drive_access_token';
     const DRIVE_CLIENT_ID_KEY = 'optotrack_drive_client_id';
     const DRIVE_ACCOUNT_EMAIL_KEY = 'optotrack_drive_account_email';
+    const THEME_MODE_KEY = 'optotrack_theme_mode';
     let driveAccessToken = sessionStorage.getItem(DRIVE_TOKEN_KEY) || null;
+    let showAllYearLogs = false;
+
+    // #2: Automated System Theme Switching + Manual Override Cycle (auto -> dark -> light)
+    const systemDarkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    function applyEffectiveTheme(mode) {
+      const m = mode || localStorage.getItem(THEME_MODE_KEY) || 'auto';
+      const isDark = m === 'dark' || (m === 'auto' && systemDarkQuery.matches);
+      document.documentElement.classList.toggle('dark', isDark);
+      const iconEl = document.getElementById('themeToggleIcon');
+      const lblEl = document.getElementById('themeToggleModeLbl');
+      if (iconEl) iconEl.textContent = m === 'auto' ? '🌗' : (m === 'dark' ? '🌙' : '☀️');
+      if (lblEl) lblEl.textContent = m === 'auto' ? 'Auto' : (m === 'dark' ? 'Dark' : 'Light');
+    }
+    systemDarkQuery.addEventListener('change', () => {
+      const m = state?.themeMode || localStorage.getItem(THEME_MODE_KEY) || 'auto';
+      if (m === 'auto') applyEffectiveTheme('auto');
+    });
+    window.cycleThemeMode = () => {
+      const cur = state.themeMode || localStorage.getItem(THEME_MODE_KEY) || 'auto';
+      const next = cur === 'auto' ? 'dark' : (cur === 'dark' ? 'light' : 'auto');
+      state.themeMode = next;
+      localStorage.setItem(THEME_MODE_KEY, next);
+      applyEffectiveTheme(next);
+      pushStateToCloud();
+    };
+    applyEffectiveTheme(localStorage.getItem(THEME_MODE_KEY) || 'auto');
 
     function initRememberedEmail() {
       const savedEmail = localStorage.getItem(REMEMBER_EMAIL_KEY);
@@ -1003,6 +1060,7 @@
     function getEmptyState() {
       return {
         currentYear: '2026', includeCurrentMonthInAverages: true, benchmarkMode: 'prev_year', quarterOhipMode: 'recon', coneQuarter: 'Q4',
+        themeMode: localStorage.getItem(THEME_MODE_KEY) || 'auto',
         lastDriveSyncMonth: null,
         lastDriveBackupTimestamp: null,
         driveClientId: localStorage.getItem(DRIVE_CLIENT_ID_KEY) || '',
@@ -1120,6 +1178,7 @@
                 state = { ...getEmptyState(), ...snap.data() };
                 ensureLayoutsValid();
                 ensureRecordBaselineInitialized();
+                applyEffectiveTheme(state.themeMode || localStorage.getItem(THEME_MODE_KEY) || 'auto');
                 renderAll();
                 isApplyingRemote = false;
                 checkMonthlyAutoSync();
@@ -1180,11 +1239,26 @@
 
     function saveAndRender() { pushStateToCloud(); renderAll(); }
 
-    function populateYearDropdowns() {
+    // #5: Centered Year Bar + Popup Year Picker Logic
+    function populateYearControls() {
       const sortedYears = Object.keys(state.years || {}).sort();
-      const ys = document.getElementById('yearSelect');
-      ys.innerHTML = sortedYears.map(y => `<option value="${y}" ${y === state.currentYear ? 'selected' : ''}>${y}</option>`).join('') +
-        `<option value="__add_year__">+ Add Year...</option>`;
+      const idx = sortedYears.indexOf(state.currentYear);
+
+      const centerLbl = document.getElementById('centerYearLabel');
+      if (centerLbl) centerLbl.textContent = state.currentYear;
+
+      const prevBtn = document.getElementById('prevYearArrowBtn');
+      const nextBtn = document.getElementById('nextYearArrowBtn');
+      if (prevBtn) prevBtn.disabled = idx <= 0;
+      if (nextBtn) nextBtn.disabled = idx === -1 || idx >= sortedYears.length - 1;
+
+      const grid = document.getElementById('yearPickerGrid');
+      if (grid) {
+        grid.innerHTML = sortedYears.map(y => {
+          const isCur = y === state.currentYear;
+          return `<button onclick="window.selectYearFromPopup('${y}')" class="py-2.5 px-3 rounded-xl font-bold mono transition ${isCur ? 'bg-brand-600 text-white shadow-sm' : 'bg-slate-100 dark:bg-slate-800 hover:bg-brand-500/15 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700'}">${y}</button>`;
+        }).join('');
+      }
 
       const bs = document.getElementById('benchmarkSelect');
       const curBm = state.benchmarkMode || 'prev_year';
@@ -1194,9 +1268,38 @@
       bs.value = curBm;
 
       const mode = state.quarterOhipMode || 'recon';
-      document.getElementById('ohipModeReconBtn').className = mode === 'recon' ? 'px-2.5 py-1 rounded-md bg-brand-600 text-white shadow-sm transition' : 'px-2.5 py-1 rounded-md text-slate-500 dark:text-slate-400 transition';
-      document.getElementById('ohipModeTotalBtn').className = mode === 'total' ? 'px-2.5 py-1 rounded-md bg-brand-600 text-white shadow-sm transition' : 'px-2.5 py-1 rounded-md text-slate-500 dark:text-slate-400 transition';
+      document.getElementById('ohipModeReconBtn').className = mode === 'recon' ? 'px-2 py-1 rounded-md bg-brand-600 text-white shadow-sm transition' : 'px-2 py-1 rounded-md text-slate-500 dark:text-slate-400 transition';
+      document.getElementById('ohipModeTotalBtn').className = mode === 'total' ? 'px-2 py-1 rounded-md bg-brand-600 text-white shadow-sm transition' : 'px-2 py-1 rounded-md text-slate-500 dark:text-slate-400 transition';
     }
+
+    window.stepYear = (delta) => {
+      const sortedYears = Object.keys(state.years || {}).sort();
+      const idx = sortedYears.indexOf(state.currentYear);
+      const targetIdx = idx + delta;
+      if (targetIdx >= 0 && targetIdx < sortedYears.length) {
+        state.currentYear = sortedYears[targetIdx];
+        showAllYearLogs = false;
+        saveAndRender();
+      }
+    };
+    window.openYearPickerModal = () => {
+      populateYearControls();
+      document.getElementById('yearPickerModal').classList.remove('hidden');
+    };
+    window.closeYearPickerModal = () => document.getElementById('yearPickerModal').classList.add('hidden');
+    window.selectYearFromPopup = (yr) => {
+      state.currentYear = yr;
+      showAllYearLogs = false;
+      window.closeYearPickerModal();
+      saveAndRender();
+    };
+    window.openAddYearFromPicker = () => {
+      window.closeYearPickerModal();
+      const existing = Object.keys(state.years || {}).map(Number).filter(Boolean);
+      const nextYr = existing.length ? Math.max(...existing) + 1 : 2028;
+      document.getElementById('inputNewYear').value = nextYr;
+      document.getElementById('addYearModal').classList.remove('hidden');
+    };
 
     window.navigatePage = (pageId) => {
       activePage = pageId;
@@ -1206,7 +1309,7 @@
       });
       const titles = { pageDashboard: 'Dashboard', pageRecords: 'Records & Milestones', pageCharts: 'Charts & Trends' };
       document.getElementById('headerSubtitle').textContent = titles[pageId];
-      document.getElementById('yearSelect').classList.toggle('hidden', pageId === 'pageRecords');
+      document.getElementById('centeredYearBar').classList.toggle('hidden', pageId === 'pageRecords');
       document.getElementById('globalTopControlBar').classList.toggle('hidden', pageId === 'pageRecords');
       document.getElementById('dashboardWidgetAdder').classList.toggle('hidden', pageId !== 'pageDashboard');
 
@@ -1278,6 +1381,17 @@
       const now = new Date(), curYear = now.getFullYear(), curMonthIdx = now.getMonth(), yNum = Number(yearStr);
       if (yNum !== curYear) return 11;
       return state.includeCurrentMonthInAverages ? curMonthIdx : Math.max(0, curMonthIdx - 1);
+    }
+
+    function getFirstActiveMonthIndex(yearStr) {
+      const months = state.years[yearStr] || [];
+      for (let i = 0; i < months.length; i++) {
+        const m = months[i];
+        if ((Number(m.gross) || 0) > 0 || (Number(m.reci) || 0) > 0 || (Number(m.ohip) || 0) > 0 || (Number(m.patients) || 0) > 0 || (Number(m.daysWorked) || 0) > 0) {
+          return i;
+        }
+      }
+      return 0;
     }
 
     function getLastActiveMonthIndex(yearStr) {
@@ -1488,12 +1602,12 @@
     };
     const CHART_META = {
       netTarget: { title: 'Monthly 24% Net vs. Baseline Target', sub: 'Monthly associate cut compared to baseline target draw.' },
-      dailyAvg: { title: 'Daily Average Income Across the Year (YoY & Peak)', sub: 'Comparing $/day earning pace across years vs. all-time peak pace.' },
+      dailyAvg: { title: 'Daily Average Income Across the Year (Multi-Year Bar & Peak)', sub: 'Grouped monthly $/day bars across all active years vs. all-time peak pace.' },
       patients: { title: 'Patient Volume & Revenue per Patient', sub: 'Monthly patients seen vs. average net revenue per patient.' },
       breakdown: { title: 'Monthly Collections Breakdown', sub: 'Accounts Received vs. OHIP Reconciliation stacked collections.' },
       forecastCone: { title: 'Quarterly Payout Cone & Trajectory Forecast', sub: 'Cumulative quarter 24% net & bonus payout forecast.' },
       annualSalaryCone: { title: 'Annual Projected Salary & Total Earnings Trajectory', sub: 'Starts from YTD Net Cut earned and adds remaining work days.' },
-      quarterSeasonality: { title: 'Historical Quarterly Seasonality (Average Earnings)', sub: 'Compares average 24% Net & Bonus across Q1–Q4.' }
+      quarterSeasonality: { title: 'Historical Quarterly Seasonality (Full Quarters Only)', sub: 'Compares average 24% Net & Bonus across Q1–Q4.' }
     };
 
     let activeDragState = { listKey: null, itemKey: null };
@@ -1700,9 +1814,11 @@
 
     function renderKPIs() {
       const cur = getYearMetrics(state.currentYear), bm = getBenchmarkComparisonMetrics();
-      const cutoffIdx = getAverageCutoffIndex(state.currentYear);
+      const firstActiveIdx = getFirstActiveMonthIndex(state.currentYear);
+      const cutoffIdx = Math.max(firstActiveIdx, getAverageCutoffIndex(state.currentYear));
       const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-      document.getElementById('avgScopeText').textContent = `Averages Scope: Jan – ${monthNames[cutoffIdx]} (${state.includeCurrentMonthInAverages ? 'Incl. In-Progress Month' : 'Completed Months Only'})`;
+      // #4: Removed redundant parenthetical text so Avg Scope + checkbox fit on one line on mobile
+      document.getElementById('avgScopeText').textContent = `Avg Scope: ${monthNames[firstActiveIdx]} – ${monthNames[cutoffIdx]}`;
       document.getElementById('includeCurrentMonthToggle').checked = !!state.includeCurrentMonthInAverages;
 
       document.getElementById('kpiYtdNet').textContent = fmtCurr(cur.ytdNet);
@@ -1819,16 +1935,52 @@
       });
     }
 
+    // #6: Filter Daily Shift Logs by active year & cap to 5 most recent with "See More" toggle
+    window.toggleShowAllYearLogs = () => {
+      showAllYearLogs = !showAllYearLogs;
+      renderDailyLogs();
+    };
+
     function renderDailyLogs() {
-      const container = document.getElementById('dailyLogsContainer'), logs = state.dailyLogs || [];
-      if (!logs.length) { container.innerHTML = `<div class="text-xs text-slate-400 py-8 text-center border border-dashed border-slate-800 rounded-xl">No daily shifts logged yet.</div>`; return; }
-      container.innerHTML = logs.slice().reverse().map((log, revIdx) => {
-        const realIdx = logs.length - 1 - revIdx;
-        return `<div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-700/70 flex items-center justify-between text-xs">
+      const container = document.getElementById('dailyLogsContainer');
+      const moreWrap = document.getElementById('dailyLogsMoreWrap');
+      const toggleBtn = document.getElementById('dailyLogsToggleAllBtn');
+      const yearLbl = document.getElementById('dailyLogsYearLbl');
+      if (yearLbl) yearLbl.textContent = state.currentYear;
+
+      const allLogs = state.dailyLogs || [];
+      const yearLogsWithIdx = [];
+      allLogs.forEach((log, realIdx) => {
+        const logYr = String(log.year || (log.date && log.date.length >= 4 ? log.date.substring(0, 4) : state.currentYear));
+        if (logYr === String(state.currentYear)) {
+          yearLogsWithIdx.push({ log, realIdx });
+        }
+      });
+
+      if (!yearLogsWithIdx.length) {
+        container.innerHTML = `<div class="text-xs text-slate-400 py-8 text-center border border-dashed border-slate-300 dark:border-slate-800 rounded-xl">No shifts logged for ${state.currentYear}.</div>`;
+        if (moreWrap) moreWrap.classList.add('hidden');
+        return;
+      }
+
+      const reversed = yearLogsWithIdx.slice().reverse();
+      const visible = showAllYearLogs ? reversed : reversed.slice(0, 5);
+
+      container.innerHTML = visible.map(({ log, realIdx }) => {
+        return `<div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/70 flex items-center justify-between text-xs">
           <div><div class="flex items-center gap-2"><span class="font-bold">${log.date}</span><span class="px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-500 font-semibold mono text-[10px]">Net: ${fmtCurr(log.net)}</span><span class="text-slate-400 mono">${log.pts || 0} pts</span></div>
           <div class="text-[11px] text-slate-500 mt-0.5">Gross: <span class="mono font-semibold">${fmtCurr(log.gross)}</span> ${log.note ? '• ' + log.note : ''}</div></div>
-          <button onclick="window.openEditLogModal(${realIdx})" class="p-1.5 text-slate-400 hover:text-white">✎</button></div>`;
+          <button onclick="window.openEditLogModal(${realIdx})" class="p-1.5 text-slate-400 hover:text-slate-900 dark:hover:text-white">✎</button></div>`;
       }).join('');
+
+      if (reversed.length > 5) {
+        moreWrap.classList.remove('hidden');
+        toggleBtn.textContent = showAllYearLogs
+          ? 'Show 5 Most Recent ↑'
+          : `See All ${reversed.length} Logs for ${state.currentYear} ↓`;
+      } else {
+        moreWrap.classList.add('hidden');
+      }
     }
 
     function renderRecordsPage() {
@@ -1886,17 +2038,17 @@
       const canvasEl = document.getElementById(canvasId);
       if (!canvasEl) return;
 
-      const curYearStr = state.currentYear, prevYearStr = String(Number(curYearStr) - 1);
-      const months = state.years[curYearStr] || [], prevMonths = state.years[prevYearStr] || [];
+      const curYearStr = state.currentYear;
+      const months = state.years[curYearStr] || [];
       const labels = months.map(m => m.month);
       const calcCur = months.map((m, idx) => calculateMonth(m, state.settings, getEffectiveMonthOhipMode(curYearStr, idx)));
-      const calcPrev = prevMonths.map((m, idx) => calculateMonth(m, state.settings, getEffectiveMonthOhipMode(prevYearStr, idx)));
 
+      // Outlier-safe All-Time Peak Month Daily Average (requires >= 3 shifts in the month so a 1-day outlier doesn't skew peak)
       let allTimeMaxDaily = 0;
       Object.keys(state.years).forEach(yr => {
         state.years[yr].forEach((m, idx) => {
           const c = calculateMonth(m, state.settings, getEffectiveMonthOhipMode(yr, idx));
-          if (c.dailyAvg > allTimeMaxDaily) allTimeMaxDaily = c.dailyAvg;
+          if (c.daysWorked >= 3 && c.dailyAvg > allTimeMaxDaily) allTimeMaxDaily = c.dailyAvg;
         });
       });
 
@@ -1914,13 +2066,47 @@
           options: { responsive: true, maintainAspectRatio: false }
         });
       } else if (chartKey === 'dailyAvg') {
-        chartsObj[canvasId] = new Chart(canvasEl, {
+        // #7: Multi-Year Grouped Bar Chart + Outlier-Filtered Peak Pace Line
+        const sortedYears = Object.keys(state.years || {}).sort();
+        const activeYears = sortedYears.filter(yr => (state.years[yr] || []).some(m => (Number(m.daysWorked) || 0) > 0 || (Number(m.gross) || 0) > 0));
+        const yearsToPlot = activeYears.length ? activeYears : [curYearStr];
+        const palette = [
+          'rgba(148, 163, 184, 0.75)',
+          'rgba(16, 185, 129, 0.85)',
+          'rgba(99, 102, 241, 0.85)',
+          'rgba(56, 189, 248, 0.85)',
+          'rgba(168, 85, 247, 0.85)'
+        ];
+
+        const barDatasets = yearsToPlot.map((yr, i) => {
+          const yrMonths = state.years[yr] || [];
+          const isCurrentSelected = yr === curYearStr;
+          const color = isCurrentSelected ? 'rgba(16, 185, 129, 0.88)' : palette[i % palette.length];
+          return {
+            type: 'bar',
+            label: `${yr} ($/day)`,
+            data: yrMonths.map((m, idx) => {
+              const c = calculateMonth(m, state.settings, getEffectiveMonthOhipMode(yr, idx));
+              return (c.isActive && c.daysWorked > 0) ? Number(c.dailyAvg.toFixed(2)) : null;
+            }),
+            backgroundColor: color,
+            borderRadius: 4
+          };
+        });
+
+        barDatasets.push({
           type: 'line',
-          data: { labels, datasets: [
-            { label: `${curYearStr} Daily Avg ($/d)`, data: calcCur.map(c => c.isActive ? c.dailyAvg : null), borderColor: '#10b981', borderWidth: 2, tension: 0.3 },
-            { label: `${prevYearStr} Daily Avg ($/d)`, data: calcPrev.map(c => c.isActive ? c.dailyAvg : null), borderColor: '#94a3b8', borderDash: [5, 5], borderWidth: 2, tension: 0.3 },
-            { label: 'All-Time Peak Month Pace', data: labels.map(() => allTimeMaxDaily), borderColor: '#f59e0b', borderDash: [2, 2], borderWidth: 1.5, pointRadius: 0 }
-          ]},
+          label: `All-Time Peak Month (${fmtCurr(peakDaily)}/d)`,
+          data: labels.map(() => Number(peakDaily.toFixed(2))),
+          borderColor: '#f59e0b',
+          borderDash: [4, 4],
+          borderWidth: 2,
+          pointRadius: 0
+        });
+
+        chartsObj[canvasId] = new Chart(canvasEl, {
+          type: 'bar',
+          data: { labels, datasets: barDatasets },
           options: { responsive: true, maintainAspectRatio: false }
         });
       } else if (chartKey === 'patients') {
@@ -2058,25 +2244,22 @@
             </div>`;
         }
       } else if (chartKey === 'quarterSeasonality') {
+        // #8: Strictly require all 3 months in the quarter to be active (`activeMonthsCount === 3`) so partial Q2 2025 (June start) never skews Q2 downward
         const qKeys = ['Q1', 'Q2', 'Q3', 'Q4'];
         const qTitleMap = { Q1: 'Q1 (Jan–Mar)', Q2: 'Q2 (Apr–Jun)', Q3: 'Q3 (Jul–Sep)', Q4: 'Q4 (Oct–Dec)' };
         const qStats = qKeys.map(qk => {
-          const nets = [], bonuses = [];
-          Object.keys(state.years || {}).forEach(yr => {
+          const nets = [], bonuses = [], yearsUsed = [];
+          Object.keys(state.years || {}).sort().forEach(yr => {
             const qSum = calculateQuarterSummary(yr, qk, state.quarterOhipMode);
-            if ((qSum.activeMonthsCount === 3 || qSum.isConfirmed) && qSum.displayNet > 0) {
-              nets.push(qSum.displayNet); bonuses.push(qSum.displayBonus);
+            if (qSum.activeMonthsCount === 3 && qSum.displayNet > 0) {
+              nets.push(qSum.displayNet);
+              bonuses.push(qSum.displayBonus);
+              yearsUsed.push(yr);
             }
           });
-          if (nets.length === 0) {
-            Object.keys(state.years || {}).forEach(yr => {
-              const qSum = calculateQuarterSummary(yr, qk, state.quarterOhipMode);
-              if (qSum.displayNet > 0) { nets.push(qSum.displayNet); bonuses.push(qSum.displayBonus); }
-            });
-          }
           const avgNet = nets.length ? nets.reduce((a, b) => a + b, 0) / nets.length : 0;
           const avgBonus = bonuses.length ? bonuses.reduce((a, b) => a + b, 0) / bonuses.length : 0;
-          return { qKey: qk, avgNet, avgBonus, count: nets.length };
+          return { qKey: qk, avgNet, avgBonus, count: nets.length, yearsUsed };
         });
 
         let bestQ = qStats[0];
@@ -2087,7 +2270,7 @@
           data: {
             labels: qKeys.map(k => qTitleMap[k]),
             datasets: [
-              { label: 'Average 24% Net Earnings', data: qStats.map(s => Number(s.avgNet.toFixed(2))), backgroundColor: 'rgba(16, 185, 129, 0.82)', borderRadius: 6 },
+              { label: 'Average 24% Net (Full Quarters)', data: qStats.map(s => Number(s.avgNet.toFixed(2))), backgroundColor: 'rgba(16, 185, 129, 0.82)', borderRadius: 6 },
               { label: 'Average Quarter Bonus', data: qStats.map(s => Number(s.avgBonus.toFixed(2))), type: 'line', borderColor: '#f59e0b', backgroundColor: '#f59e0b', borderWidth: 2.5, pointRadius: 4, tension: 0.25 }
             ]
           },
@@ -2098,11 +2281,13 @@
           document.getElementById('bestSeasonalityBadge').textContent = bestQ && bestQ.avgNet > 0 ? `Strongest Quarter: ${bestQ.qKey} (${fmtCurr(bestQ.avgNet)})` : 'Strongest Quarter: —';
           document.getElementById('seasonalitySummaryCards').innerHTML = qStats.map(s => {
             const isBest = s.qKey === bestQ.qKey && s.avgNet > 0;
+            const sampleText = s.yearsUsed.length ? `Full Qtrs: ${s.yearsUsed.join(', ')}` : 'No full 3-mth quarter yet';
             return `<div class="p-3 rounded-xl ${isBest ? 'bg-emerald-500/10 border border-emerald-500/30' : 'bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/70'}">
               <div class="flex items-center justify-between mb-1"><span class="font-bold text-slate-900 dark:text-white">${qTitleMap[s.qKey]}</span>${isBest ? '<span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500 text-white">★ #1</span>' : ''}</div>
               <div class="space-y-0.5 text-[11px]">
                 <div class="flex justify-between"><span class="text-slate-500 dark:text-slate-400">Avg 24% Net:</span><span class="mono font-bold text-emerald-600 dark:text-emerald-400">${fmtCurr(s.avgNet)}</span></div>
                 <div class="flex justify-between"><span class="text-slate-500 dark:text-slate-400">Avg Bonus:</span><span class="mono font-semibold text-amber-600 dark:text-amber-400">${fmtCurr(s.avgBonus)}</span></div>
+                <div class="text-[10px] text-slate-400 pt-0.5 truncate">${sampleText}</div>
               </div></div>`;
           }).join('');
         }
@@ -2154,7 +2339,7 @@
       if (!currentUser) return;
       ensureLayoutsValid();
       syncRecordHighWithBaselineAndLogs();
-      populateYearDropdowns();
+      populateYearControls();
       updateDriveSettingsLabels();
       if (activePage === 'pageDashboard') {
         renderKPIs();
@@ -2170,21 +2355,8 @@
       }
     }
 
-    window.switchYear = (yr) => {
-      if (yr === '__add_year__') {
-        const existing = Object.keys(state.years || {}).map(Number).filter(Boolean);
-        const nextYr = existing.length ? Math.max(...existing) + 1 : 2028;
-        document.getElementById('inputNewYear').value = nextYr;
-        document.getElementById('addYearModal').classList.remove('hidden');
-        document.getElementById('yearSelect').value = state.currentYear;
-        return;
-      }
-      state.currentYear = yr;
-      saveAndRender();
-    };
     window.closeAddYearModal = () => {
       document.getElementById('addYearModal').classList.add('hidden');
-      document.getElementById('yearSelect').value = state.currentYear;
     };
     window.confirmAddYear = () => {
       const newYr = String(Number(document.getElementById('inputNewYear').value) || '').trim();
@@ -2204,6 +2376,7 @@
         state.yearPaidExtras[newYr] = { health: 0, bonusPaid: 0 };
       }
       state.currentYear = newYr;
+      showAllYearLogs = false;
       document.getElementById('addYearModal').classList.add('hidden');
       saveAndRender();
     };
@@ -2211,7 +2384,6 @@
     window.toggleIncludeCurrentMonth = (val) => { state.includeCurrentMonthInAverages = !!val; saveAndRender(); };
     window.setBenchmarkMode = (val) => { state.benchmarkMode = val; saveAndRender(); };
     window.setQuarterOhipMode = (val) => { state.quarterOhipMode = val; saveAndRender(); };
-    window.toggleTheme = () => { document.documentElement.classList.toggle('dark'); };
 
     let editingMonthIdx = null;
     window.openMonthModal = (idx) => {
@@ -2561,7 +2733,7 @@
     };
     window.forcePushToCloud = async () => { await pushStateToCloud(); window.closeCloudModal(); };
 
-    // ================= GOOGLE DRIVE OPTION 1: IN-PLACE 2-FILE OVERWRITE BACKUP =================
+    // ================= GOOGLE DRIVE BACKUP (#1: Fixed Manual Account Chooser Override) =================
     window.saveDriveClientId = (val) => {
       const clean = (val || '').trim();
       state.driveClientId = clean;
@@ -2661,11 +2833,9 @@
       }
 
       try {
-        // 1. Upload / Update JSON Backup
         const jsonBlob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
         await uploadOrUpdateDriveFile('OptoTrack_Backup.json', 'application/json', jsonBlob, token);
 
-        // 2. Upload / Update Multi-Year Excel Workbook (.xlsx)
         if (typeof XLSX !== 'undefined') {
           const wb = buildMasterExcelWorkbook();
           const wbArrayBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
@@ -2699,21 +2869,25 @@
       }
     }
 
-    // Unified Google Drive Token Request:
-    // - Automated monthly run (isManual = false): uses `hint` + `prompt: ''` to silently target your personal email
-    // - Manual button click (isManual = true): uses `prompt: 'select_account'` to show the account picker
+    // #1: Key Fix for Dual Google Accounts (School vs Personal)
+    // - When `isManual === true`: we clear any stale token, OMIT `hint` (because passing `hint` causes Google to skip the account chooser), and pass `prompt: 'select_account'` so the full account picker always opens.
+    // - When `isManual === false` (monthly background auto-sync): we pass `hint: targetEmail` and `prompt: ''` so it silently targets your personal Gmail.
     async function requestDriveToken(isManual = false) {
       const clientId = (document.getElementById('setDriveClientId')?.value || state.driveClientId || localStorage.getItem(DRIVE_CLIENT_ID_KEY) || '').trim();
       const targetEmail = (document.getElementById('setBackupAccountEmail')?.value || state.backupAccountEmail || localStorage.getItem(DRIVE_ACCOUNT_EMAIL_KEY) || currentUser?.email || '').trim();
+
+      if (isManual) {
+        driveAccessToken = null;
+        sessionStorage.removeItem(DRIVE_TOKEN_KEY);
+      }
 
       if (clientId && window.google?.accounts?.oauth2) {
         window.saveDriveClientId(clientId);
         if (targetEmail) window.saveBackupAccountEmail(targetEmail);
 
-        const tokenClient = window.google.accounts.oauth2.initTokenClient({
+        const clientConfig = {
           client_id: clientId,
           scope: 'https://www.googleapis.com/auth/drive.file',
-          hint: targetEmail || undefined,
           callback: async (resp) => {
             if (resp.access_token) {
               driveAccessToken = resp.access_token;
@@ -2721,7 +2895,14 @@
               await executeDriveUpload(driveAccessToken, !isManual);
             }
           }
-        });
+        };
+
+        // Only attach `hint` on silent automated runs; omitting `hint` on manual click forces Google's account chooser list
+        if (!isManual && targetEmail) {
+          clientConfig.hint = targetEmail;
+        }
+
+        const tokenClient = window.google.accounts.oauth2.initTokenClient(clientConfig);
 
         if (isManual) {
           tokenClient.requestAccessToken({ prompt: 'select_account' });
@@ -2733,14 +2914,10 @@
 
       if (!isManual) return;
 
-      // Fallback when no Client ID is entered and user clicks Manual Backup
       try {
         const provider = new GoogleAuthProvider();
         provider.addScope('https://www.googleapis.com/auth/drive.file');
-        provider.setCustomParameters({
-          prompt: 'select_account',
-          ...(targetEmail ? { login_hint: targetEmail } : {})
-        });
+        provider.setCustomParameters({ prompt: 'select_account' });
         const res = await signInWithPopup(auth, provider);
         const cred = GoogleAuthProvider.credentialFromResult(res);
         if (cred && cred.accessToken) {
@@ -2751,7 +2928,7 @@
       } catch (e) {
         const statusEl = document.getElementById('driveSyncStatusMsg');
         if (statusEl) {
-          statusEl.textContent = `Authorization needed: Enter your Google OAuth Client ID above or select your personal Google account.`;
+          statusEl.textContent = `Authorization needed: Ensure https://ral271.github.io is in your Google Cloud Authorized JavaScript origins.`;
           statusEl.className = 'text-[11px] font-semibold pt-1 text-amber-500 block';
         }
       }
