@@ -60,6 +60,39 @@
       outline-offset: 4px !important;
       box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.45) !important;
     }
+    /* Task 7: Side drag handle to resize widgets by dragging left/right */
+    .side-resize-handle {
+      position: absolute;
+      top: 0;
+      right: -6px;
+      bottom: 0;
+      width: 14px;
+      cursor: ew-resize;
+      z-index: 45;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      touch-action: none;
+    }
+    .side-resize-handle::after {
+      content: '⋮';
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 8px;
+      height: 42px;
+      border-radius: 9999px;
+      background: rgba(99, 102, 241, 0.85);
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 800;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+    .side-resize-handle:hover::after, .side-resize-active .side-resize-handle::after {
+      background: #10b981;
+      transform: scaleY(1.2) scaleX(1.15);
+    }
     #desktopSidebar { transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1); }
   </style>
 </head>
@@ -128,7 +161,7 @@
   <!-- PROTECTED APPLICATION SHELL -->
   <div id="protectedAppShell" class="hidden min-h-screen flex flex-col md:flex-row pb-20 md:pb-0">
 
-    <!-- DESKTOP / TABLET COLLAPSIBLE SIDEBAR RAIL (Task 3: Dynamically rendered from user navOrder) -->
+    <!-- DESKTOP / TABLET COLLAPSIBLE SIDEBAR RAIL -->
     <aside id="desktopSidebar" class="hidden md:flex flex-col shrink-0 w-[68px] bg-slate-900 text-slate-300 border-r border-slate-800/90 select-none z-40 sticky top-0 h-screen">
       <div class="h-16 px-3 flex items-center justify-between border-b border-slate-800/80">
         <div class="flex items-center gap-2.5 min-w-0">
@@ -140,7 +173,6 @@
         </div>
       </div>
 
-      <!-- Dynamically populated by renderNavigationBars() -->
       <nav id="desktopSidebarNav" class="flex-1 py-4 px-2.5 space-y-2"></nav>
 
       <div class="p-2.5 border-t border-slate-800/80 space-y-1.5">
@@ -184,7 +216,7 @@
               <span>📲 Install</span>
             </button>
 
-            <button id="editLayoutBtn" onclick="window.toggleLayoutEditMode()" class="p-1.5 sm:p-2 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-brand-500/15 border border-slate-200 dark:border-slate-700 transition flex items-center justify-center" title="Customize Layout & Resize Widgets">
+            <button id="editLayoutBtn" onclick="window.toggleLayoutEditMode()" class="p-1.5 sm:p-2 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-brand-500/15 border border-slate-200 dark:border-slate-700 transition flex items-center justify-center" title="Customize Layout & Drag Sides to Resize">
               <span>✨</span>
             </button>
 
@@ -222,15 +254,15 @@
         </div>
       </div>
 
-      <!-- LAYOUT CUSTOMIZATION DRAWER (Task 7: Includes Resize instructions) -->
+      <!-- LAYOUT CUSTOMIZATION DRAWER (Task 7: Drag right edge of widgets to resize) -->
       <div id="layoutEditorDrawer" class="hidden max-w-7xl w-full mx-auto px-3 sm:px-6 pt-3">
         <div class="bg-brand-500/10 border-2 border-dashed border-brand-500/40 rounded-2xl p-4 space-y-3 text-xs">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div class="flex items-center gap-2">
               <span class="text-base">✨</span>
               <div>
-                <h3 class="font-extrabold text-sm text-brand-600 dark:text-brand-300">Drag & Drop Layout + Widget Resizing Active</h3>
-                <p class="text-slate-500 dark:text-slate-400">Drag any block by its <span class="mono font-bold text-brand-500">⠿</span> bar to swap positions, or click <span class="mono font-bold text-sky-500">↔ Size</span> to toggle between Standard and Expanded Full-Row width.</p>
+                <h3 class="font-extrabold text-sm text-brand-600 dark:text-brand-300">Drag & Drop Layout + Side-Drag Resizing Active</h3>
+                <p class="text-slate-500 dark:text-slate-400">Drag any block by its <span class="mono font-bold text-brand-500">⠿</span> bar to swap positions, or drag the <span class="mono font-bold text-brand-500">⋮</span> handle on the right edge of any card/chart to resize its width.</p>
               </div>
             </div>
             <div class="flex items-center gap-2">
@@ -251,10 +283,10 @@
         </div>
       </div>
 
-      <!-- GLOBAL TOP CONTROL BAR -->
+      <!-- Task 10, 12 & 13: GLOBAL TOP CONTROL BAR (Single-line alignment on 14" Edge viewports + Scalable Benchmark Popup Button) -->
       <div id="globalTopControlBar" class="max-w-7xl w-full mx-auto px-3 sm:px-6 pt-3">
-        <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-2.5 sm:p-3.5 flex flex-col xl:flex-row xl:items-center justify-between gap-2.5 text-xs">
-          <div class="flex items-center justify-between sm:justify-start gap-2 whitespace-nowrap overflow-x-auto">
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2.5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 text-xs">
+          <div class="flex items-center justify-between lg:justify-start gap-2 whitespace-nowrap shrink-0">
             <span class="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 shrink-0">
               <span class="w-2 h-2 rounded-full bg-brand-500 shrink-0"></span>
               <span id="avgScopeText">Avg Scope: Jan – Oct</span>
@@ -265,8 +297,8 @@
             </label>
           </div>
 
-          <div class="flex flex-wrap items-center justify-between sm:justify-end gap-2.5">
-            <div class="flex items-center gap-1.5">
+          <div class="flex flex-wrap lg:flex-nowrap items-center justify-between lg:justify-end gap-2 sm:gap-3 whitespace-nowrap shrink-0">
+            <div class="flex items-center gap-1.5 shrink-0">
               <span class="font-semibold text-slate-500 text-[11px] sm:text-xs">Current Qtr OHIP:</span>
               <div class="inline-flex rounded-lg p-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[11px] font-semibold">
                 <button id="ohipModeReconBtn" onclick="window.setQuarterOhipMode('recon')" class="px-2 py-1 rounded-md transition">OHIP Recon</button>
@@ -274,14 +306,13 @@
               </div>
             </div>
 
-            <div class="flex items-center gap-1.5">
+            <!-- Task 12 & 13: Compact Benchmark Button that opens scalable Benchmark Picker Modal -->
+            <div class="flex items-center gap-1.5 shrink-0">
               <span class="font-semibold text-slate-500 text-[11px] sm:text-xs">Benchmark:</span>
-              <select id="benchmarkSelect" onchange="window.setBenchmarkMode(this.value)" class="px-2 py-1 rounded-lg font-semibold bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[11px] sm:text-xs">
-                <option value="prev_year" selected>Previous Year (Same Period)</option>
-                <option value="2025">2025 Actuals</option>
-                <option value="2026">2026 Actuals</option>
-                <option value="all_time">All-Time Peak Pace</option>
-              </select>
+              <button onclick="window.openBenchmarkModal()" class="px-2.5 py-1 rounded-lg font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-brand-500/15 border border-slate-200 dark:border-slate-700 text-[11px] sm:text-xs flex items-center gap-1.5 transition" title="Change Benchmark Comparison">
+                <span id="benchmarkBtnLabel" class="truncate max-w-[165px]">Previous Year (Same Period)</span>
+                <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              </button>
             </div>
           </div>
         </div>
@@ -489,7 +520,6 @@
             <div class="h-64"><canvas id="chartPageNetTarget"></canvas></div>
           </div>
 
-          <!-- Task 4: Single Aggregated Bar per Month (Jan-Dec) for Historical Vacation Planning -->
           <div id="chartBlock_dailyAvg" data-chart-id="dailyAvg" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm min-w-0">
             <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
               <h3 class="font-bold text-sm sm:text-base">Historical Monthly Daily Average (All-Time Vacation Planner)</h3>
@@ -560,12 +590,12 @@
         </div>
       </main>
 
-      <!-- PAGE 4: CALENDAR PLACEHOLDER PAGE (Ready for Task 9 Calendar Suite, accessible from Nav Bar now) -->
+      <!-- PAGE 4: CALENDAR PLACEHOLDER PAGE -->
       <main id="pageCalendar" class="hidden max-w-7xl w-full mx-auto px-3 sm:px-6 py-6 space-y-6">
         <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 text-center space-y-3 shadow-sm">
           <div class="w-12 h-12 rounded-2xl bg-brand-500/15 text-brand-500 flex items-center justify-center text-2xl mx-auto">📅</div>
           <h2 class="text-xl sm:text-2xl font-extrabold">Clinic Schedule & Ontario Statutory Calendar</h2>
-          <p class="text-xs sm:text-sm text-slate-500 max-w-lg mx-auto">Your Calendar tab is now wired into the navigation bar and ready for the interactive Ontario Stat Holiday & Vacation Pacing suite.</p>
+          <p class="text-xs sm:text-sm text-slate-500 max-w-lg mx-auto">Your Calendar tab is wired into the navigation bar and ready for the interactive Ontario Stat Holiday & Vacation Pacing suite.</p>
           <div class="pt-2">
             <button onclick="window.openDailyLogModal()" class="px-4 py-2 rounded-xl text-xs font-bold bg-brand-600 text-white shadow-sm">+ Log Clinic Shift</button>
           </div>
@@ -574,12 +604,12 @@
 
     </div><!-- END MAIN CONTENT COLUMN -->
 
-    <!-- Task 2 & Task 3: MOBILE BOTTOM NAVIGATION BAR (Dynamically populated + "More" button) -->
+    <!-- MOBILE BOTTOM NAVIGATION BAR -->
     <nav id="mobileBottomNav" class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-slate-900/95 backdrop-blur-xl border-t border-slate-800 px-1 py-1.5 flex items-center justify-around text-[10px] font-semibold text-slate-400"></nav>
 
   </div><!-- END PROTECTED APP SHELL -->
 
-  <!-- Task 2: MOBILE "MORE" ACTION SHEET DRAWER -->
+  <!-- MOBILE "MORE" ACTION SHEET DRAWER -->
   <div id="mobileMoreSheet" onclick="if(event.target===this) window.closeMobileMoreSheet()" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-end justify-center md:hidden">
     <div class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 rounded-t-3xl w-full p-5 space-y-3 shadow-2xl">
       <div class="w-10 h-1 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto mb-1"></div>
@@ -604,6 +634,27 @@
           <span class="flex items-center gap-3"><span class="text-base">🔒</span><span>Sign Out & Lock OptoTrack</span></span>
           <span>→</span>
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task 12 & 13: SCALABLE BENCHMARK COMPARISON PICKER MODAL (Excludes Future Unworked Years) -->
+  <div id="benchmarkModal" onclick="if(event.target===this) window.closeBenchmarkModal()" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-sm w-full p-5 space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
+        <div>
+          <h3 class="font-bold text-lg">Benchmark Comparison</h3>
+          <p class="text-xs text-slate-500">Choose baseline for KPI & Quarter % pills</p>
+        </div>
+        <button onclick="window.closeBenchmarkModal()" class="p-1 text-slate-400 hover:text-white">✕</button>
+      </div>
+      <div class="space-y-2 text-xs">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">Smart Presets</span>
+        <div id="benchmarkPresetList" class="grid grid-cols-1 gap-2"></div>
+      </div>
+      <div class="space-y-2 text-xs pt-2 border-t border-slate-200 dark:border-slate-800">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">Recorded Years (Excludes Future Years)</span>
+        <div id="benchmarkYearsGrid" class="grid grid-cols-3 gap-2"></div>
       </div>
     </div>
   </div>
@@ -672,7 +723,7 @@
     </div>
   </div>
 
-  <!-- Task 6: DAILY LOG MODAL WITH 4HR / 6HR / 8HR SHIFT SELECTION & DYNAMIC TARGET SCALING -->
+  <!-- Task 14: DAILY LOG MODAL (Clean Shift Worked labels without dollar amounts) -->
   <div id="dailyLogModal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-lg w-full p-5 space-y-4 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-3"><h3 class="font-bold text-lg">Log Clinic Day (EMR MTD)</h3><button onclick="window.closeDailyLogModal()">✕</button></div>
@@ -682,9 +733,9 @@
         <div>
           <label class="block font-semibold mb-1 text-slate-500">Shift Worked</label>
           <select id="logShiftHours" onchange="window.updateDailyDeltaPreview()" class="w-full px-2.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 font-semibold">
-            <option value="8">8 hr (Full Day • $780)</option>
-            <option value="6">6 hr (Fri Shift • $630)</option>
-            <option value="4">4 hr (Half Day • $480)</option>
+            <option value="8">8 hr (Full Day)</option>
+            <option value="6">6 hr (Fri Shift)</option>
+            <option value="4">4 hr (Half Day)</option>
             <option value="0">0 hr (MTD Update Only)</option>
           </select>
         </div>
@@ -794,7 +845,7 @@
     </div>
   </div>
 
-  <!-- UNIFIED SETTINGS MODAL (Task 3: Navbar Customizer + Task 6: 4hr/6hr/8hr Contract Rates) -->
+  <!-- UNIFIED SETTINGS MODAL -->
   <div id="settingsModal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-5 space-y-5 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
@@ -805,7 +856,6 @@
         <button onclick="window.closeSettingsModal()" class="p-1 text-slate-400 hover:text-white">✕</button>
       </div>
 
-      <!-- Task 6: 8hr, 6hr, and 4hr Contract Rates -->
       <div class="space-y-3 text-xs">
         <h4 class="font-bold uppercase tracking-wider text-[11px] text-brand-500">Contract Rates & Shift Targets (8hr / 6hr / 4hr)</h4>
         <div>
@@ -831,7 +881,6 @@
         </div>
       </div>
 
-      <!-- Task 3: Navbar Icons & Order Customization -->
       <div class="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-2.5 text-xs">
         <div class="flex items-center justify-between">
           <h4 class="font-bold uppercase tracking-wider text-[11px] text-purple-500">Navigation Bar Icons & Order</h4>
@@ -841,7 +890,6 @@
         <div id="settingsNavCustomizerList" class="space-y-1.5"></div>
       </div>
 
-      <!-- Google Drive Backup -->
       <div class="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-3 text-xs">
         <div class="flex items-center justify-between">
           <h4 class="font-bold uppercase tracking-wider text-[11px] text-sky-500">Automated Google Drive Backup</h4>
@@ -870,7 +918,6 @@
         </button>
       </div>
 
-      <!-- Local Exports -->
       <div class="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-3 text-xs">
         <h4 class="font-bold uppercase tracking-wider text-[11px] text-emerald-500">Local Spreadsheet Exports & Backups</h4>
         <div class="grid grid-cols-2 gap-2.5">
@@ -953,6 +1000,12 @@
     document.getElementById('appleTouchIconLink').href = CLINIC_LOGO_B64;
     document.querySelectorAll('.clinic-logo-img').forEach(img => { img.src = CLINIC_LOGO_B64; });
 
+    // Task 6: Global Chart.js configuration to strip background grid lines cleanly across all charts
+    if (typeof Chart !== 'undefined') {
+      Chart.defaults.scale.grid.display = false;
+      Chart.defaults.scale.grid.drawOnChartArea = false;
+    }
+
     const REMEMBER_EMAIL_KEY = 'optotrack_remembered_email';
     const DRIVE_TOKEN_KEY = 'optotrack_drive_access_token';
     const DRIVE_CLIENT_ID_KEY = 'optotrack_drive_client_id';
@@ -961,7 +1014,6 @@
     let driveAccessToken = sessionStorage.getItem(DRIVE_TOKEN_KEY) || null;
     let showAllYearLogs = false;
 
-    // Automated System Theme Switching + Manual Override Cycle (auto -> dark -> light)
     const systemDarkQuery = window.matchMedia('(prefers-color-scheme: dark)');
     function applyEffectiveTheme(mode) {
       const m = mode || localStorage.getItem(THEME_MODE_KEY) || 'auto';
@@ -1013,7 +1065,6 @@
       }
     };
 
-    // Task 2: Mobile "More" Action Sheet
     window.openMobileMoreSheet = () => document.getElementById('mobileMoreSheet')?.classList.remove('hidden');
     window.closeMobileMoreSheet = () => document.getElementById('mobileMoreSheet')?.classList.add('hidden');
 
@@ -1115,7 +1166,7 @@
       month: m, mtDays: 16, fDays: 4, daysWorked: 0, gross: 0, reci: 0, ohip: 0, totalOhip: 0, paid: 0, patients: 0, customTarget: null, shiftTargetAdj: 0
     }));
 
-    // Task 2, 3 & 7: Default Layouts including Nav Order, Hidden Nav Items, and Widget Sizes
+    // Task 11: Explicitly populate every widget size key in getDefaultLayouts() so Firestore's merge:true overwrites resized keys cleanly back to 'normal'
     function getDefaultLayouts() {
       return {
         dashBlocks: ['kpis', 'quarters', 'ledger', 'bottomRow'],
@@ -1126,9 +1177,34 @@
         navOrder: ['pageDashboard', 'pageRecords', 'logDay', 'pageCharts', 'pageCalendar'],
         navHidden: [],
         widgetSizes: {
+          dash_bottomRow: 'normal',
+          kpi_net: 'normal',
+          kpi_paid: 'normal',
+          kpi_daily: 'normal',
+          kpi_revpt: 'normal',
+          chart_netTarget: 'normal',
+          chart_dailyAvg: 'normal',
+          chart_patients: 'normal',
+          chart_breakdown: 'normal',
           chart_forecastCone: 'full',
           chart_annualSalaryCone: 'full',
-          chart_quarterSeasonality: 'full'
+          chart_quarterSeasonality: 'full',
+          pinned_netTarget: 'normal',
+          pinned_dailyAvg: 'normal',
+          pinned_patients: 'normal',
+          pinned_breakdown: 'normal',
+          pinned_forecastCone: 'full',
+          pinned_annualSalaryCone: 'full',
+          pinned_quarterSeasonality: 'full',
+          rec_rec_dailyGross: 'normal',
+          rec_rec_yrPaid: 'normal',
+          rec_rec_qtrNet: 'normal',
+          rec_rec_mthPts: 'normal',
+          rec_rec_dailyPts: 'normal',
+          rec_rec_yrDays: 'normal',
+          rec_rec_mthDays: 'normal',
+          rec_rec_mthGross: 'normal',
+          rec_rec_mthDailyAvg: 'normal'
         }
       };
     }
@@ -1141,7 +1217,6 @@
         lastDriveBackupTimestamp: null,
         driveClientId: localStorage.getItem(DRIVE_CLIENT_ID_KEY) || '',
         backupAccountEmail: localStorage.getItem(DRIVE_ACCOUNT_EMAIL_KEY) || '',
-        // Task 6: Added halfRate ($480) alongside mtRate ($780) and fRate ($630)
         settings: { netPct: 24, mtRate: 780, fRate: 630, halfRate: 480 },
         recordHigh: { amount: 0, date: '—', note: '', baselineAmount: 0, baselineDate: '—', baselineNote: '', fromLog: false },
         layouts: getDefaultLayouts(),
@@ -1238,10 +1313,13 @@
       if (!Array.isArray(state.layouts.navHidden)) state.layouts.navHidden = [];
       if (!state.layouts.widgetSizes || typeof state.layouts.widgetSizes !== 'object') {
         state.layouts.widgetSizes = { ...def.widgetSizes };
+      } else {
+        Object.keys(def.widgetSizes).forEach(k => {
+          if (!state.layouts.widgetSizes[k]) state.layouts.widgetSizes[k] = def.widgetSizes[k];
+        });
       }
     }
 
-    // ================= TASK 2 & 3: DYNAMIC NAVBAR RENDERING & SETTINGS CUSTOMIZER =================
     const NAV_ITEMS_META = {
       pageDashboard: {
         shortLabel: 'Home',
@@ -1314,7 +1392,6 @@
           </button>`;
         }).join('');
 
-        // Anchored "More" button at far right of mobile bottom dock
         const moreBtnHtml = `
           <button onclick="window.openMobileMoreSheet()" class="flex flex-col items-center gap-0.5 py-1 px-2 rounded-xl text-slate-400 hover:text-white">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -1476,6 +1553,34 @@
 
     function saveAndRender() { pushStateToCloud(); renderAll(); }
 
+    // Task 12 & 13: Helper to get eligible Benchmark Years (excludes future years > current real calendar year unless they have logged shifts)
+    function getEligibleBenchmarkYears() {
+      const nowYear = new Date().getFullYear();
+      const sortedYears = Object.keys(state.years || {}).sort();
+      return sortedYears.filter(yr => {
+        const yNum = Number(yr);
+        const hasActivity = (state.years[yr] || []).some(m => (Number(m.daysWorked) || 0) > 0 || (Number(m.gross) || 0) > 0 || (Number(m.reci) || 0) > 0 || (Number(m.ohip) || 0) > 0);
+        return yNum <= nowYear || hasActivity;
+      });
+    }
+
+    function getBenchmarkDisplayText(mode) {
+      if (mode === 'prev_year') return 'Previous Year (Same Period)';
+      if (mode === 'all_time') return 'All-Time Peak Pace';
+      return `${mode} Actuals`;
+    }
+
+    window.openBenchmarkModal = () => {
+      populateYearControls();
+      document.getElementById('benchmarkModal').classList.remove('hidden');
+    };
+    window.closeBenchmarkModal = () => document.getElementById('benchmarkModal').classList.add('hidden');
+    window.selectBenchmarkFromModal = (val) => {
+      state.benchmarkMode = val;
+      window.closeBenchmarkModal();
+      saveAndRender();
+    };
+
     function populateYearControls() {
       const sortedYears = Object.keys(state.years || {}).sort();
       const idx = sortedYears.indexOf(state.currentYear);
@@ -1496,12 +1601,41 @@
         }).join('');
       }
 
-      const bs = document.getElementById('benchmarkSelect');
-      const curBm = state.benchmarkMode || 'prev_year';
-      bs.innerHTML = `<option value="prev_year">Previous Year (Same Period)</option>` +
-        sortedYears.map(y => `<option value="${y}">${y} Actuals</option>`).join('') +
-        `<option value="all_time">All-Time Peak Pace</option>`;
-      bs.value = curBm;
+      // Task 12 & 13: Update Benchmark Button Label & Scalable Benchmark Modal (excluding future years)
+      const eligibleBmYears = getEligibleBenchmarkYears();
+      let curBm = state.benchmarkMode || 'prev_year';
+      if (curBm !== 'prev_year' && curBm !== 'all_time' && !eligibleBmYears.includes(curBm)) {
+        curBm = 'prev_year';
+        state.benchmarkMode = 'prev_year';
+      }
+      const bmBtnLbl = document.getElementById('benchmarkBtnLabel');
+      if (bmBtnLbl) bmBtnLbl.textContent = getBenchmarkDisplayText(curBm);
+
+      const presetList = document.getElementById('benchmarkPresetList');
+      if (presetList) {
+        const presets = [
+          { key: 'prev_year', title: 'Previous Year (Same Period)', sub: 'Compares against the exact same YTD month range last year' },
+          { key: 'all_time', title: 'All-Time Peak Pace', sub: 'Compares against your highest recorded annual / quarterly pace' }
+        ];
+        presetList.innerHTML = presets.map(p => {
+          const isSel = curBm === p.key;
+          return `<button onclick="window.selectBenchmarkFromModal('${p.key}')" class="w-full text-left p-3 rounded-xl border transition flex items-center justify-between gap-2 ${isSel ? 'bg-brand-600/15 border-brand-500 text-brand-600 dark:text-brand-300 font-bold' : 'bg-slate-100 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 hover:bg-brand-500/10'}">
+            <div>
+              <div class="text-xs font-bold">${p.title}</div>
+              <div class="text-[10px] text-slate-500 dark:text-slate-400 font-normal mt-0.5">${p.sub}</div>
+            </div>
+            ${isSel ? '<span class="text-brand-500 font-extrabold">✓</span>' : ''}
+          </button>`;
+        }).join('');
+      }
+
+      const bmYearsGrid = document.getElementById('benchmarkYearsGrid');
+      if (bmYearsGrid) {
+        bmYearsGrid.innerHTML = eligibleBmYears.map(yr => {
+          const isSel = curBm === yr;
+          return `<button onclick="window.selectBenchmarkFromModal('${yr}')" class="py-2.5 px-3 rounded-xl font-bold mono transition ${isSel ? 'bg-brand-600 text-white shadow-sm' : 'bg-slate-100 dark:bg-slate-800 hover:bg-brand-500/15 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700'}">${yr}</button>`;
+        }).join('');
+      }
 
       const mode = state.quarterOhipMode || 'recon';
       document.getElementById('ohipModeReconBtn').className = mode === 'recon' ? 'px-2 py-1 rounded-md bg-brand-600 text-white shadow-sm transition' : 'px-2 py-1 rounded-md text-slate-500 dark:text-slate-400 transition';
@@ -1558,7 +1692,6 @@
     const fmtCurr = (v) => { const n = Number(v) || 0; return (n < 0 ? '-$' : '$') + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
     const fmtNum = (v, d = 1) => (Number(v) || 0).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
 
-    // Task 6: Helper to get rate for 8hr, 6hr, or 4hr shift
     function getRateForShiftHours(hours, settings = state.settings) {
       const h = Number(hours) || 0;
       if (h === 8) return Number(settings.mtRate) || 780;
@@ -1585,7 +1718,6 @@
       return thisMonthQtr === currentActiveQtr ? 'total' : 'recon';
     }
 
-    // Task 6: Includes shiftTargetAdj in formulaTarget so logging a 4hr day on a scheduled 8hr day dynamically scales the monthly target
     function calculateMonth(m, settings = state.settings, ohipMode = 'recon') {
       const mtDays = Number(m.mtDays) || 0, fDays = Number(m.fDays) || 0, daysWorked = Number(m.daysWorked) || 0;
       const gross = Number(m.gross) || 0, reci = Number(m.reci) || 0, ohip = Number(m.ohip) || 0, totalOhip = Number(m.totalOhip) || 0;
@@ -1816,7 +1948,7 @@
       return { label: `${targetYear} Full Year`, ...getYearMetrics(targetYear, null) };
     }
 
-    // ================= DRAG & DROP + TASK 7 WIDGET RESIZING ENGINE =================
+    // ================= DRAG & DROP + TASK 7 SIDE-DRAG WIDGET RESIZING ENGINE =================
     const BLOCK_LABELS = {
       kpis: 'Top KPI Summary Row',
       quarters: 'Quarterly Bonus Estimator',
@@ -1840,9 +1972,13 @@
     };
 
     let activeDragState = { listKey: null, itemKey: null };
+    let activeResizeSession = null;
 
     window.onLayoutDragStart = (ev, listKey, itemKey) => {
-      if (!isLayoutEditMode) return;
+      if (!isLayoutEditMode || activeResizeSession) {
+        ev.preventDefault();
+        return;
+      }
       ev.stopPropagation();
       activeDragState = { listKey, itemKey };
       ev.dataTransfer.effectAllowed = 'move';
@@ -1852,7 +1988,7 @@
     };
 
     window.onLayoutDragOver = (ev, listKey, itemKey) => {
-      if (!isLayoutEditMode) return;
+      if (!isLayoutEditMode || activeResizeSession) return;
       if (activeDragState.listKey !== listKey || activeDragState.itemKey === itemKey) return;
       ev.preventDefault();
       ev.stopPropagation();
@@ -1871,7 +2007,7 @@
     };
 
     window.onLayoutDrop = (ev, targetListKey, targetItemKey) => {
-      if (!isLayoutEditMode) return;
+      if (!isLayoutEditMode || activeResizeSession) return;
       ev.preventDefault();
       ev.stopPropagation();
       ev.currentTarget.classList.remove('drag-over-target');
@@ -1892,6 +2028,65 @@
       saveAndRender();
     };
 
+    // Task 7: Pointer-driven Side-Edge Drag Resizing
+    window.startSideResize = (ev, sizeKey) => {
+      if (!isLayoutEditMode || !sizeKey) return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      ensureLayoutsValid();
+      const startX = ev.clientX ?? (ev.touches && ev.touches[0]?.clientX) ?? 0;
+      const startSize = state.layouts.widgetSizes[sizeKey] || 'normal';
+      const blockEl = ev.currentTarget.closest('.customizable-block');
+      if (blockEl) blockEl.classList.add('side-resize-active');
+
+      activeResizeSession = { sizeKey, startX, startSize, currentSize: startSize, blockEl };
+
+      const onMove = (moveEv) => {
+        if (!activeResizeSession) return;
+        const curX = moveEv.clientX ?? (moveEv.touches && moveEv.touches[0]?.clientX) ?? activeResizeSession.startX;
+        const deltaX = curX - activeResizeSession.startX;
+        if (deltaX > 45 && activeResizeSession.currentSize !== 'full') {
+          activeResizeSession.currentSize = 'full';
+          state.layouts.widgetSizes[sizeKey] = 'full';
+          renderAll();
+        } else if (deltaX < -45 && activeResizeSession.currentSize !== 'normal') {
+          activeResizeSession.currentSize = 'normal';
+          state.layouts.widgetSizes[sizeKey] = 'normal';
+          renderAll();
+        }
+      };
+
+      const onUp = () => {
+        window.removeEventListener('mousemove', onMove);
+        window.removeEventListener('mouseup', onUp);
+        window.removeEventListener('touchmove', onMove);
+        window.removeEventListener('touchend', onUp);
+        if (activeResizeSession?.blockEl) {
+          activeResizeSession.blockEl.classList.remove('side-resize-active');
+        }
+        const changed = activeResizeSession && activeResizeSession.currentSize !== activeResizeSession.startSize;
+        activeResizeSession = null;
+        if (changed) saveAndRender();
+      };
+
+      window.addEventListener('mousemove', onMove);
+      window.addEventListener('mouseup', onUp);
+      window.addEventListener('touchmove', onMove, { passive: true });
+      window.addEventListener('touchend', onUp);
+    };
+
+    function attachSideResizeHandle(el, sizeKey) {
+      if (!el || !isLayoutEditMode || !sizeKey) return;
+      const handle = document.createElement('div');
+      handle.className = 'side-resize-handle';
+      handle.title = 'Drag right edge left or right to resize widget width';
+      handle.setAttribute('draggable', 'false');
+      handle.onmousedown = (ev) => window.startSideResize(ev, sizeKey);
+      handle.ontouchstart = (ev) => window.startSideResize(ev, sizeKey);
+      handle.ondragstart = (ev) => { ev.preventDefault(); ev.stopPropagation(); };
+      el.appendChild(handle);
+    }
+
     function bindDragAttributes(el, listKey, itemKey) {
       if (!el) return;
       if (isLayoutEditMode) {
@@ -1911,14 +2106,6 @@
       }
     }
 
-    // Task 7: Widget Resizing Toggle
-    window.toggleWidgetSize = (sizeKey) => {
-      ensureLayoutsValid();
-      const cur = state.layouts.widgetSizes[sizeKey] || 'normal';
-      state.layouts.widgetSizes[sizeKey] = cur === 'full' ? 'normal' : 'full';
-      saveAndRender();
-    };
-
     window.toggleLayoutEditMode = () => {
       isLayoutEditMode = !isLayoutEditMode;
       document.body.classList.toggle('layout-edit-active', isLayoutEditMode);
@@ -1932,8 +2119,19 @@
       renderAll();
     };
 
+    // Task 11: Resetting defaults explicitly overwrites all widgetSizes keys so Firestore merge:true persists the reset permanently
     window.resetLayoutDefaults = () => {
-      state.layouts = getDefaultLayouts();
+      const def = getDefaultLayouts();
+      const resetSizes = { ...def.widgetSizes };
+      if (state.layouts && state.layouts.widgetSizes) {
+        Object.keys(state.layouts.widgetSizes).forEach(k => {
+          resetSizes[k] = def.widgetSizes[k] || 'normal';
+        });
+      }
+      state.layouts = {
+        ...def,
+        widgetSizes: resetSizes
+      };
       saveAndRender();
     };
 
@@ -1954,14 +2152,14 @@
     function makeEditOverlayBar(listKey, itemKey, label, allowDelete = false, sizeKey = null) {
       if (!isLayoutEditMode) return '';
       const curSize = sizeKey ? (state.layouts.widgetSizes?.[sizeKey] || 'normal') : null;
-      const sizeBtnHtml = sizeKey
-        ? `<button type="button" onclick="window.toggleWidgetSize('${sizeKey}')" class="px-2 py-0.5 rounded bg-sky-500/20 text-sky-400 hover:bg-sky-500 hover:text-white font-bold shrink-0" title="Toggle Widget Width">↔ Size: ${curSize === 'full' ? 'Expanded' : 'Standard'}</button>`
+      const sizeHint = sizeKey
+        ? `<span class="px-1.5 py-0.5 rounded bg-brand-500/15 text-brand-400 font-semibold text-[10px]">${curSize === 'full' ? 'Expanded (Drag ⋮ left to shrink)' : 'Standard (Drag ⋮ right to expand)'}</span>`
         : '';
       return `
         <div onclick="event.stopPropagation()" class="layout-ctrl-bar mb-2 p-1.5 rounded-lg bg-brand-600/15 border border-brand-500/40 flex items-center justify-between gap-2 text-[11px] select-none flex-wrap">
           <span class="font-bold text-brand-500 truncate px-1 flex items-center gap-1.5"><span>⠿</span><span class="truncate">${label}</span></span>
           <div class="flex items-center gap-1.5 shrink-0">
-            ${sizeBtnHtml}
+            ${sizeHint}
             ${allowDelete ? `<button type="button" onclick="window.hideLayoutItem('${listKey}','${itemKey}')" class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-500 hover:bg-rose-500 hover:text-white font-bold shrink-0" title="Remove from Home">✕ Hide</button>` : ''}
           </div>
         </div>
@@ -1973,7 +2171,7 @@
       const dashMain = document.getElementById('pageDashboard');
       const pinnedContainer = document.getElementById('dashPinnedChartsContainer');
 
-      document.querySelectorAll('.layout-ctrl-bar').forEach(el => el.remove());
+      document.querySelectorAll('.layout-ctrl-bar, .side-resize-handle').forEach(el => el.remove());
 
       const allDashBlocks = ['kpis', 'quarters', 'ledger', 'bottomRow'];
       allDashBlocks.forEach(bid => {
@@ -1986,7 +2184,6 @@
         }
       });
 
-      // Task 7: Apply bottomRow split vs stacked full-width size
       const bottomRowMode = state.layouts.widgetSizes?.dash_bottomRow || 'normal';
       const dashChartSub = document.getElementById('dashChartSubCard');
       const dashLogsSub = document.getElementById('dashLogsSubCard');
@@ -2008,6 +2205,7 @@
           if (isLayoutEditMode) {
             const sizeKey = bid === 'bottomRow' ? 'dash_bottomRow' : null;
             el.insertAdjacentHTML('afterbegin', makeEditOverlayBar('dashBlocks', bid, BLOCK_LABELS[bid] || bid, true, sizeKey));
+            if (sizeKey) attachSideResizeHandle(el, sizeKey);
           }
         }
       });
@@ -2031,7 +2229,9 @@
           kpiContainer.appendChild(kel);
           bindDragAttributes(kel, 'dashKpis', kid);
           if (isLayoutEditMode) {
-            kel.insertAdjacentHTML('afterbegin', makeEditOverlayBar('dashKpis', kid, KPI_LABELS[kid] || kid, true, `kpi_${kid}`));
+            const sizeKey = `kpi_${kid}`;
+            kel.insertAdjacentHTML('afterbegin', makeEditOverlayBar('dashKpis', kid, KPI_LABELS[kid] || kid, true, sizeKey));
+            attachSideResizeHandle(kel, sizeKey);
           }
         }
       });
@@ -2054,7 +2254,9 @@
           `;
         }).join('');
         pinned.forEach(cid => {
-          bindDragAttributes(document.getElementById(`pinnedChartBlock_${cid}`), 'dashPinnedCharts', cid);
+          const pEl = document.getElementById(`pinnedChartBlock_${cid}`);
+          bindDragAttributes(pEl, 'dashPinnedCharts', cid);
+          attachSideResizeHandle(pEl, `pinned_${cid}`);
           renderSingleChartCanvas(cid, `homePinnedChart_${cid}`);
         });
       }
@@ -2196,7 +2398,15 @@
             { label: 'Monthly Target', data: months.map((m, idx) => calculateMonth(m, state.settings, getEffectiveMonthOhipMode(state.currentYear, idx)).target), type: 'line', borderColor: '#f59e0b', borderWidth: 2, tension: 0.25 }
           ]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#94a3b8' } } }, scales: { x: { ticks: { color: '#94a3b8' } }, y: { ticks: { color: '#94a3b8' } } } }
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#94a3b8' } } },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: '#94a3b8' } },
+            y: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+          }
+        }
       });
     }
 
@@ -2284,7 +2494,9 @@
       }).join('');
 
       state.layouts.recordsOrder.forEach(rk => {
-        bindDragAttributes(document.getElementById(`recordCard_${rk}`), 'recordsOrder', rk);
+        const rEl = document.getElementById(`recordCard_${rk}`);
+        bindDragAttributes(rEl, 'recordsOrder', rk);
+        attachSideResizeHandle(rEl, `rec_${rk}`);
       });
     }
 
@@ -2303,25 +2515,21 @@
       }
     }
 
-    // Task 4: Helper to compute All-Time Historical Monthly Daily Average (Jan-Dec) ignoring 0-day pre-start months
     function computeHistoricalMonthlyDailyAverages() {
       const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
       const sortedYears = Object.keys(state.years || {}).sort();
       const results = monthNames.map((mName, mIdx) => {
         const rates = [];
-        const yearsIncluded = [];
         sortedYears.forEach(yr => {
           const mObj = state.years[yr]?.[mIdx];
           if (!mObj) return;
           const c = calculateMonth(mObj, state.settings, getEffectiveMonthOhipMode(yr, mIdx));
-          // Strictly require daysWorked > 0 so pre-June 2025 0-day months are completely ignored
           if (c.isActive && c.daysWorked > 0 && c.dailyAvg > 0) {
             rates.push(c.dailyAvg);
-            yearsIncluded.push(`${yr}: ${fmtCurr(c.dailyAvg)}/d`);
           }
         });
         const avg = rates.length > 0 ? (rates.reduce((a, b) => a + b, 0) / rates.length) : 0;
-        return { month: mName, avg, count: rates.length, yearsIncluded };
+        return { month: mName, avg, count: rates.length };
       });
 
       const activeVals = results.filter(r => r.avg > 0).map(r => r.avg).sort((a, b) => a - b);
@@ -2333,13 +2541,13 @@
           r.grade = 'none';
           r.color = 'rgba(148, 163, 184, 0.35)';
         } else if (r.avg <= lowCut) {
-          r.grade = 'green'; // Slower month -> Best for vacation
+          r.grade = 'green';
           r.color = 'rgba(16, 185, 129, 0.85)';
         } else if (r.avg >= highCut) {
-          r.grade = 'red'; // Peak income month -> Avoid time off
+          r.grade = 'red';
           r.color = 'rgba(244, 63, 94, 0.85)';
         } else {
-          r.grade = 'blue'; // Normal pace
+          r.grade = 'blue';
           r.color = 'rgba(99, 102, 241, 0.85)';
         }
       });
@@ -2368,6 +2576,7 @@
       const yrMetrics = getYearMetrics(curYearStr);
       const runRateDaily = yrMetrics.avgDailyNet > 0 ? yrMetrics.avgDailyNet : 965.25;
       const peakDaily = allTimeMaxDaily > 0 ? allTimeMaxDaily : 1291.68;
+      const noGridScale = { x: { grid: { display: false }, ticks: { color: '#94a3b8' } }, y: { grid: { display: false }, ticks: { color: '#94a3b8' } } };
 
       if (chartsObj[canvasId]) chartsObj[canvasId].destroy();
 
@@ -2375,10 +2584,10 @@
         chartsObj[canvasId] = new Chart(canvasEl, {
           type: 'bar',
           data: { labels, datasets: [{ label: '24% Net', data: calcCur.map(c => c.net), backgroundColor: 'rgba(99, 102, 241, 0.8)', borderRadius: 4 }, { label: 'Target', data: calcCur.map(c => c.target), type: 'line', borderColor: '#f59e0b', borderWidth: 2 }] },
-          options: { responsive: true, maintainAspectRatio: false }
+          options: { responsive: true, maintainAspectRatio: false, scales: noGridScale }
         });
       } else if (chartKey === 'dailyAvg') {
-        // Task 4: One Aggregated Bar per Month (Jan-Dec) across all worked years + Peak Pace Line
+        // Task 9: Streamlined Vacation Planner Tooltip (shows only Historical Avg Daily Net)
         const histStats = computeHistoricalMonthlyDailyAverages();
         chartsObj[canvasId] = new Chart(canvasEl, {
           type: 'bar',
@@ -2387,7 +2596,7 @@
             datasets: [
               {
                 type: 'bar',
-                label: 'Historical Avg Daily Net ($/day)',
+                label: 'Historical Avg Daily Net',
                 data: histStats.map(h => h.avg > 0 ? Number(h.avg.toFixed(2)) : null),
                 backgroundColor: histStats.map(h => h.color),
                 borderRadius: 6
@@ -2406,29 +2615,34 @@
           options: {
             responsive: true,
             maintainAspectRatio: false,
+            scales: noGridScale,
             plugins: {
               tooltip: {
+                filter: (item) => item.datasetIndex === 0,
                 callbacks: {
-                  afterLabel: (ctx) => {
-                    if (ctx.datasetIndex !== 0) return '';
-                    const h = histStats[ctx.dataIndex];
-                    if (!h || !h.yearsIncluded.length) return '';
-                    const paceNote = h.grade === 'green' ? '🟢 Slower Month (Ideal for Vacation)' : (h.grade === 'red' ? '🔴 Peak Income Month' : '🔵 Normal Earning Pace');
-                    return [paceNote, `Years averaged (${h.count}): ${h.yearsIncluded.join(' | ')}`];
-                  }
+                  label: (ctx) => `Historical Avg Daily Net: ${fmtCurr(ctx.parsed.y)}`
                 }
               }
             }
           }
         });
       } else if (chartKey === 'patients') {
+        // Task 8: Match Chart 1 colors (rgba(99, 102, 241, 0.8) bars + #f59e0b line)
         chartsObj[canvasId] = new Chart(canvasEl, {
           type: 'bar',
           data: { labels, datasets: [
-            { label: 'Total Patients', data: calcCur.map(c => c.patients), backgroundColor: 'rgba(56, 189, 248, 0.7)', yAxisID: 'y' },
-            { label: 'Rev / Pt ($)', data: calcCur.map(c => c.revPerPt), type: 'line', borderColor: '#a855f7', yAxisID: 'y1' }
+            { label: 'Total Patients', data: calcCur.map(c => c.patients), backgroundColor: 'rgba(99, 102, 241, 0.8)', borderRadius: 4, yAxisID: 'y' },
+            { label: 'Rev / Pt ($)', data: calcCur.map(c => c.revPerPt), type: 'line', borderColor: '#f59e0b', borderWidth: 2, yAxisID: 'y1' }
           ]},
-          options: { responsive: true, maintainAspectRatio: false, scales: { y: { position: 'left' }, y1: { position: 'right', grid: { drawOnChartArea: false } } } }
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { grid: { display: false }, ticks: { color: '#94a3b8' } },
+              y: { position: 'left', grid: { display: false }, ticks: { color: '#94a3b8' } },
+              y1: { position: 'right', grid: { display: false, drawOnChartArea: false }, ticks: { color: '#94a3b8' } }
+            }
+          }
         });
       } else if (chartKey === 'breakdown') {
         chartsObj[canvasId] = new Chart(canvasEl, {
@@ -2437,7 +2651,14 @@
             { label: "Acct Rec'd", data: calcCur.map(c => c.reci), backgroundColor: 'rgba(99, 102, 241, 0.8)' },
             { label: 'OHIP (Active Basis)', data: calcCur.map((c, idx) => getEffectiveMonthOhipMode(curYearStr, idx) === 'total' ? (c.totalOhip || c.ohip) : c.ohip), backgroundColor: 'rgba(244, 63, 94, 0.8)' }
           ]},
-          options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true } } }
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { stacked: true, grid: { display: false }, ticks: { color: '#94a3b8' } },
+              y: { stacked: true, grid: { display: false }, ticks: { color: '#94a3b8' } }
+            }
+          }
         });
       } else if (chartKey === 'forecastCone') {
         const qk = state.coneQuarter || 'Q4';
@@ -2476,7 +2697,7 @@
               { label: 'Quarter Target Threshold', data: cumTarget, borderColor: '#f59e0b', borderWidth: 2, pointRadius: 2, tension: 0.1 }
             ]
           },
-          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } }, scales: { x: { ticks: { color: '#94a3b8' } }, y: { ticks: { color: '#94a3b8', callback: v => '$' + (v / 1000).toFixed(0) + 'k' } } } }
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } }, scales: { x: { grid: { display: false }, ticks: { color: '#94a3b8' } }, y: { grid: { display: false }, ticks: { color: '#94a3b8', callback: v => '$' + (v / 1000).toFixed(0) + 'k' } } } }
         });
 
         if (canvasId === 'chartPageForecastCone') {
@@ -2532,7 +2753,7 @@
               { label: 'Annual Target Baseline', data: annTarget, borderColor: '#f59e0b', borderWidth: 2, pointRadius: 2, tension: 0.1 }
             ]
           },
-          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } }, scales: { x: { ticks: { color: '#94a3b8' } }, y: { ticks: { color: '#94a3b8', callback: v => '$' + (v / 1000).toFixed(0) + 'k' } } } }
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } }, scales: { x: { grid: { display: false }, ticks: { color: '#94a3b8' } }, y: { grid: { display: false }, ticks: { color: '#94a3b8', callback: v => '$' + (v / 1000).toFixed(0) + 'k' } } } }
         });
 
         if (canvasId === 'chartPageAnnualSalaryCone') {
@@ -2585,7 +2806,7 @@
               { label: 'Average Quarter Bonus', data: qStats.map(s => Number(s.avgBonus.toFixed(2))), type: 'line', borderColor: '#f59e0b', backgroundColor: '#f59e0b', borderWidth: 2.5, pointRadius: 4, tension: 0.25 }
             ]
           },
-          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } }, scales: { x: { ticks: { color: '#94a3b8' } }, y: { ticks: { color: '#94a3b8', callback: v => '$' + (v / 1000).toFixed(0) + 'k' } } } }
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } }, scales: { x: { grid: { display: false }, ticks: { color: '#94a3b8' } }, y: { grid: { display: false }, ticks: { color: '#94a3b8', callback: v => '$' + (v / 1000).toFixed(0) + 'k' } } } }
         });
 
         if (canvasId === 'chartPageQuarterSeasonality') {
@@ -2609,7 +2830,7 @@
       if (activePage !== 'pageCharts') return;
       ensureLayoutsValid();
       const grid = document.getElementById('chartsGridContainer');
-      document.querySelectorAll('#chartsGridContainer .layout-ctrl-bar').forEach(el => el.remove());
+      document.querySelectorAll('#chartsGridContainer .layout-ctrl-bar, #chartsGridContainer .side-resize-handle').forEach(el => el.remove());
 
       state.layouts.chartsOrder.forEach(cid => {
         const block = document.getElementById(`chartBlock_${cid}`);
@@ -2622,6 +2843,7 @@
           bindDragAttributes(block, 'chartsOrder', cid);
           if (isLayoutEditMode) {
             block.insertAdjacentHTML('afterbegin', makeEditOverlayBar('chartsOrder', cid, CHART_META[cid]?.title || cid, false, sizeKey));
+            attachSideResizeHandle(block, sizeKey);
           }
         }
       });
@@ -2761,7 +2983,7 @@
       saveAndRender();
     };
 
-    // ================= TASK 6: 4HR / 6HR / 8HR DAILY SHIFT LOGGING & DYNAMIC TARGET SCALING =================
+    // Task 14: Clean Shift Worked dropdown labels (no dollar amounts next to shift length)
     function populateShiftDropdownLabels() {
       const mtR = Number(state.settings.mtRate) || 780;
       const fR = Number(state.settings.fRate) || 630;
@@ -2769,9 +2991,9 @@
       const shiftSel = document.getElementById('logShiftHours');
       const schedSel = document.getElementById('logScheduledHours');
       if (shiftSel) {
-        shiftSel.options[0].textContent = `8 hr (Full Day • $${mtR})`;
-        shiftSel.options[1].textContent = `6 hr (Fri Shift • $${fR})`;
-        shiftSel.options[2].textContent = `4 hr (Half Day • $${hR})`;
+        shiftSel.options[0].textContent = `8 hr (Full Day)`;
+        shiftSel.options[1].textContent = `6 hr (Fri Shift)`;
+        shiftSel.options[2].textContent = `4 hr (Half Day)`;
       }
       if (schedSel) {
         schedSel.options[0].textContent = `Scheduled 8-hr Mon–Thu Day ($${mtR} Target Baseline)`;
@@ -2785,7 +3007,7 @@
       if (dateVal && dateVal.includes('-')) {
         const parts = dateVal.split('-').map(Number);
         const dObj = new Date(parts[0], parts[1] - 1, parts[2]);
-        const dow = dObj.getDay(); // 5 = Friday
+        const dow = dObj.getDay();
         document.getElementById('logMonthIdx').value = String(parts[1] - 1);
         if (dow === 5) {
           document.getElementById('logShiftHours').value = '6';
@@ -2849,7 +3071,6 @@
 
       const shiftHours = Number(document.getElementById('logShiftHours').value) || 0;
       const scheduledHours = Number(document.getElementById('logScheduledHours').value) || 0;
-      // 8 hr & 6 hr Friday count as 1.0 shift day, 4 hr counts as 0.5 day, 0 hr counts as 0
       const dayInc = shiftHours === 8 ? 1 : (shiftHours === 6 ? 1 : (shiftHours === 4 ? 0.5 : 0));
       const targetDelta = shiftHours === 0 ? 0 : (getRateForShiftHours(shiftHours) - getRateForShiftHours(scheduledHours));
 
@@ -3135,7 +3356,6 @@
     };
     window.forcePushToCloud = async () => { await pushStateToCloud(); window.closeCloudModal(); };
 
-    // ================= GOOGLE DRIVE BACKUP =================
     window.saveDriveClientId = (val) => {
       const clean = (val || '').trim();
       state.driveClientId = clean;
