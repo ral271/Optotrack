@@ -60,7 +60,6 @@
       outline-offset: 4px !important;
       box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.45) !important;
     }
-    /* Task 7: Side drag handle to resize widgets by dragging left/right */
     .side-resize-handle {
       position: absolute;
       top: 0;
@@ -254,7 +253,7 @@
         </div>
       </div>
 
-      <!-- LAYOUT CUSTOMIZATION DRAWER (Task 7: Drag right edge of widgets to resize) -->
+      <!-- LAYOUT CUSTOMIZATION DRAWER -->
       <div id="layoutEditorDrawer" class="hidden max-w-7xl w-full mx-auto px-3 sm:px-6 pt-3">
         <div class="bg-brand-500/10 border-2 border-dashed border-brand-500/40 rounded-2xl p-4 space-y-3 text-xs">
           <div class="flex flex-wrap items-center justify-between gap-2">
@@ -283,7 +282,7 @@
         </div>
       </div>
 
-      <!-- Task 10, 12 & 13: GLOBAL TOP CONTROL BAR (Single-line alignment on 14" Edge viewports + Scalable Benchmark Popup Button) -->
+      <!-- GLOBAL TOP CONTROL BAR -->
       <div id="globalTopControlBar" class="max-w-7xl w-full mx-auto px-3 sm:px-6 pt-3">
         <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2.5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 text-xs">
           <div class="flex items-center justify-between lg:justify-start gap-2 whitespace-nowrap shrink-0">
@@ -306,7 +305,6 @@
               </div>
             </div>
 
-            <!-- Task 12 & 13: Compact Benchmark Button that opens scalable Benchmark Picker Modal -->
             <div class="flex items-center gap-1.5 shrink-0">
               <span class="font-semibold text-slate-500 text-[11px] sm:text-xs">Benchmark:</span>
               <button onclick="window.openBenchmarkModal()" class="px-2.5 py-1 rounded-lg font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-brand-500/15 border border-slate-200 dark:border-slate-700 text-[11px] sm:text-xs flex items-center gap-1.5 transition" title="Change Benchmark Comparison">
@@ -451,7 +449,7 @@
           <div class="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h2 class="text-base sm:text-lg font-bold">Monthly Production Ledger (<span id="ledgerYearLabel">2026</span>)</h2>
-              <p class="text-xs text-slate-500">Click any monthly row to edit shifts, target overrides, or collections. Dynamic 4h/6h/8h shift adjustments are automatically applied to Target.</p>
+              <p class="text-xs text-slate-500">Click any monthly row to edit shifts, target overrides, or collections. Future months automatically sync with Calendar time-off & half-days.</p>
             </div>
           </div>
           <div class="overflow-x-auto">
@@ -494,6 +492,39 @@
           </div>
         </div>
 
+        <!-- Task 2 & Task 4: INTERACTIVE HOME SCREEN CALENDAR BLOCK -->
+        <section id="dashBlock_calendar" data-block-id="calendar" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-6 shadow-sm space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-2.5">
+              <div>
+                <h2 class="text-base sm:text-lg font-bold flex items-center gap-2">
+                  <span>Clinic Schedule & Vacation Pacing</span>
+                  <span id="homeCalHeatmapBadge"></span>
+                </h2>
+                <p id="homeCalSyncStatusText" class="text-xs text-slate-500">Click any date to mark Vacation, Sick, 4-Hr Half Day, or Event.</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 self-start sm:self-center">
+              <div class="inline-flex items-center rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-0.5 text-xs font-bold">
+                <button onclick="window.stepCalendarMonth(-1)" class="px-2.5 py-1 rounded-lg hover:bg-white dark:hover:bg-slate-700 transition">◀</button>
+                <span id="homeCalMonthTitle" class="px-3 py-1 mono min-w-[115px] text-center">Oct 2026</span>
+                <button onclick="window.stepCalendarMonth(1)" class="px-2.5 py-1 rounded-lg hover:bg-white dark:hover:bg-slate-700 transition">▶</button>
+              </div>
+              <button onclick="window.navigatePage('pageCalendar')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-brand-600/15 text-brand-500 hover:bg-brand-600 hover:text-white transition">Full Calendar →</button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
+            <div class="lg:col-span-2">
+              <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold uppercase text-slate-400 pb-1.5">
+                <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+              </div>
+              <div id="homeCalendarGrid" class="grid grid-cols-7 gap-1 sm:gap-1.5"></div>
+            </div>
+            <div id="homeCalendarStatsPanel" class="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-200 dark:border-slate-700/70 space-y-3 text-xs"></div>
+          </div>
+        </section>
+
         <!-- PINNED CHARTS CONTAINER -->
         <div id="dashPinnedChartsContainer" class="grid grid-cols-1 lg:grid-cols-2 gap-6 empty:hidden"></div>
       </main>
@@ -511,7 +542,7 @@
       <main id="pageCharts" class="hidden max-w-7xl w-full mx-auto px-3 sm:px-6 py-6 space-y-6">
         <div class="border-b border-slate-200 dark:border-slate-800 pb-5">
           <h2 class="text-2xl sm:text-3xl font-extrabold">Charts & Trends</h2>
-          <p class="text-slate-500 mt-1 text-sm">Visualize your year-over-year pacing, historical monthly vacation averages, seasonality, and volumes.</p>
+          <p class="text-slate-500 mt-1 text-sm">Visualize your year-over-year pacing, historical monthly vacation averages, seasonality, and time-off trends.</p>
         </div>
         <div id="chartsGridContainer" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div id="chartBlock_netTarget" data-chart-id="netTarget" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm min-w-0">
@@ -587,17 +618,75 @@
             <div class="h-72"><canvas id="chartPageQuarterSeasonality"></canvas></div>
             <div id="seasonalitySummaryCards" class="grid grid-cols-1 sm:grid-cols-4 gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-xs"></div>
           </div>
+
+          <!-- Task 5: NEW CHART 1 — Time-Off & Absence Breakdown Chart (with Annual vs Monthly Avg Toggle) -->
+          <div id="chartBlock_timeOffBreakdown" data-chart-id="timeOffBreakdown" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm min-w-0">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+              <h3 class="font-bold text-sm sm:text-base">Time-Off & Absence Breakdown</h3>
+              <div class="inline-flex rounded-lg p-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] font-bold">
+                <button id="timeOffModeYearlyBtn" onclick="window.setTimeOffChartMode('yearly')" class="px-2 py-0.5 rounded-md transition">By Year</button>
+                <button id="timeOffModeMonthlyBtn" onclick="window.setTimeOffChartMode('monthly_avg')" class="px-2 py-0.5 rounded-md transition">Monthly Avg</button>
+              </div>
+            </div>
+            <p class="text-xs text-slate-500 mb-4">Tracks Vacation, Sick, CE/Events, and 4-Hr Half Days logged on your Calendar.</p>
+            <div class="h-64"><canvas id="chartPageTimeOffBreakdown"></canvas></div>
+          </div>
+
+          <!-- Task 5: NEW CHART 2 — Annual Days Worked & Shift Pacing Historical Trend -->
+          <div id="chartBlock_daysWorkedTrend" data-chart-id="daysWorkedTrend" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm min-w-0">
+            <h3 class="font-bold text-sm sm:text-base mb-1">Annual Days Worked & Pacing Trend</h3>
+            <p class="text-xs text-slate-500 mb-4">Compares Total Days Worked vs. Scheduled Shifts and Average Days / Month across recorded years.</p>
+            <div class="h-64"><canvas id="chartPageDaysWorkedTrend"></canvas></div>
+          </div>
         </div>
       </main>
 
-      <!-- PAGE 4: CALENDAR PLACEHOLDER PAGE -->
+      <!-- Task 2 & Task 4: PAGE 4 — FULL INTERACTIVE CALENDAR & ONTARIO STAT HOLIDAY SUITE -->
       <main id="pageCalendar" class="hidden max-w-7xl w-full mx-auto px-3 sm:px-6 py-6 space-y-6">
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 text-center space-y-3 shadow-sm">
-          <div class="w-12 h-12 rounded-2xl bg-brand-500/15 text-brand-500 flex items-center justify-center text-2xl mx-auto">📅</div>
-          <h2 class="text-xl sm:text-2xl font-extrabold">Clinic Schedule & Ontario Statutory Calendar</h2>
-          <p class="text-xs sm:text-sm text-slate-500 max-w-lg mx-auto">Your Calendar tab is wired into the navigation bar and ready for the interactive Ontario Stat Holiday & Vacation Pacing suite.</p>
-          <div class="pt-2">
-            <button onclick="window.openDailyLogModal()" class="px-4 py-2 rounded-xl text-xs font-bold bg-brand-600 text-white shadow-sm">+ Log Clinic Shift</button>
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
+          <div>
+            <div class="flex flex-wrap items-center gap-2.5">
+              <h2 class="text-2xl sm:text-3xl font-extrabold">Clinic Schedule & Vacation Planner</h2>
+              <span id="fullCalHeatmapBadge"></span>
+            </div>
+            <p id="fullCalLedgerSyncNotice" class="text-slate-500 mt-1 text-xs sm:text-sm">Ontario Statutory Holidays are pre-populated automatically. Future months sync directly with your Monthly Production Ledger targets.</p>
+          </div>
+          <div class="flex items-center gap-2 self-start md:self-center">
+            <button onclick="window.jumpCalendarToToday()" class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-brand-500/15 border border-slate-200 dark:border-slate-700 transition">Today</button>
+            <div class="inline-flex items-center rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-1 shadow-sm text-xs font-bold">
+              <button onclick="window.stepCalendarMonth(-1)" class="px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition">◀</button>
+              <span id="fullCalMonthTitle" class="px-4 py-1 mono text-sm sm:text-base min-w-[140px] text-center">October 2026</span>
+              <button onclick="window.stepCalendarMonth(1)" class="px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition">▶</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Task 2: 12-Month Vacation Heatmap Quick-Jump Strip -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-3.5 shadow-sm space-y-2">
+          <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
+            <span class="font-bold text-slate-500 uppercase tracking-wider text-[11px]">12-Month Historical Earnings & Vacation Heatmap (<span id="calStripYearLbl">2026</span>)</span>
+            <div class="flex items-center gap-2 text-[10px] font-bold">
+              <span class="px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">🟢 Slower (Best for Vacation)</span>
+              <span class="px-2 py-0.5 rounded-md bg-brand-500/15 text-brand-400 border border-brand-500/30">🔵 Normal Pace</span>
+              <span class="px-2 py-0.5 rounded-md bg-rose-500/15 text-rose-500 border border-rose-500/30">🔴 Peak Income (Avoid Time Off)</span>
+            </div>
+          </div>
+          <div id="calMonthJumpStrip" class="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-12 gap-1.5"></div>
+        </div>
+
+        <!-- Main Calendar Grid + Right Sidebar Breakdown -->
+        <div class="grid grid-cols-1 xl:grid-cols-4 gap-6 items-start">
+          <div class="xl:col-span-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm">
+            <div class="grid grid-cols-7 gap-1.5 text-center text-[11px] font-bold uppercase text-slate-400 pb-2 border-b border-slate-100 dark:border-slate-800 mb-2">
+              <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+            </div>
+            <div id="fullCalendarGrid" class="grid grid-cols-7 gap-1.5 sm:gap-2"></div>
+          </div>
+
+          <!-- Sidebar Summary & Legend -->
+          <div class="space-y-4">
+            <div id="fullCalendarSidebarStats" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm space-y-3 text-xs"></div>
+            <div id="fullCalendarYearSummary" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm space-y-3 text-xs"></div>
           </div>
         </div>
       </main>
@@ -608,6 +697,66 @@
     <nav id="mobileBottomNav" class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-slate-900/95 backdrop-blur-xl border-t border-slate-800 px-1 py-1.5 flex items-center justify-around text-[10px] font-semibold text-slate-400"></nav>
 
   </div><!-- END PROTECTED APP SHELL -->
+
+  <!-- Task 4: CALENDAR DAY STATUS & NOTE EDITOR MODAL -->
+  <div id="calendarDayModal" onclick="if(event.target===this) window.closeCalendarDayModal()" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-5 space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
+        <div>
+          <h3 id="calDayModalTitle" class="font-bold text-lg">Edit Clinic Day</h3>
+          <p id="calDayModalSub" class="text-xs text-slate-500">Select shift or time-off status</p>
+        </div>
+        <button onclick="window.closeCalendarDayModal()" class="p-1 text-slate-400 hover:text-white">✕</button>
+      </div>
+
+      <div id="calDayStatHolidayBanner" class="hidden p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-semibold flex items-center gap-2">
+        <span>🍁</span>
+        <span id="calDayStatHolidayName">Ontario Statutory Holiday</span>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 text-xs" id="calDayStatusButtons">
+        <button type="button" onclick="window.selectCalDayType('work_full')" data-cal-type="work_full" class="cal-type-btn p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-left font-bold flex items-center gap-2 hover:bg-brand-500/10 transition">
+          <span class="w-2.5 h-2.5 rounded-full bg-brand-500 shrink-0"></span>
+          <div><div>Full Shift</div><div id="calModalFullShiftSub" class="text-[10px] text-slate-400 font-normal">8hr M–T / 6hr Fri</div></div>
+        </button>
+        <button type="button" onclick="window.selectCalDayType('half')" data-cal-type="half" class="cal-type-btn p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-left font-bold flex items-center gap-2 hover:bg-sky-500/10 transition">
+          <span class="w-2.5 h-2.5 rounded-full bg-sky-400 shrink-0"></span>
+          <div><div>4-Hr Half Day</div><div class="text-[10px] text-slate-400 font-normal">$480 Target</div></div>
+        </button>
+        <button type="button" onclick="window.selectCalDayType('vacation')" data-cal-type="vacation" class="cal-type-btn p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-left font-bold flex items-center gap-2 hover:bg-emerald-500/10 transition">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
+          <div><div>Vacation Day</div><div class="text-[10px] text-slate-400 font-normal">Planned Time Off</div></div>
+        </button>
+        <button type="button" onclick="window.selectCalDayType('sick')" data-cal-type="sick" class="cal-type-btn p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-left font-bold flex items-center gap-2 hover:bg-amber-500/10 transition">
+          <span class="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0"></span>
+          <div><div>Sick / Personal</div><div class="text-[10px] text-slate-400 font-normal">Absence</div></div>
+        </button>
+        <button type="button" onclick="window.selectCalDayType('event')" data-cal-type="event" class="cal-type-btn p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-left font-bold flex items-center gap-2 hover:bg-purple-500/10 transition">
+          <span class="w-2.5 h-2.5 rounded-full bg-purple-500 shrink-0"></span>
+          <div><div>CE / Clinic Event</div><div class="text-[10px] text-slate-400 font-normal">Conference / Meeting</div></div>
+        </button>
+        <button type="button" onclick="window.selectCalDayType('off')" data-cal-type="off" class="cal-type-btn p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-left font-bold flex items-center gap-2 hover:bg-slate-500/10 transition">
+          <span class="w-2.5 h-2.5 rounded-full bg-slate-400 shrink-0"></span>
+          <div><div>Regular Day Off</div><div class="text-[10px] text-slate-400 font-normal">Unscheduled</div></div>
+        </button>
+      </div>
+
+      <div class="text-xs">
+        <label class="block font-semibold mb-1 text-slate-500">Day Note / Event Label (optional)</label>
+        <input type="text" id="calDayNoteInput" placeholder="e.g. Halifax Trip, CE Conference, Morning Clinic..." class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700" />
+      </div>
+
+      <div id="calDayFutureSyncHint" class="p-2.5 rounded-xl bg-brand-500/10 border border-brand-500/25 text-[11px] text-brand-400"></div>
+
+      <div class="flex items-center justify-between pt-3 border-t border-slate-200 dark:border-slate-800">
+        <button type="button" onclick="window.resetCalendarDayDefault()" class="text-xs font-semibold text-rose-500 hover:underline">Reset to Default</button>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="window.closeCalendarDayModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800">Cancel</button>
+          <button type="button" onclick="window.saveCalendarDayModal()" class="px-4 py-2 rounded-xl text-xs font-bold bg-brand-600 text-white shadow-sm">Save Day</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- MOBILE "MORE" ACTION SHEET DRAWER -->
   <div id="mobileMoreSheet" onclick="if(event.target===this) window.closeMobileMoreSheet()" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-end justify-center md:hidden">
@@ -638,7 +787,7 @@
     </div>
   </div>
 
-  <!-- Task 12 & 13: SCALABLE BENCHMARK COMPARISON PICKER MODAL (Excludes Future Unworked Years) -->
+  <!-- SCALABLE BENCHMARK COMPARISON PICKER MODAL -->
   <div id="benchmarkModal" onclick="if(event.target===this) window.closeBenchmarkModal()" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-sm w-full p-5 space-y-4 shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
@@ -723,7 +872,7 @@
     </div>
   </div>
 
-  <!-- Task 14: DAILY LOG MODAL (Clean Shift Worked labels without dollar amounts) -->
+  <!-- DAILY LOG MODAL -->
   <div id="dailyLogModal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-lg w-full p-5 space-y-4 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-3"><h3 class="font-bold text-lg">Log Clinic Day (EMR MTD)</h3><button onclick="window.closeDailyLogModal()">✕</button></div>
@@ -1000,7 +1149,6 @@
     document.getElementById('appleTouchIconLink').href = CLINIC_LOGO_B64;
     document.querySelectorAll('.clinic-logo-img').forEach(img => { img.src = CLINIC_LOGO_B64; });
 
-    // Task 6: Global Chart.js configuration to strip background grid lines cleanly across all charts
     if (typeof Chart !== 'undefined') {
       Chart.defaults.scale.grid.display = false;
       Chart.defaults.scale.grid.drawOnChartArea = false;
@@ -1013,6 +1161,7 @@
     const THEME_MODE_KEY = 'optotrack_theme_mode';
     let driveAccessToken = sessionStorage.getItem(DRIVE_TOKEN_KEY) || null;
     let showAllYearLogs = false;
+    let calendarMonthIdx = new Date().getMonth();
 
     const systemDarkQuery = window.matchMedia('(prefers-color-scheme: dark)');
     function applyEffectiveTheme(mode) {
@@ -1166,14 +1315,13 @@
       month: m, mtDays: 16, fDays: 4, daysWorked: 0, gross: 0, reci: 0, ohip: 0, totalOhip: 0, paid: 0, patients: 0, customTarget: null, shiftTargetAdj: 0
     }));
 
-    // Task 11: Explicitly populate every widget size key in getDefaultLayouts() so Firestore's merge:true overwrites resized keys cleanly back to 'normal'
     function getDefaultLayouts() {
       return {
-        dashBlocks: ['kpis', 'quarters', 'ledger', 'bottomRow'],
+        dashBlocks: ['kpis', 'quarters', 'ledger', 'bottomRow', 'calendar'],
         dashKpis: ['net', 'paid', 'daily', 'revpt'],
         dashPinnedCharts: [],
         recordsOrder: ['rec_dailyGross', 'rec_yrPaid', 'rec_qtrNet', 'rec_mthPts', 'rec_dailyPts', 'rec_yrDays', 'rec_mthDays', 'rec_mthGross', 'rec_mthDailyAvg'],
-        chartsOrder: ['netTarget', 'dailyAvg', 'patients', 'breakdown', 'forecastCone', 'annualSalaryCone', 'quarterSeasonality'],
+        chartsOrder: ['netTarget', 'dailyAvg', 'patients', 'breakdown', 'forecastCone', 'annualSalaryCone', 'quarterSeasonality', 'timeOffBreakdown', 'daysWorkedTrend'],
         navOrder: ['pageDashboard', 'pageRecords', 'logDay', 'pageCharts', 'pageCalendar'],
         navHidden: [],
         widgetSizes: {
@@ -1189,6 +1337,8 @@
           chart_forecastCone: 'full',
           chart_annualSalaryCone: 'full',
           chart_quarterSeasonality: 'full',
+          chart_timeOffBreakdown: 'normal',
+          chart_daysWorkedTrend: 'normal',
           pinned_netTarget: 'normal',
           pinned_dailyAvg: 'normal',
           pinned_patients: 'normal',
@@ -1196,6 +1346,8 @@
           pinned_forecastCone: 'full',
           pinned_annualSalaryCone: 'full',
           pinned_quarterSeasonality: 'full',
+          pinned_timeOffBreakdown: 'normal',
+          pinned_daysWorkedTrend: 'normal',
           rec_rec_dailyGross: 'normal',
           rec_rec_yrPaid: 'normal',
           rec_rec_qtrNet: 'normal',
@@ -1212,6 +1364,7 @@
     function getEmptyState() {
       return {
         currentYear: '2026', includeCurrentMonthInAverages: true, benchmarkMode: 'prev_year', quarterOhipMode: 'recon', coneQuarter: 'Q4',
+        timeOffChartMode: 'yearly',
         themeMode: localStorage.getItem(THEME_MODE_KEY) || 'auto',
         lastDriveSyncMonth: null,
         lastDriveBackupTimestamp: null,
@@ -1227,7 +1380,8 @@
           '2027': { Q1: { confirmed: false, actualNet: null, actualBonus: null }, Q2: { confirmed: false, actualNet: null, actualBonus: null }, Q3: { confirmed: false, actualNet: null, actualBonus: null }, Q4: { confirmed: false, actualNet: null, actualBonus: null } }
         },
         yearPaidExtras: { '2025': { health: 0, bonusPaid: 0 }, '2026': { health: 0, bonusPaid: 0 }, '2027': { health: 0, bonusPaid: 0 } },
-        dailyLogs: []
+        dailyLogs: [],
+        calendarDays: {}
       };
     }
 
@@ -1297,12 +1451,25 @@
       const def = getDefaultLayouts();
       if (!state.settings) state.settings = { netPct: 24, mtRate: 780, fRate: 630, halfRate: 480 };
       if (!state.settings.halfRate) state.settings.halfRate = 480;
+      if (!state.calendarDays || typeof state.calendarDays !== 'object') state.calendarDays = {};
+      if (!state.timeOffChartMode) state.timeOffChartMode = 'yearly';
       if (!state.layouts) state.layouts = def;
-      if (!Array.isArray(state.layouts.dashBlocks)) state.layouts.dashBlocks = def.dashBlocks;
+      if (!Array.isArray(state.layouts.dashBlocks)) {
+        state.layouts.dashBlocks = def.dashBlocks;
+      } else if (!state.layouts.dashBlocks.includes('calendar') && !state.layouts._calInitialized) {
+        state.layouts.dashBlocks.push('calendar');
+        state.layouts._calInitialized = true;
+      }
       if (!Array.isArray(state.layouts.dashKpis)) state.layouts.dashKpis = def.dashKpis;
       if (!Array.isArray(state.layouts.dashPinnedCharts)) state.layouts.dashPinnedCharts = [];
       if (!Array.isArray(state.layouts.recordsOrder) || state.layouts.recordsOrder.length < 9) state.layouts.recordsOrder = def.recordsOrder;
-      if (!Array.isArray(state.layouts.chartsOrder) || state.layouts.chartsOrder.length < 7) state.layouts.chartsOrder = def.chartsOrder;
+      if (!Array.isArray(state.layouts.chartsOrder)) {
+        state.layouts.chartsOrder = def.chartsOrder;
+      } else {
+        def.chartsOrder.forEach(cid => {
+          if (!state.layouts.chartsOrder.includes(cid)) state.layouts.chartsOrder.push(cid);
+        });
+      }
       if (!Array.isArray(state.layouts.navOrder) || state.layouts.navOrder.length === 0) {
         state.layouts.navOrder = def.navOrder;
       } else {
@@ -1318,6 +1485,248 @@
           if (!state.layouts.widgetSizes[k]) state.layouts.widgetSizes[k] = def.widgetSizes[k];
         });
       }
+    }
+
+    // ================= TASK 2 & 4: ONTARIO STATUTORY HOLIDAYS & CALENDAR ENGINE =================
+    function formatDateStr(y, mIdx, d) {
+      return `${y}-${String(mIdx + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    }
+
+    function getNthWeekdayOfMonth(year, monthIdx, dayOfWeek, n) {
+      const firstDay = new Date(year, monthIdx, 1).getDay();
+      const offset = (dayOfWeek - firstDay + 7) % 7;
+      return 1 + offset + (n - 1) * 7;
+    }
+
+    function getGoodFridayDateStr(year) {
+      const a = year % 19;
+      const b = Math.floor(year / 100);
+      const c = year % 100;
+      const d = Math.floor(b / 4);
+      const e = b % 4;
+      const f = Math.floor((b + 8) / 25);
+      const g = Math.floor((b - f + 1) / 3);
+      const h = (19 * a + b - d - g + 15) % 30;
+      const i = Math.floor(c / 4);
+      const k = c % 4;
+      const l = (32 + 2 * e + 2 * i - h - k) % 7;
+      const m = Math.floor((a + 11 * h + 22 * l) / 451);
+      const easterMonth = Math.floor((h + l - 7 * m + 114) / 31) - 1;
+      const easterDay = ((h + l - 7 * m + 114) % 31) + 1;
+      const goodFriday = new Date(year, easterMonth, easterDay - 2);
+      return formatDateStr(goodFriday.getFullYear(), goodFriday.getMonth(), goodFriday.getDate());
+    }
+
+    function getVictoriaDayDateStr(year) {
+      for (let d = 24; d >= 18; d--) {
+        if (new Date(year, 4, d).getDay() === 1) {
+          return formatDateStr(year, 4, d);
+        }
+      }
+      return formatDateStr(year, 4, 20);
+    }
+
+    const statHolidayCache = {};
+    function getOntarioStatHolidaysMap(yearStr) {
+      const y = Number(yearStr);
+      if (statHolidayCache[y]) return statHolidayCache[y];
+      const map = {};
+
+      const addFixedWithObserved = (mIdx, day, name) => {
+        const dt = new Date(y, mIdx, day);
+        const dow = dt.getDay();
+        const exactKey = formatDateStr(y, mIdx, day);
+        map[exactKey] = name;
+        if (dow === 6) {
+          const obs = new Date(y, mIdx, day + 2);
+          map[formatDateStr(obs.getFullYear(), obs.getMonth(), obs.getDate())] = `${name} (Observed)`;
+        } else if (dow === 0) {
+          const obs = new Date(y, mIdx, day + 1);
+          map[formatDateStr(obs.getFullYear(), obs.getMonth(), obs.getDate())] = `${name} (Observed)`;
+        }
+      };
+
+      addFixedWithObserved(0, 1, "New Year's Day");
+      map[formatDateStr(y, 1, getNthWeekdayOfMonth(y, 1, 1, 3))] = "Family Day";
+      map[getGoodFridayDateStr(y)] = "Good Friday";
+      map[getVictoriaDayDateStr(y)] = "Victoria Day";
+      addFixedWithObserved(6, 1, "Canada Day");
+      map[formatDateStr(y, 7, getNthWeekdayOfMonth(y, 7, 1, 1))] = "Civic Holiday";
+      map[formatDateStr(y, 8, getNthWeekdayOfMonth(y, 8, 1, 1))] = "Labour Day";
+      map[formatDateStr(y, 9, getNthWeekdayOfMonth(y, 9, 1, 2))] = "Thanksgiving";
+
+      const xmasDow = new Date(y, 11, 25).getDay();
+      map[formatDateStr(y, 11, 25)] = "Christmas Day";
+      map[formatDateStr(y, 11, 26)] = "Boxing Day";
+      if (xmasDow === 5) {
+        map[formatDateStr(y, 11, 28)] = "Boxing Day (Observed)";
+      } else if (xmasDow === 6) {
+        map[formatDateStr(y, 11, 28)] = "Christmas (Observed)";
+        map[formatDateStr(y, 11, 29)] = "Boxing Day (Observed)";
+      } else if (xmasDow === 0) {
+        map[formatDateStr(y, 11, 27)] = "Boxing Day (Observed)";
+      }
+
+      statHolidayCache[y] = map;
+      return map;
+    }
+
+    function getLoggedShiftForDate(dateStr) {
+      const logs = state.dailyLogs || [];
+      for (let i = logs.length - 1; i >= 0; i--) {
+        if (logs[i].date === dateStr) return logs[i];
+      }
+      return null;
+    }
+
+    function getEffectiveCalendarDayInfo(yearStr, monthIdx, dayNum) {
+      const y = Number(yearStr);
+      const dateStr = formatDateStr(y, monthIdx, dayNum);
+      const dow = new Date(y, monthIdx, dayNum).getDay();
+      const isWeekend = dow === 0 || dow === 6;
+      const isFriday = dow === 5;
+      const statMap = getOntarioStatHolidaysMap(yearStr);
+      const statHolidayName = statMap[dateStr] || null;
+      const customEntry = state.calendarDays?.[dateStr] || null;
+      const loggedShift = getLoggedShiftForDate(dateStr);
+
+      let type = 'off';
+      let note = customEntry?.note || '';
+
+      if (customEntry && customEntry.type) {
+        type = customEntry.type;
+      } else if (loggedShift) {
+        const sHrs = loggedShift.shiftHours !== undefined ? Number(loggedShift.shiftHours) : 8;
+        type = sHrs === 4 ? 'half' : 'work_full';
+        if (!note && loggedShift.note) note = loggedShift.note;
+      } else if (statHolidayName) {
+        type = 'stat';
+      } else if (!isWeekend) {
+        type = 'work_full';
+      } else {
+        type = 'weekend';
+      }
+
+      return {
+        dateStr,
+        dayNum,
+        dow,
+        isWeekend,
+        isFriday,
+        statHolidayName,
+        type,
+        note,
+        hasCustomOverride: !!(customEntry && customEntry.type),
+        loggedShift
+      };
+    }
+
+    // Task 4: Determine whether a month is an unworked future month that should auto-sync with the Ledger
+    function isFutureUnworkedMonth(yearStr, monthIdx) {
+      const yNum = Number(yearStr);
+      const mObj = state.years[yearStr]?.[monthIdx];
+      if (!mObj) return false;
+      const hasWorkedActivity = (Number(mObj.daysWorked) || 0) > 0 || (Number(mObj.gross) || 0) > 0 || (Number(mObj.reci) || 0) > 0 || (Number(mObj.ohip) || 0) > 0 || (Number(mObj.patients) || 0) > 0;
+      if (hasWorkedActivity) return false;
+
+      let latestWorkedYear = -1;
+      let latestWorkedMonth = -1;
+      Object.keys(state.years || {}).sort().forEach(yr => {
+        const yrNum = Number(yr);
+        (state.years[yr] || []).forEach((m, idx) => {
+          if ((Number(m.daysWorked) || 0) > 0 || (Number(m.gross) || 0) > 0 || (Number(m.reci) || 0) > 0 || (Number(m.ohip) || 0) > 0 || (Number(m.patients) || 0) > 0) {
+            if (yrNum > latestWorkedYear || (yrNum === latestWorkedYear && idx > latestWorkedMonth)) {
+              latestWorkedYear = yrNum;
+              latestWorkedMonth = idx;
+            }
+          }
+        });
+      });
+
+      if (latestWorkedYear === -1) return true;
+      return (yNum > latestWorkedYear) || (yNum === latestWorkedYear && monthIdx > latestWorkedMonth);
+    }
+
+    function getCalendarMonthStats(yearStr, monthIdx) {
+      const y = Number(yearStr);
+      const daysInMonth = new Date(y, monthIdx + 1, 0).getDate();
+      let fullMtCount = 0, fullFriCount = 0, halfMtCount = 0, halfFriCount = 0, weekendWorkCount = 0;
+      let vacationCount = 0, sickCount = 0, eventCount = 0, statCount = 0, halfTotalCount = 0;
+      const dayInfos = [];
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const info = getEffectiveCalendarDayInfo(yearStr, monthIdx, d);
+        dayInfos.push(info);
+        if (info.statHolidayName && !info.isWeekend) statCount++;
+        if (info.type === 'vacation') vacationCount++;
+        else if (info.type === 'sick') sickCount++;
+        else if (info.type === 'event') eventCount++;
+        else if (info.type === 'half') {
+          halfTotalCount++;
+          if (info.isFriday) halfFriCount++;
+          else halfMtCount++;
+        } else if (info.type === 'work_full') {
+          if (info.isWeekend) weekendWorkCount++;
+          else if (info.isFriday) fullFriCount++;
+          else fullMtCount++;
+        }
+      }
+
+      const mtRate = Number(state.settings.mtRate) || 780;
+      const fRate = Number(state.settings.fRate) || 630;
+      const halfRate = Number(state.settings.halfRate) || 480;
+
+      // Each scheduled day (including a 4-hr half day) occupies 1 shift slot on the calendar, while shiftTargetAdj adjusts the dollar target for 4-hr days ($480 vs $780/$630)
+      const scheduledMtSlots = fullMtCount + halfMtCount + weekendWorkCount;
+      const scheduledFriSlots = fullFriCount + halfFriCount;
+      const shiftTargetAdj = (halfMtCount * (halfRate - mtRate)) + (halfFriCount * (halfRate - fRate));
+      const totalScheduledShiftUnits = fullMtCount + fullFriCount + weekendWorkCount + (halfTotalCount * 0.5);
+      const computedTargetDollar = Math.max(0, (scheduledMtSlots * mtRate) + (scheduledFriSlots * fRate) + shiftTargetAdj);
+
+      return {
+        daysInMonth,
+        dayInfos,
+        fullMtCount,
+        fullFriCount,
+        halfMtCount,
+        halfFriCount,
+        halfTotalCount,
+        vacationCount,
+        sickCount,
+        eventCount,
+        statCount,
+        scheduledMtSlots,
+        scheduledFriSlots,
+        shiftTargetAdj,
+        totalScheduledShiftUnits,
+        computedTargetDollar
+      };
+    }
+
+    // Task 4: Cross-check & sync future unworked months with the Monthly Production Ledger
+    function syncFutureMonthCalendarToLedger(yearStr, monthIdx) {
+      if (!isFutureUnworkedMonth(yearStr, monthIdx)) return false;
+      const mObj = state.years[yearStr]?.[monthIdx];
+      if (!mObj) return false;
+      const stats = getCalendarMonthStats(yearStr, monthIdx);
+      mObj.mtDays = stats.scheduledMtSlots;
+      mObj.fDays = stats.scheduledFriSlots;
+      mObj.shiftTargetAdj = Number(stats.shiftTargetAdj.toFixed(2));
+      return true;
+    }
+
+    function syncAllFutureMonthsInYearWithCustomEntries(yearStr) {
+      const prefix = `${yearStr}-`;
+      const touchedMonths = new Set();
+      Object.keys(state.calendarDays || {}).forEach(dateKey => {
+        if (dateKey.startsWith(prefix)) {
+          const mIdx = Number(dateKey.split('-')[1]) - 1;
+          if (mIdx >= 0 && mIdx < 12) touchedMonths.add(mIdx);
+        }
+      });
+      touchedMonths.forEach(mIdx => {
+        syncFutureMonthCalendarToLedger(yearStr, mIdx);
+      });
     }
 
     const NAV_ITEMS_META = {
@@ -1553,7 +1962,6 @@
 
     function saveAndRender() { pushStateToCloud(); renderAll(); }
 
-    // Task 12 & 13: Helper to get eligible Benchmark Years (excludes future years > current real calendar year unless they have logged shifts)
     function getEligibleBenchmarkYears() {
       const nowYear = new Date().getFullYear();
       const sortedYears = Object.keys(state.years || {}).sort();
@@ -1601,7 +2009,6 @@
         }).join('');
       }
 
-      // Task 12 & 13: Update Benchmark Button Label & Scalable Benchmark Modal (excluding future years)
       const eligibleBmYears = getEligibleBenchmarkYears();
       let curBm = state.benchmarkMode || 'prev_year';
       if (curBm !== 'prev_year' && curBm !== 'all_time' && !eligibleBmYears.includes(curBm)) {
@@ -1948,12 +2355,13 @@
       return { label: `${targetYear} Full Year`, ...getYearMetrics(targetYear, null) };
     }
 
-    // ================= DRAG & DROP + TASK 7 SIDE-DRAG WIDGET RESIZING ENGINE =================
+    // ================= DRAG & DROP + SIDE-DRAG WIDGET RESIZING ENGINE =================
     const BLOCK_LABELS = {
       kpis: 'Top KPI Summary Row',
       quarters: 'Quarterly Bonus Estimator',
       ledger: 'Monthly Production Ledger',
-      bottomRow: 'Monthly Bar Chart & Shift Logs'
+      bottomRow: 'Monthly Bar Chart & Shift Logs',
+      calendar: 'Clinic Schedule & Vacation Pacing Calendar'
     };
     const KPI_LABELS = {
       net: 'KPI: YTD Net Cut',
@@ -1968,7 +2376,9 @@
       breakdown: { title: 'Monthly Collections Breakdown', sub: 'Accounts Received vs. OHIP Reconciliation stacked collections.' },
       forecastCone: { title: 'Quarterly Payout Cone & Trajectory Forecast', sub: 'Cumulative quarter 24% net & bonus payout forecast.' },
       annualSalaryCone: { title: 'Annual Projected Salary & Total Earnings Trajectory', sub: 'Starts from YTD Net Cut earned and adds remaining work days.' },
-      quarterSeasonality: { title: 'Historical Quarterly Seasonality (Full Quarters Only)', sub: 'Compares average 24% Net & Bonus across Q1–Q4.' }
+      quarterSeasonality: { title: 'Historical Quarterly Seasonality (Full Quarters Only)', sub: 'Compares average 24% Net & Bonus across Q1–Q4.' },
+      timeOffBreakdown: { title: 'Time-Off & Absence Breakdown', sub: 'Tracks Vacation, Sick, CE/Events, and 4-Hr Half Days logged on Calendar.' },
+      daysWorkedTrend: { title: 'Annual Days Worked & Pacing Trend', sub: 'Compares Total Days Worked vs. Scheduled Shifts across recorded years.' }
     };
 
     let activeDragState = { listKey: null, itemKey: null };
@@ -2028,7 +2438,6 @@
       saveAndRender();
     };
 
-    // Task 7: Pointer-driven Side-Edge Drag Resizing
     window.startSideResize = (ev, sizeKey) => {
       if (!isLayoutEditMode || !sizeKey) return;
       ev.preventDefault();
@@ -2119,7 +2528,6 @@
       renderAll();
     };
 
-    // Task 11: Resetting defaults explicitly overwrites all widgetSizes keys so Firestore merge:true persists the reset permanently
     window.resetLayoutDefaults = () => {
       const def = getDefaultLayouts();
       const resetSizes = { ...def.widgetSizes };
@@ -2130,6 +2538,7 @@
       }
       state.layouts = {
         ...def,
+        _calInitialized: true,
         widgetSizes: resetSizes
       };
       saveAndRender();
@@ -2173,7 +2582,7 @@
 
       document.querySelectorAll('.layout-ctrl-bar, .side-resize-handle').forEach(el => el.remove());
 
-      const allDashBlocks = ['kpis', 'quarters', 'ledger', 'bottomRow'];
+      const allDashBlocks = ['kpis', 'quarters', 'ledger', 'bottomRow', 'calendar'];
       allDashBlocks.forEach(bid => {
         const el = document.getElementById(`dashBlock_${bid}`);
         if (!el) return;
@@ -2460,6 +2869,398 @@
       }
     }
 
+    // ================= TASK 2 & 4: HOME CALENDAR WIDGET & FULL CALENDAR PAGE RENDERING =================
+    function getMonthHeatmapBadgeHtml(monthIdx) {
+      const hist = computeHistoricalMonthlyDailyAverages();
+      const h = hist[monthIdx];
+      if (!h || h.avg <= 0) {
+        return `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-500/15 text-slate-400 border border-slate-500/30">⚪ No Historical Avg Yet</span>`;
+      }
+      if (h.grade === 'green') {
+        return `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-500 border border-emerald-500/30" title="Historically slower month (${fmtCurr(h.avg)}/day) — Great time to schedule vacation!">🟢 Slower Month • Best for Vacation (${fmtCurr(h.avg)}/d)</span>`;
+      }
+      if (h.grade === 'red') {
+        return `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/15 text-rose-500 border border-rose-500/30" title="Historically high-earning month (${fmtCurr(h.avg)}/day) — Avoid booking time off if possible">🔴 Peak Income Month (${fmtCurr(h.avg)}/d)</span>`;
+      }
+      return `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-brand-500/15 text-brand-400 border border-brand-500/30" title="Historical average daily net: ${fmtCurr(h.avg)}/day">🔵 Normal Earning Pace (${fmtCurr(h.avg)}/d)</span>`;
+    }
+
+    function buildCalendarGridCellsHtml(yearStr, monthIdx, compact = false) {
+      const y = Number(yearStr);
+      const firstDow = new Date(y, monthIdx, 1).getDay();
+      const stats = getCalendarMonthStats(yearStr, monthIdx);
+      const todayStr = new Date().toISOString().split('T')[0];
+
+      let cells = '';
+      for (let i = 0; i < firstDow; i++) {
+        cells += `<div class="${compact ? 'h-12 sm:h-14' : 'h-20 sm:h-24'} rounded-xl bg-slate-100/40 dark:bg-slate-900/30 border border-transparent"></div>`;
+      }
+
+      const typeStyles = {
+        work_full: {
+          bg: 'bg-brand-500/10 hover:bg-brand-500/20 border-brand-500/30 text-slate-900 dark:text-slate-100',
+          pill: 'bg-brand-600 text-white',
+          short: 'Shift',
+          full: 'Full Shift'
+        },
+        half: {
+          bg: 'bg-sky-500/15 hover:bg-sky-500/25 border-sky-500/40 text-slate-900 dark:text-slate-100',
+          pill: 'bg-sky-500 text-white',
+          short: '4hr',
+          full: '4-Hr Half'
+        },
+        vacation: {
+          bg: 'bg-emerald-500/15 hover:bg-emerald-500/25 border-emerald-500/40 text-slate-900 dark:text-slate-100',
+          pill: 'bg-emerald-600 text-white',
+          short: 'Vac',
+          full: 'Vacation'
+        },
+        sick: {
+          bg: 'bg-amber-500/15 hover:bg-amber-500/25 border-amber-500/40 text-slate-900 dark:text-slate-100',
+          pill: 'bg-amber-500 text-slate-950',
+          short: 'Sick',
+          full: 'Sick Day'
+        },
+        event: {
+          bg: 'bg-purple-500/15 hover:bg-purple-500/25 border-purple-500/40 text-slate-900 dark:text-slate-100',
+          pill: 'bg-purple-600 text-white',
+          short: 'CE/Evt',
+          full: 'CE / Event'
+        },
+        stat: {
+          bg: 'bg-rose-500/15 hover:bg-rose-500/25 border-rose-500/40 text-slate-900 dark:text-slate-100',
+          pill: 'bg-rose-600 text-white',
+          short: 'Stat',
+          full: 'Stat Holiday'
+        },
+        off: {
+          bg: 'bg-slate-100 dark:bg-slate-800/60 hover:bg-slate-200 dark:hover:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400',
+          pill: 'bg-slate-500 text-white',
+          short: 'Off',
+          full: 'Day Off'
+        },
+        weekend: {
+          bg: 'bg-slate-50/70 dark:bg-slate-900/40 hover:bg-slate-100 dark:hover:bg-slate-800/60 border-slate-200/60 dark:border-slate-800/80 text-slate-400',
+          pill: 'bg-slate-700 text-slate-300',
+          short: 'Wknd',
+          full: 'Weekend'
+        }
+      };
+
+      stats.dayInfos.forEach(info => {
+        const st = typeStyles[info.type] || typeStyles.off;
+        const isToday = info.dateStr === todayStr;
+        const todayRing = isToday ? 'ring-2 ring-brand-500 ring-offset-1 dark:ring-offset-slate-900' : '';
+        const shiftSubLabel = info.type === 'work_full' ? (info.isFriday ? '6hr Fri' : '8hr M-T') : st.full;
+
+        if (compact) {
+          cells += `
+            <button type="button" onclick="window.openCalendarDayModal('${info.dateStr}')" class="h-12 sm:h-14 p-1.5 rounded-xl border ${st.bg} ${todayRing} flex flex-col justify-between text-left transition overflow-hidden">
+              <div class="flex items-center justify-between w-full">
+                <span class="mono font-extrabold text-[11px] ${isToday ? 'text-brand-500 underline' : ''}">${info.dayNum}</span>
+                ${info.statHolidayName ? `<span title="${info.statHolidayName}" class="text-[10px]">🍁</span>` : ''}
+              </div>
+              <div class="w-full truncate">
+                ${info.type !== 'weekend' ? `<span class="inline-block px-1 py-0.2 rounded text-[9px] font-bold ${st.pill} truncate max-w-full">${info.type === 'work_full' ? (info.isFriday ? '6h' : '8h') : st.short}</span>` : ''}
+              </div>
+            </button>
+          `;
+        } else {
+          cells += `
+            <button type="button" onclick="window.openCalendarDayModal('${info.dateStr}')" class="h-20 sm:h-24 p-2 rounded-xl border ${st.bg} ${todayRing} flex flex-col justify-between text-left transition overflow-hidden group">
+              <div class="flex items-center justify-between w-full gap-1">
+                <span class="mono font-extrabold text-xs sm:text-sm ${isToday ? 'text-brand-500 underline' : ''}">${info.dayNum}</span>
+                ${info.loggedShift ? `<span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 mono font-bold text-[9px]" title="Logged Net">${fmtCurr(info.loggedShift.net)}</span>` : (info.statHolidayName ? `<span class="text-[10px]" title="${info.statHolidayName}">🍁</span>` : '')}
+              </div>
+              <div class="space-y-0.5 w-full min-w-0">
+                ${info.statHolidayName ? `<div class="text-[9px] font-bold text-rose-400 truncate">${info.statHolidayName}</div>` : ''}
+                ${info.type !== 'weekend' ? `<span class="inline-block px-1.5 py-0.5 rounded-md text-[10px] font-bold ${st.pill} truncate max-w-full">${shiftSubLabel}</span>` : `<span class="text-[10px] text-slate-400">Weekend</span>`}
+                ${info.note ? `<div class="text-[10px] text-slate-500 dark:text-slate-300 truncate font-medium">${info.note}</div>` : ''}
+              </div>
+            </button>
+          `;
+        }
+      });
+
+      return { cellsHtml: cells, stats };
+    }
+
+    function renderHomeCalendarBlock() {
+      const gridEl = document.getElementById('homeCalendarGrid');
+      const statsEl = document.getElementById('homeCalendarStatsPanel');
+      if (!gridEl || !statsEl) return;
+
+      const monthNamesFull = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+      const monthNamesShort = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const yearStr = state.currentYear;
+      const mIdx = calendarMonthIdx;
+
+      document.getElementById('homeCalMonthTitle').textContent = `${monthNamesShort[mIdx]} ${yearStr}`;
+      document.getElementById('homeCalHeatmapBadge').innerHTML = getMonthHeatmapBadgeHtml(mIdx);
+
+      const isFutureSyncActive = isFutureUnworkedMonth(yearStr, mIdx);
+      const mLedger = state.years[yearStr]?.[mIdx];
+      const cLedger = mLedger ? calculateMonth(mLedger, state.settings, getEffectiveMonthOhipMode(yearStr, mIdx)) : null;
+
+      const { cellsHtml, stats } = buildCalendarGridCellsHtml(yearStr, mIdx, true);
+      gridEl.innerHTML = cellsHtml;
+
+      document.getElementById('homeCalSyncStatusText').innerHTML = isFutureSyncActive
+        ? `<span class="text-emerald-500 font-semibold">✓ Auto-Sync Active (Future Month):</span> Marking Vacation, Sick, or 4-Hr Half Days in ${monthNamesFull[mIdx]} ${yearStr} automatically updates your Ledger Target.`
+        : `<span class="text-slate-400">Worked / Historical Month:</span> Ledger targets for ${monthNamesFull[mIdx]} ${yearStr} are locked to your recorded shifts.`;
+
+      statsEl.innerHTML = `
+        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-2">
+          <span class="font-bold text-slate-800 dark:text-slate-100">${monthNamesFull[mIdx]} ${yearStr} Summary</span>
+          <span class="mono font-bold text-brand-500">${stats.totalScheduledShiftUnits} shifts</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div class="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+            <span class="text-[10px] text-slate-400 block">8-Hr M–T / 6-Hr Fri</span>
+            <span class="font-extrabold mono text-sm">${stats.fullMtCount} M–T • ${stats.fullFriCount} Fri</span>
+          </div>
+          <div class="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+            <span class="text-[10px] text-slate-400 block">4-Hr Half Days</span>
+            <span class="font-extrabold mono text-sm text-sky-400">${stats.halfTotalCount} half</span>
+          </div>
+          <div class="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+            <span class="text-[10px] text-slate-400 block">Vacation / Sick</span>
+            <span class="font-extrabold mono text-sm text-emerald-500">${stats.vacationCount} vac • <span class="text-amber-500">${stats.sickCount} sick</span></span>
+          </div>
+          <div class="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+            <span class="text-[10px] text-slate-400 block">Stat Holidays / CE</span>
+            <span class="font-extrabold mono text-sm text-rose-400">${stats.statCount} stat • <span class="text-purple-400">${stats.eventCount} CE</span></span>
+          </div>
+        </div>
+        <div class="pt-2 border-t border-slate-200 dark:border-slate-700 space-y-1 text-[11px]">
+          <div class="flex justify-between">
+            <span class="text-slate-500">Ledger Month Target:</span>
+            <span class="mono font-extrabold text-brand-500">${cLedger ? fmtCurr(cLedger.target) : fmtCurr(stats.computedTargetDollar)}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-500">Ledger # M–T / # Fri:</span>
+            <span class="mono font-semibold">${cLedger ? `${cLedger.mtDays} M–T / ${cLedger.fDays} Fri` : '—'}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderCalendarPage() {
+      if (activePage !== 'pageCalendar') return;
+      const monthNamesFull = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+      const monthNamesShort = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const yearStr = state.currentYear;
+      const mIdx = calendarMonthIdx;
+
+      document.getElementById('fullCalMonthTitle').textContent = `${monthNamesFull[mIdx]} ${yearStr}`;
+      document.getElementById('calStripYearLbl').textContent = yearStr;
+      document.getElementById('fullCalHeatmapBadge').innerHTML = getMonthHeatmapBadgeHtml(mIdx);
+
+      const histStats = computeHistoricalMonthlyDailyAverages();
+      const stripEl = document.getElementById('calMonthJumpStrip');
+      if (stripEl) {
+        stripEl.innerHTML = monthNamesShort.map((mShort, idx) => {
+          const h = histStats[idx];
+          const isCur = idx === mIdx;
+          const dotColor = h.grade === 'green' ? 'bg-emerald-500' : (h.grade === 'red' ? 'bg-rose-500' : (h.grade === 'blue' ? 'bg-brand-500' : 'bg-slate-400'));
+          return `
+            <button type="button" onclick="window.selectCalendarMonth(${idx})" class="p-2 rounded-xl border text-left transition flex flex-col justify-between ${isCur ? 'bg-brand-600 text-white border-brand-500 shadow-sm' : 'bg-slate-50 dark:bg-slate-800/70 border-slate-200 dark:border-slate-700 hover:bg-brand-500/10'}">
+              <div class="flex items-center justify-between w-full">
+                <span class="font-extrabold text-xs">${mShort}</span>
+                <span class="w-2 h-2 rounded-full ${dotColor}"></span>
+              </div>
+              <div class="mono text-[10px] ${isCur ? 'text-brand-100' : 'text-slate-400'} mt-1 truncate">${h.avg > 0 ? `${fmtCurr(h.avg)}/d` : '—'}</div>
+            </button>
+          `;
+        }).join('');
+      }
+
+      const { cellsHtml, stats } = buildCalendarGridCellsHtml(yearStr, mIdx, false);
+      document.getElementById('fullCalendarGrid').innerHTML = cellsHtml;
+
+      const isFutureSyncActive = isFutureUnworkedMonth(yearStr, mIdx);
+      const mLedger = state.years[yearStr]?.[mIdx];
+      const cLedger = mLedger ? calculateMonth(mLedger, state.settings, getEffectiveMonthOhipMode(yearStr, mIdx)) : null;
+
+      document.getElementById('fullCalendarSidebarStats').innerHTML = `
+        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2.5">
+          <h3 class="font-bold text-sm">${monthNamesFull[mIdx]} ${yearStr} Breakdown</h3>
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${isFutureSyncActive ? 'bg-emerald-500/15 text-emerald-500' : 'bg-slate-500/15 text-slate-400'}">${isFutureSyncActive ? 'Future Auto-Sync' : 'Worked Lock'}</span>
+        </div>
+        <div class="space-y-2">
+          <div class="flex justify-between"><span>Full 8-Hr Mon–Thu Shifts:</span><span class="mono font-bold">${stats.fullMtCount}</span></div>
+          <div class="flex justify-between"><span>Full 6-Hr Friday Shifts:</span><span class="mono font-bold">${stats.fullFriCount}</span></div>
+          <div class="flex justify-between text-sky-400"><span>4-Hr Half-Day Shifts ($480):</span><span class="mono font-bold">${stats.halfTotalCount}</span></div>
+          <div class="flex justify-between text-emerald-500"><span>Vacation Days:</span><span class="mono font-bold">${stats.vacationCount}</span></div>
+          <div class="flex justify-between text-amber-500"><span>Sick / Personal Days:</span><span class="mono font-bold">${stats.sickCount}</span></div>
+          <div class="flex justify-between text-purple-400"><span>CE / Clinic Events:</span><span class="mono font-bold">${stats.eventCount}</span></div>
+          <div class="flex justify-between text-rose-400"><span>Ontario Stat Holidays:</span><span class="mono font-bold">${stats.statCount}</span></div>
+        </div>
+        <div class="pt-3 border-t border-slate-200 dark:border-slate-800 space-y-1.5">
+          <div class="flex justify-between">
+            <span class="text-slate-500">Ledger Scheduled Slots:</span>
+            <span class="mono font-bold">${cLedger ? `${cLedger.mtDays} M–T / ${cLedger.fDays} Fri` : '—'}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-500">Ledger Target Baseline:</span>
+            <span class="mono font-extrabold text-brand-500">${cLedger ? fmtCurr(cLedger.target) : '—'}</span>
+          </div>
+          ${!isFutureSyncActive ? `<button type="button" onclick="window.forceSyncCalendarMonthToLedger()" class="w-full mt-2 py-1.5 px-3 rounded-xl text-[11px] font-bold bg-slate-100 dark:bg-slate-800 hover:bg-brand-600 hover:text-white transition">Sync This Month to Ledger Anyway</button>` : ''}
+        </div>
+      `;
+
+      // Full-year time-off totals
+      let yrVac = 0, yrSick = 0, yrEvt = 0, yrHalf = 0, yrStat = 0;
+      for (let m = 0; m < 12; m++) {
+        const ms = getCalendarMonthStats(yearStr, m);
+        yrVac += ms.vacationCount;
+        yrSick += ms.sickCount;
+        yrEvt += ms.eventCount;
+        yrHalf += ms.halfTotalCount;
+        yrStat += ms.statCount;
+      }
+
+      document.getElementById('fullCalendarYearSummary').innerHTML = `
+        <h3 class="font-bold text-sm border-b border-slate-200 dark:border-slate-800 pb-2">${yearStr} Annual Time-Off Totals</h3>
+        <div class="space-y-1.5">
+          <div class="flex justify-between"><span>Total Vacation Days:</span><span class="mono font-bold text-emerald-500">${yrVac} days</span></div>
+          <div class="flex justify-between"><span>Total Sick / Personal:</span><span class="mono font-bold text-amber-500">${yrSick} days</span></div>
+          <div class="flex justify-between"><span>Total CE / Clinic Events:</span><span class="mono font-bold text-purple-400">${yrEvt} days</span></div>
+          <div class="flex justify-between"><span>Total 4-Hr Half Days:</span><span class="mono font-bold text-sky-400">${yrHalf} shifts</span></div>
+          <div class="flex justify-between"><span>Weekday Stat Holidays:</span><span class="mono font-bold text-rose-400">${yrStat} days</span></div>
+        </div>
+      `;
+    }
+
+    window.stepCalendarMonth = (delta) => {
+      let nextM = calendarMonthIdx + delta;
+      const sortedYears = Object.keys(state.years || {}).sort();
+      let yrIdx = sortedYears.indexOf(state.currentYear);
+      if (nextM < 0) {
+        if (yrIdx > 0) {
+          state.currentYear = sortedYears[yrIdx - 1];
+          calendarMonthIdx = 11;
+        } else {
+          calendarMonthIdx = 0;
+        }
+      } else if (nextM > 11) {
+        if (yrIdx < sortedYears.length - 1) {
+          state.currentYear = sortedYears[yrIdx + 1];
+          calendarMonthIdx = 0;
+        } else {
+          calendarMonthIdx = 11;
+        }
+      } else {
+        calendarMonthIdx = nextM;
+      }
+      saveAndRender();
+    };
+
+    window.selectCalendarMonth = (mIdx) => {
+      calendarMonthIdx = mIdx;
+      renderAll();
+    };
+
+    window.jumpCalendarToToday = () => {
+      const now = new Date();
+      const yrStr = String(now.getFullYear());
+      if (state.years[yrStr]) state.currentYear = yrStr;
+      calendarMonthIdx = now.getMonth();
+      saveAndRender();
+    };
+
+    window.forceSyncCalendarMonthToLedger = () => {
+      const yearStr = state.currentYear;
+      const mIdx = calendarMonthIdx;
+      const mObj = state.years[yearStr]?.[mIdx];
+      if (!mObj) return;
+      const stats = getCalendarMonthStats(yearStr, mIdx);
+      mObj.mtDays = stats.scheduledMtSlots;
+      mObj.fDays = stats.scheduledFriSlots;
+      mObj.shiftTargetAdj = Number(stats.shiftTargetAdj.toFixed(2));
+      saveAndRender();
+    };
+
+    let editingCalDateStr = null;
+    let selectedCalModalType = 'work_full';
+
+    window.openCalendarDayModal = (dateStr) => {
+      editingCalDateStr = dateStr;
+      const [yStr, mStr, dStr] = dateStr.split('-');
+      const mIdx = Number(mStr) - 1;
+      const dNum = Number(dStr);
+      const info = getEffectiveCalendarDayInfo(yStr, mIdx, dNum);
+
+      const dtObj = new Date(Number(yStr), mIdx, dNum);
+      const formattedTitle = dtObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+      document.getElementById('calDayModalTitle').textContent = formattedTitle;
+
+      const fullShiftRate = info.isFriday ? (state.settings.fRate || 630) : (state.settings.mtRate || 780);
+      document.getElementById('calModalFullShiftSub').textContent = info.isFriday ? `6hr Fri ($${fullShiftRate})` : `8hr M–T ($${fullShiftRate})`;
+
+      const statBanner = document.getElementById('calDayStatHolidayBanner');
+      if (info.statHolidayName) {
+        statBanner.classList.remove('hidden');
+        document.getElementById('calDayStatHolidayName').textContent = `Ontario Statutory Holiday: ${info.statHolidayName}`;
+      } else {
+        statBanner.classList.add('hidden');
+      }
+
+      const isFutureSync = isFutureUnworkedMonth(yStr, mIdx);
+      const hintEl = document.getElementById('calDayFutureSyncHint');
+      if (isFutureSync) {
+        hintEl.textContent = `Future Unworked Month: Saving changes to this date will automatically update ${dtObj.toLocaleDateString('en-US', { month: 'short' })} ${yStr}'s target days and target dollar amount in your Ledger.`;
+      } else {
+        hintEl.textContent = `Worked / Current Month: Saving tags this date on your Calendar & Time-Off charts without altering your historical Ledger target.`;
+      }
+
+      document.getElementById('calDayNoteInput').value = info.note || '';
+      window.selectCalDayType(info.type === 'stat' || info.type === 'weekend' ? 'off' : info.type);
+      document.getElementById('calendarDayModal').classList.remove('hidden');
+    };
+
+    window.selectCalDayType = (typeKey) => {
+      selectedCalModalType = typeKey;
+      document.querySelectorAll('.cal-type-btn').forEach(btn => {
+        const isSel = btn.getAttribute('data-cal-type') === typeKey;
+        btn.classList.toggle('ring-2', isSel);
+        btn.classList.toggle('ring-brand-500', isSel);
+        btn.classList.toggle('bg-brand-500/15', isSel);
+      });
+    };
+
+    window.closeCalendarDayModal = () => {
+      editingCalDateStr = null;
+      document.getElementById('calendarDayModal').classList.add('hidden');
+    };
+
+    window.saveCalendarDayModal = () => {
+      if (!editingCalDateStr) return;
+      ensureLayoutsValid();
+      const note = document.getElementById('calDayNoteInput').value.trim();
+      state.calendarDays[editingCalDateStr] = {
+        type: selectedCalModalType,
+        note
+      };
+      const [yStr, mStr] = editingCalDateStr.split('-');
+      const mIdx = Number(mStr) - 1;
+      // Automatically cross-check & update Ledger Target if this is a future unworked month
+      syncFutureMonthCalendarToLedger(yStr, mIdx);
+      window.closeCalendarDayModal();
+      saveAndRender();
+    };
+
+    window.resetCalendarDayDefault = () => {
+      if (!editingCalDateStr) return;
+      ensureLayoutsValid();
+      const [yStr, mStr] = editingCalDateStr.split('-');
+      const mIdx = Number(mStr) - 1;
+      delete state.calendarDays[editingCalDateStr];
+      syncFutureMonthCalendarToLedger(yStr, mIdx);
+      window.closeCalendarDayModal();
+      saveAndRender();
+    };
+
     function renderRecordsPage() {
       if (activePage !== 'pageRecords') return;
       ensureLayoutsValid();
@@ -2501,6 +3302,7 @@
     }
 
     window.setConeQuarter = (qk) => { state.coneQuarter = qk; saveAndRender(); };
+    window.setTimeOffChartMode = (mode) => { state.timeOffChartMode = mode; saveAndRender(); };
 
     function getMonthRemainingDaysAndTarget(mCalc, mIdx, lastActiveIdx) {
       const schedDays = (mCalc.mtDays + mCalc.fDays) || 0;
@@ -2587,7 +3389,6 @@
           options: { responsive: true, maintainAspectRatio: false, scales: noGridScale }
         });
       } else if (chartKey === 'dailyAvg') {
-        // Task 9: Streamlined Vacation Planner Tooltip (shows only Historical Avg Daily Net)
         const histStats = computeHistoricalMonthlyDailyAverages();
         chartsObj[canvasId] = new Chart(canvasEl, {
           type: 'bar',
@@ -2627,7 +3428,6 @@
           }
         });
       } else if (chartKey === 'patients') {
-        // Task 8: Match Chart 1 colors (rgba(99, 102, 241, 0.8) bars + #f59e0b line)
         chartsObj[canvasId] = new Chart(canvasEl, {
           type: 'bar',
           data: { labels, datasets: [
@@ -2823,6 +3623,102 @@
               </div></div>`;
           }).join('');
         }
+      } else if (chartKey === 'timeOffBreakdown') {
+        // Task 5: Time-Off & Absence Breakdown Chart (Yearly vs Monthly Avg Toggle)
+        const toMode = state.timeOffChartMode || 'yearly';
+        const yrBtn = document.getElementById('timeOffModeYearlyBtn');
+        const mthBtn = document.getElementById('timeOffModeMonthlyBtn');
+        if (yrBtn && mthBtn) {
+          yrBtn.className = toMode === 'yearly' ? 'px-2 py-0.5 rounded-md bg-brand-600 text-white shadow-sm transition' : 'px-2 py-0.5 rounded-md text-slate-500 dark:text-slate-400 transition';
+          mthBtn.className = toMode === 'monthly_avg' ? 'px-2 py-0.5 rounded-md bg-brand-600 text-white shadow-sm transition' : 'px-2 py-0.5 rounded-md text-slate-500 dark:text-slate-400 transition';
+        }
+
+        const sortedYears = Object.keys(state.years || {}).sort();
+        if (toMode === 'yearly') {
+          const vacArr = [], sickArr = [], evtArr = [], halfArr = [];
+          sortedYears.forEach(yr => {
+            let v = 0, s = 0, e = 0, h = 0;
+            for (let m = 0; m < 12; m++) {
+              const st = getCalendarMonthStats(yr, m);
+              v += st.vacationCount; s += st.sickCount; e += st.eventCount; h += st.halfTotalCount;
+            }
+            vacArr.push(v); sickArr.push(s); evtArr.push(e); halfArr.push(h);
+          });
+          chartsObj[canvasId] = new Chart(canvasEl, {
+            type: 'bar',
+            data: {
+              labels: sortedYears,
+              datasets: [
+                { label: 'Vacation Days', data: vacArr, backgroundColor: 'rgba(16, 185, 129, 0.85)', borderRadius: 4 },
+                { label: 'Sick / Personal', data: sickArr, backgroundColor: 'rgba(245, 158, 11, 0.85)', borderRadius: 4 },
+                { label: 'CE / Events', data: evtArr, backgroundColor: 'rgba(168, 85, 247, 0.85)', borderRadius: 4 },
+                { label: '4-Hr Half Days', data: halfArr, backgroundColor: 'rgba(56, 189, 248, 0.85)', borderRadius: 4 }
+              ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true, grid: { display: false }, ticks: { color: '#94a3b8' } }, y: { stacked: true, grid: { display: false }, ticks: { color: '#94a3b8' } } } }
+          });
+        } else {
+          const mNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+          const vacM = [], sickM = [], evtM = [], halfM = [];
+          const yrCount = Math.max(1, sortedYears.length);
+          for (let m = 0; m < 12; m++) {
+            let v = 0, s = 0, e = 0, h = 0;
+            sortedYears.forEach(yr => {
+              const st = getCalendarMonthStats(yr, m);
+              v += st.vacationCount; s += st.sickCount; e += st.eventCount; h += st.halfTotalCount;
+            });
+            vacM.push(Number((v / yrCount).toFixed(2)));
+            sickM.push(Number((s / yrCount).toFixed(2)));
+            evtM.push(Number((e / yrCount).toFixed(2)));
+            halfM.push(Number((h / yrCount).toFixed(2)));
+          }
+          chartsObj[canvasId] = new Chart(canvasEl, {
+            type: 'bar',
+            data: {
+              labels: mNames,
+              datasets: [
+                { label: 'Avg Vacation / Mth', data: vacM, backgroundColor: 'rgba(16, 185, 129, 0.85)', borderRadius: 4 },
+                { label: 'Avg Sick / Mth', data: sickM, backgroundColor: 'rgba(245, 158, 11, 0.85)', borderRadius: 4 },
+                { label: 'Avg CE / Mth', data: evtM, backgroundColor: 'rgba(168, 85, 247, 0.85)', borderRadius: 4 },
+                { label: 'Avg 4-Hr Half / Mth', data: halfM, backgroundColor: 'rgba(56, 189, 248, 0.85)', borderRadius: 4 }
+              ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true, grid: { display: false }, ticks: { color: '#94a3b8' } }, y: { stacked: true, grid: { display: false }, ticks: { color: '#94a3b8' } } } }
+          });
+        }
+      } else if (chartKey === 'daysWorkedTrend') {
+        // Task 5: Annual Days Worked & Shift Pacing Historical Trend Chart
+        const sortedYears = Object.keys(state.years || {}).sort();
+        const workedArr = [], schedArr = [], avgDaysMthArr = [];
+        sortedYears.forEach(yr => {
+          const ym = getYearMetrics(yr, 11);
+          const monthsArr = state.years[yr] || [];
+          const totSched = monthsArr.reduce((acc, m) => acc + (Number(m.mtDays) || 0) + (Number(m.fDays) || 0), 0);
+          workedArr.push(Number(ym.ytdDaysWorked.toFixed(2)));
+          schedArr.push(Number(totSched.toFixed(2)));
+          avgDaysMthArr.push(Number(ym.avgDaysPerMth.toFixed(2)));
+        });
+
+        chartsObj[canvasId] = new Chart(canvasEl, {
+          type: 'bar',
+          data: {
+            labels: sortedYears,
+            datasets: [
+              { label: 'Total Days Worked', data: workedArr, backgroundColor: 'rgba(99, 102, 241, 0.85)', borderRadius: 6, yAxisID: 'y' },
+              { label: 'Scheduled Shifts (M–T + Fri)', data: schedArr, backgroundColor: 'rgba(148, 163, 184, 0.35)', borderRadius: 6, yAxisID: 'y' },
+              { label: 'Avg Days Worked / Active Month', data: avgDaysMthArr, type: 'line', borderColor: '#f59e0b', backgroundColor: '#f59e0b', borderWidth: 2.5, pointRadius: 4, yAxisID: 'y1' }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { grid: { display: false }, ticks: { color: '#94a3b8' } },
+              y: { position: 'left', grid: { display: false }, ticks: { color: '#94a3b8' } },
+              y1: { position: 'right', grid: { display: false, drawOnChartArea: false }, ticks: { color: '#94a3b8' } }
+            }
+          }
+        });
       }
     }
 
@@ -2855,6 +3751,8 @@
       renderSingleChartCanvas('forecastCone', 'chartPageForecastCone');
       renderSingleChartCanvas('annualSalaryCone', 'chartPageAnnualSalaryCone');
       renderSingleChartCanvas('quarterSeasonality', 'chartPageQuarterSeasonality');
+      renderSingleChartCanvas('timeOffBreakdown', 'chartPageTimeOffBreakdown');
+      renderSingleChartCanvas('daysWorkedTrend', 'chartPageDaysWorkedTrend');
     }
 
     function updateDriveSettingsLabels() {
@@ -2870,6 +3768,7 @@
       if (!currentUser) return;
       ensureLayoutsValid();
       syncRecordHighWithBaselineAndLogs();
+      syncAllFutureMonthsInYearWithCustomEntries(state.currentYear);
       renderNavigationBars();
       populateYearControls();
       updateDriveSettingsLabels();
@@ -2879,11 +3778,14 @@
         renderLedgerTable();
         renderChart();
         renderDailyLogs();
+        renderHomeCalendarBlock();
         applyDashboardLayoutAndControls();
       } else if (activePage === 'pageRecords') {
         renderRecordsPage();
       } else if (activePage === 'pageCharts') {
         renderChartsPage();
+      } else if (activePage === 'pageCalendar') {
+        renderCalendarPage();
       }
     }
 
@@ -2983,7 +3885,6 @@
       saveAndRender();
     };
 
-    // Task 14: Clean Shift Worked dropdown labels (no dollar amounts next to shift length)
     function populateShiftDropdownLabels() {
       const mtR = Number(state.settings.mtRate) || 780;
       const fR = Number(state.settings.fRate) || 630;
