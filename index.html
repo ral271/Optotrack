@@ -31,10 +31,19 @@
   </script>
   <style>
     body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+    body.modal-open { overflow: hidden; }
     .mono { font-family: 'JetBrains Mono', monospace; }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.3); border-radius: 3px; }
+    /* Task 2: Windows smooth modal scrolling (eliminates backdrop-filter wheel jitter on Windows) */
+    .modal-scroll-pane {
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+      transform: translateZ(0);
+      will-change: scroll-position;
+      scrollbar-gutter: stable;
+    }
     .bm-pill { position: relative; cursor: help; white-space: nowrap; flex-shrink: 0; }
     .bm-pill .bm-tooltip {
       visibility: hidden; opacity: 0; position: absolute; bottom: 130%; right: 0;
@@ -567,10 +576,11 @@
                   <span>Clinic Schedule & Vacation Pacing</span>
                   <span id="homeCalHeatmapBadge"></span>
                 </h2>
-                <p id="homeCalSyncStatusText" class="text-xs text-slate-500">Click any date to adjust shift hours, pay classification, or add multiple events.</p>
+                <p id="homeCalSyncStatusText" class="text-xs text-slate-500">Click any date to adjust shift hours, pay classification (8hr/6hr/4hr), or add multiple events.</p>
               </div>
             </div>
-            <div class="flex items-center gap-2 self-start sm:self-center">
+            <div class="flex flex-wrap items-center gap-2 self-start sm:self-center">
+              <button onclick="window.syncCalendarToGoogle('month')" class="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-sky-500/15 text-sky-500 hover:bg-sky-600 hover:text-white border border-sky-500/30 transition" title="Sync displayed month to Google Calendar">📅 Sync Month</button>
               <div class="inline-flex items-center rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-0.5 text-xs font-bold">
                 <button onclick="window.stepCalendarMonth(-1)" class="px-2.5 py-1 rounded-lg hover:bg-white dark:hover:bg-slate-700 transition">◀</button>
                 <span id="homeCalMonthTitle" class="px-3 py-1 mono min-w-[115px] text-center">Oct 2026</span>
@@ -677,7 +687,7 @@
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
               <div>
                 <h3 class="font-bold text-sm sm:text-base">Historical Quarterly Seasonality — Average Quarterly Earnings (Full Quarters Only)</h3>
-                <p class="text-xs text-slate-500">Compares average 24% Net & Bonus across Q1–Q4 (automatically excludes pre-start / partial quarters with &lt;3 active months).</p>
+                <p class="text-xs text-slate-500">Compares average 24% Net & Bonus across Q1–Q4 (automatically excludes pre-start / partial quarters with less than 3 active months).</p>
               </div>
               <span id="bestSeasonalityBadge" class="self-start sm:self-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">Top Quarter: —</span>
             </div>
@@ -685,22 +695,22 @@
             <div id="seasonalitySummaryCards" class="grid grid-cols-1 sm:grid-cols-4 gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-xs"></div>
           </div>
 
-          <!-- Time-Off & Absence Breakdown Chart (Smooth in-place toggle + Active-year filtering + Scroll protection) -->
+          <!-- Task 3: Time-Off & Absence Breakdown Chart (Zero scroll-jump toggle + Active-year filtering + Scroll protection) -->
           <div id="chartBlock_timeOffBreakdown" data-chart-id="timeOffBreakdown" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm min-w-0">
             <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
               <h3 class="font-bold text-sm sm:text-base">Time-Off & Absence Breakdown</h3>
               <div class="inline-flex rounded-lg p-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] font-bold">
-                <button id="timeOffModeYearlyBtn" type="button" onclick="window.setTimeOffChartMode('yearly')" class="px-2 py-0.5 rounded-md transition">By Year</button>
-                <button id="timeOffModeMonthlyBtn" type="button" onclick="window.setTimeOffChartMode('monthly_avg')" class="px-2 py-0.5 rounded-md transition">Monthly Avg</button>
+                <button id="timeOffModeYearlyBtn" type="button" onclick="window.setTimeOffChartMode('yearly', event)" class="px-2 py-0.5 rounded-md transition">By Year</button>
+                <button id="timeOffModeMonthlyBtn" type="button" onclick="window.setTimeOffChartMode('monthly_avg', event)" class="px-2 py-0.5 rounded-md transition">Monthly Avg</button>
               </div>
             </div>
-            <p class="text-xs text-slate-500 mb-4">Tracks Vacation, Sick, CE/Events, and 4-Hr Half Days across active years.</p>
+            <p class="text-xs text-slate-500 mb-4">Tracks Vacation, Sick, CE/Events, Clinic Closed, and 4-Hr Half Days across active years.</p>
             <div class="overflow-x-auto pb-1">
               <div id="wrap_chartPageTimeOffBreakdown" class="h-64 min-w-full"><canvas id="chartPageTimeOffBreakdown"></canvas></div>
             </div>
           </div>
 
-          <!-- Streamlined Annual Days Worked & Pacing Trend Chart (Single bar for Days Worked + Avg Days/Mth line) -->
+          <!-- Streamlined Annual Days Worked & Pacing Trend Chart -->
           <div id="chartBlock_daysWorkedTrend" data-chart-id="daysWorkedTrend" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm min-w-0">
             <h3 class="font-bold text-sm sm:text-base mb-1">Annual Days Worked & Pacing Trend</h3>
             <p class="text-xs text-slate-500 mb-4">Total Days Worked per year vs. Average Days Worked / Active Month across worked years.</p>
@@ -709,7 +719,7 @@
             </div>
           </div>
 
-          <!-- Confirmed Annual Taxes Paid Historical Chart (Stacked Federal, Provincial, Corporate + Eff Rate) -->
+          <!-- Confirmed Annual Taxes Paid Historical Chart -->
           <div id="chartBlock_taxesPaidHistory" data-chart-id="taxesPaidHistory" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm min-w-0">
             <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
               <h3 class="font-bold text-sm sm:text-base">Annual Taxes Paid Breakdown (Fed / Prov / Corp)</h3>
@@ -744,8 +754,15 @@
               <span id="fullCalHeatmapBadge"></span>
             </div>
             <p id="fullCalLedgerSyncNotice" class="text-slate-500 mt-1 text-xs sm:text-sm">Ontario Statutory Holidays are pre-populated automatically. Click any day to adjust start/end times, pay classification (8hr/6hr/4hr), or add multiple events.</p>
+            <div id="gcalSyncStatusBanner" class="hidden mt-2 p-2.5 rounded-xl bg-sky-500/10 border border-sky-500/30 text-sky-400 text-xs font-semibold"></div>
           </div>
-          <div class="flex items-center gap-2 self-start md:self-center">
+          <div class="flex flex-wrap items-center gap-2 self-start md:self-center">
+            <button onclick="window.syncCalendarToGoogle('month')" id="syncGcalMonthBtn" class="px-3 py-2 rounded-xl text-xs font-bold bg-sky-600 hover:bg-sky-500 text-white shadow-sm transition flex items-center gap-1.5" title="Sync this month's shifts & days off to Google Calendar (Skips Stat Holidays)">
+              <span>📅 Sync Month to Google Cal</span>
+            </button>
+            <button onclick="window.syncCalendarToGoogle('year')" id="syncGcalYearBtn" class="px-3 py-2 rounded-xl text-xs font-semibold bg-sky-500/15 text-sky-400 hover:bg-sky-600 hover:text-white border border-sky-500/30 transition" title="Sync entire year to Google Calendar">
+              <span>Sync Full Year</span>
+            </button>
             <button onclick="window.jumpCalendarToToday()" class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-brand-500/15 border border-slate-200 dark:border-slate-700 transition">Today</button>
             <div class="inline-flex items-center rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-1 shadow-sm text-xs font-bold">
               <button onclick="window.stepCalendarMonth(-1)" class="px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition">◀</button>
@@ -793,8 +810,8 @@
   </div><!-- END PROTECTED APP SHELL -->
 
   <!-- ADVANCED OPTOMETRY PRACTICE CRA TAX ESTIMATOR & ANNUAL RECONCILIATION MODAL -->
-  <div id="taxEstimatorModal" onclick="if(event.target===this) window.closeTaxEstimatorModal()" class="fixed inset-0 z-50 hidden bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
-    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-4xl w-full p-4 sm:p-6 space-y-5 max-h-[92vh] overflow-y-auto shadow-2xl">
+  <div id="taxEstimatorModal" onclick="if(event.target===this) window.closeTaxEstimatorModal()" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center p-3 sm:p-4">
+    <div class="modal-scroll-pane bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-4xl w-full p-4 sm:p-6 space-y-5 max-h-[92vh] overflow-y-auto shadow-2xl">
       <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
         <div>
           <div class="flex items-center gap-2">
@@ -862,7 +879,7 @@
             </div>
           </div>
 
-          <!-- Professional Corporation Salary vs Dividend Controls (Shown when Corp mode active) -->
+          <!-- Professional Corporation Salary vs Dividend Controls -->
           <div id="taxCorpControlsBox" class="hidden pt-3 border-t border-slate-200 dark:border-slate-700 space-y-2.5">
             <h5 class="font-bold text-purple-400 uppercase text-[10px] tracking-wider">Ontario Professional Corporation (12.2% Small Business Rate)</h5>
             <div class="grid grid-cols-2 gap-3">
@@ -881,7 +898,7 @@
           <div id="taxDetailedBreakdownBox" class="pt-3 border-t border-slate-200 dark:border-slate-700 space-y-1.5 text-[11px]"></div>
         </div>
 
-        <!-- Right Column: Year-End Manual Confirmation & Lock (Gross Salary, Federal, Provincial, Corporate, Take-Home) -->
+        <!-- Right Column: Year-End Manual Confirmation & Lock -->
         <div class="space-y-4 bg-slate-50 dark:bg-slate-800/40 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between">
           <div class="space-y-3">
             <div class="flex items-center justify-between">
@@ -893,7 +910,7 @@
             <div class="grid grid-cols-2 gap-3">
               <div class="col-span-2">
                 <label class="block font-semibold mb-1 text-slate-500">Confirmed Annual Gross Salary ($)</label>
-                <input type="number" step="0.01" id="taxConfirmGross" oninput="window.onTaxInputChanged()" placeholder="Leave blank to use live formula (Daily Avg × Shifts)" class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono font-semibold" />
+                <input type="number" step="0.01" id="taxConfirmGross" oninput="window.onTaxInputChanged()" placeholder="Leave blank to use live formula" class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono font-semibold" />
               </div>
               <div>
                 <label class="block font-semibold mb-1 text-slate-500">Confirmed Federal Tax ($)</label>
@@ -931,46 +948,55 @@
     </div>
   </div>
 
-  <!-- CALENDAR DAY SHIFT TIME OVERRIDES, PAY CLASSIFICATION (8HR/6HR/4HR) & MULTI-EVENT MODAL -->
-  <div id="calendarDayModal" onclick="if(event.target===this) window.closeCalendarDayModal()" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-lg w-full p-5 space-y-4 max-h-[90vh] overflow-y-auto shadow-2xl">
+  <!-- Task 4 & Task 5: CALENDAR DAY MODAL WITH EXPLICIT 8HR / 6HR / 4HR SHIFT BUTTONS + CLINIC CLOSED / NO PATIENTS -->
+  <div id="calendarDayModal" onclick="if(event.target===this) window.closeCalendarDayModal()" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center p-4">
+    <div class="modal-scroll-pane bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-lg w-full p-5 space-y-4 max-h-[90vh] overflow-y-auto shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
         <div>
           <h3 id="calDayModalTitle" class="font-bold text-lg">Edit Clinic Day</h3>
-          <p id="calDayModalSub" class="text-xs text-slate-500">Customize shift times, pay classification & multiple events</p>
+          <p id="calDayModalSub" class="text-xs text-slate-500">Select shift length (8hr/6hr/4hr), day off, or Clinic Closed</p>
         </div>
         <button onclick="window.closeCalendarDayModal()" class="p-1 text-slate-400 hover:text-white">✕</button>
       </div>
 
       <div id="calDayStatHolidayBanner" class="hidden p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-semibold flex items-center gap-2">
         <span>🍁</span>
-        <span id="calDayStatHolidayName">Ontario Statutory Holiday</span>
+        <span id="calDayStatHolidayName">Ontario Statutory Holiday (Skipped during Google Calendar Sync)</span>
       </div>
 
-      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs" id="calDayStatusButtons">
-        <button type="button" onclick="window.selectCalDayType('work_full')" data-cal-type="work_full" class="cal-type-btn p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-left font-bold flex items-center gap-2 hover:bg-brand-500/10 transition">
+      <!-- Task 4 & 5: Explicit 8hr, 6hr, 4hr shift options on ANY weekday + Clinic Closed / No Patients -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs" id="calDayStatusButtons">
+        <button type="button" onclick="window.selectCalDayType('work_8h', 8)" data-cal-btn="work_8h" class="cal-type-btn p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-left font-bold flex items-center gap-2 hover:bg-brand-500/10 transition">
           <span class="w-2.5 h-2.5 rounded-full bg-brand-500 shrink-0"></span>
-          <div><div>Full Shift</div><div id="calModalFullShiftSub" class="text-[10px] text-slate-400 font-normal">8hr M–T / 6hr Fri</div></div>
+          <div class="min-w-0"><div class="truncate">8-Hr Shift</div><div id="calBtn8hSub" class="text-[10px] text-slate-400 font-normal truncate">$780 Target</div></div>
         </button>
-        <button type="button" onclick="window.selectCalDayType('half')" data-cal-type="half" class="cal-type-btn p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-left font-bold flex items-center gap-2 hover:bg-sky-500/10 transition">
+        <button type="button" onclick="window.selectCalDayType('work_6h', 6)" data-cal-btn="work_6h" class="cal-type-btn p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-left font-bold flex items-center gap-2 hover:bg-indigo-500/10 transition">
+          <span class="w-2.5 h-2.5 rounded-full bg-indigo-400 shrink-0"></span>
+          <div class="min-w-0"><div class="truncate">6-Hr Shift</div><div id="calBtn6hSub" class="text-[10px] text-slate-400 font-normal truncate">$630 Target</div></div>
+        </button>
+        <button type="button" onclick="window.selectCalDayType('half', 4)" data-cal-btn="half" class="cal-type-btn p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-left font-bold flex items-center gap-2 hover:bg-sky-500/10 transition">
           <span class="w-2.5 h-2.5 rounded-full bg-sky-400 shrink-0"></span>
-          <div><div>4-Hr Half Day</div><div class="text-[10px] text-slate-400 font-normal">$480 Target</div></div>
+          <div class="min-w-0"><div class="truncate">4-Hr Half</div><div id="calBtn4hSub" class="text-[10px] text-slate-400 font-normal truncate">$480 Target</div></div>
         </button>
-        <button type="button" onclick="window.selectCalDayType('vacation')" data-cal-type="vacation" class="cal-type-btn p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-left font-bold flex items-center gap-2 hover:bg-emerald-500/10 transition">
+        <button type="button" onclick="window.selectCalDayType('closed', 0)" data-cal-btn="closed" class="cal-type-btn p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-left font-bold flex items-center gap-2 hover:bg-rose-500/10 transition">
+          <span class="w-2.5 h-2.5 rounded-full bg-rose-400 shrink-0"></span>
+          <div class="min-w-0"><div class="truncate">Clinic Closed</div><div class="text-[10px] text-slate-400 font-normal truncate">No Patients</div></div>
+        </button>
+        <button type="button" onclick="window.selectCalDayType('vacation', 0)" data-cal-btn="vacation" class="cal-type-btn p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-left font-bold flex items-center gap-2 hover:bg-emerald-500/10 transition">
           <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
-          <div><div>Vacation Day</div><div class="text-[10px] text-slate-400 font-normal">Planned Time Off</div></div>
+          <div class="min-w-0"><div class="truncate">Vacation</div><div class="text-[10px] text-slate-400 font-normal truncate">Time Off</div></div>
         </button>
-        <button type="button" onclick="window.selectCalDayType('sick')" data-cal-type="sick" class="cal-type-btn p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-left font-bold flex items-center gap-2 hover:bg-amber-500/10 transition">
+        <button type="button" onclick="window.selectCalDayType('sick', 0)" data-cal-btn="sick" class="cal-type-btn p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-left font-bold flex items-center gap-2 hover:bg-amber-500/10 transition">
           <span class="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0"></span>
-          <div><div>Sick / Personal</div><div class="text-[10px] text-slate-400 font-normal">Absence</div></div>
+          <div class="min-w-0"><div class="truncate">Sick Day</div><div class="text-[10px] text-slate-400 font-normal truncate">Personal</div></div>
         </button>
-        <button type="button" onclick="window.selectCalDayType('event')" data-cal-type="event" class="cal-type-btn p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-left font-bold flex items-center gap-2 hover:bg-purple-500/10 transition">
+        <button type="button" onclick="window.selectCalDayType('event', 0)" data-cal-btn="event" class="cal-type-btn p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-left font-bold flex items-center gap-2 hover:bg-purple-500/10 transition">
           <span class="w-2.5 h-2.5 rounded-full bg-purple-500 shrink-0"></span>
-          <div><div>CE / Clinic Event</div><div class="text-[10px] text-slate-400 font-normal">Conference / Meeting</div></div>
+          <div class="min-w-0"><div class="truncate">CE / Event</div><div class="text-[10px] text-slate-400 font-normal truncate">Seminar</div></div>
         </button>
-        <button type="button" onclick="window.selectCalDayType('off')" data-cal-type="off" class="cal-type-btn p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-left font-bold flex items-center gap-2 hover:bg-slate-500/10 transition">
+        <button type="button" onclick="window.selectCalDayType('off', 0)" data-cal-btn="off" class="cal-type-btn p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-left font-bold flex items-center gap-2 hover:bg-slate-500/10 transition">
           <span class="w-2.5 h-2.5 rounded-full bg-slate-400 shrink-0"></span>
-          <div><div>Regular Day Off</div><div class="text-[10px] text-slate-400 font-normal">Unscheduled</div></div>
+          <div class="min-w-0"><div class="truncate">Day Off</div><div class="text-[10px] text-slate-400 font-normal truncate">Unscheduled</div></div>
         </button>
       </div>
 
@@ -985,9 +1011,9 @@
             <label class="block font-semibold mb-1 text-slate-500">Pay Classification</label>
             <select id="calDayPayHoursSelect" onchange="window.onCalPayHoursSelectChange(this.value)" class="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 font-bold mono">
               <option value="8">8-Hr Full Day ($780)</option>
-              <option value="6">6-Hr Fri Shift ($630)</option>
+              <option value="6">6-Hr Shift ($630)</option>
               <option value="4">4-Hr Half Day ($480)</option>
-              <option value="0">0-Hr (Time Off / Event)</option>
+              <option value="0">0-Hr (Time Off / Closed)</option>
             </select>
           </div>
           <div>
@@ -999,12 +1025,12 @@
             <input type="time" id="calDayEndTime" class="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono font-semibold" />
           </div>
         </div>
-        <p class="text-[10px] text-slate-400">Clock times can be longer/shorter than 8h (e.g. leaving early or 8:30–5:30) while Pay Classification controls your ledger target.</p>
+        <p class="text-[10px] text-slate-400">Work days sync to Google Calendar as <b>"Work"</b> with your clinic location. Days off (Vacation, Sick, Clinic Closed) sync from <b>08:00–08:01 AM</b> so they never clash with personal plans.</p>
       </div>
 
       <div class="text-xs">
         <label class="block font-semibold mb-1 text-slate-500">Primary Day Note (optional)</label>
-        <input type="text" id="calDayNoteInput" placeholder="e.g. Leaving at 4:00 PM, Halifax Trip..." class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700" />
+        <input type="text" id="calDayNoteInput" placeholder="e.g. Leaving at 4:00 PM, Clinic Closed..." class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700" />
       </div>
 
       <!-- Multiple Events per Day Section -->
@@ -1035,7 +1061,7 @@
   </div>
 
   <!-- MOBILE "MORE" ACTION SHEET DRAWER -->
-  <div id="mobileMoreSheet" onclick="if(event.target===this) window.closeMobileMoreSheet()" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-end justify-center md:hidden">
+  <div id="mobileMoreSheet" onclick="if(event.target===this) window.closeMobileMoreSheet()" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-end justify-center md:hidden">
     <div class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 rounded-t-3xl w-full p-5 space-y-3 shadow-2xl">
       <div class="w-10 h-1 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto mb-1"></div>
       <div class="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
@@ -1068,7 +1094,7 @@
   </div>
 
   <!-- SCALABLE BENCHMARK COMPARISON PICKER MODAL -->
-  <div id="benchmarkModal" onclick="if(event.target===this) window.closeBenchmarkModal()" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+  <div id="benchmarkModal" onclick="if(event.target===this) window.closeBenchmarkModal()" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-sm w-full p-5 space-y-4 shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
         <div>
@@ -1089,7 +1115,7 @@
   </div>
 
   <!-- YEAR PICKER & ADD YEAR POPUP MODAL -->
-  <div id="yearPickerModal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+  <div id="yearPickerModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-sm w-full p-5 space-y-4">
       <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
         <div>
@@ -1106,8 +1132,8 @@
   </div>
 
   <!-- MONTH EDIT MODAL -->
-  <div id="monthModal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-lg w-full p-5 space-y-4 max-h-[90vh] overflow-y-auto">
+  <div id="monthModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center p-4">
+    <div class="modal-scroll-pane bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-lg w-full p-5 space-y-4 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-3"><h3 id="monthModalTitle" class="font-bold text-lg">Edit Month</h3><button onclick="window.closeMonthModal()">✕</button></div>
       <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
         <div><label class="block font-semibold mb-1 text-slate-500"># M–T (8hr) Shifts</label><input type="number" step="0.5" id="editMtDays" oninput="window.updateMonthModalFormulaPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
@@ -1132,7 +1158,7 @@
   </div>
 
   <!-- QUARTER MODAL -->
-  <div id="quarterModal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+  <div id="quarterModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-5 space-y-4">
       <div class="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-3"><h3 id="quarterModalTitle" class="font-bold text-lg">Reconcile Quarter</h3><button onclick="window.closeQuarterModal()">✕</button></div>
       <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs space-y-1">
@@ -1153,8 +1179,8 @@
   </div>
 
   <!-- DAILY LOG MODAL -->
-  <div id="dailyLogModal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-lg w-full p-5 space-y-4 max-h-[90vh] overflow-y-auto">
+  <div id="dailyLogModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center p-4">
+    <div class="modal-scroll-pane bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-lg w-full p-5 space-y-4 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-3"><h3 class="font-bold text-lg">Log Clinic Day (EMR MTD)</h3><button onclick="window.closeDailyLogModal()">✕</button></div>
       <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
         <div><label class="block font-semibold mb-1 text-slate-500">Date</label><input type="date" id="logDate" onchange="window.onLogDateChange()" class="w-full px-2.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 font-semibold" /></div>
@@ -1206,7 +1232,7 @@
   </div>
 
   <!-- EDIT LOG MODAL -->
-  <div id="editLogModal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+  <div id="editLogModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-5 space-y-4">
       <div class="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-3"><h3 class="font-bold text-lg">Edit Logged Shift</h3><button onclick="window.closeEditLogModal()">✕</button></div>
       <div class="grid grid-cols-2 gap-3 text-xs">
@@ -1243,7 +1269,7 @@
   </div>
 
   <!-- RECORD BASELINE MODAL -->
-  <div id="recordModal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+  <div id="recordModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-sm w-full p-5 space-y-4">
       <div class="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-3"><h3 class="font-bold text-lg">Manual Baseline Daily Gross Record</h3><button onclick="window.closeRecordModal()">✕</button></div>
       <p class="text-[11px] text-slate-400">Sets your historical baseline record. If a future logged shift breaks this record and is later deleted, OptoTrack automatically reverts back to this baseline.</p>
@@ -1260,7 +1286,7 @@
   </div>
 
   <!-- EXTRAS MODAL -->
-  <div id="extrasModal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+  <div id="extrasModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-sm w-full p-5 space-y-4">
       <div class="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-3"><h3 class="font-bold text-lg">Health Spending & Paid Bonus</h3><button onclick="window.closeExtrasModal()">✕</button></div>
       <div class="space-y-3 text-xs">
@@ -1274,9 +1300,9 @@
     </div>
   </div>
 
-  <!-- UNIFIED SETTINGS MODAL WITH DEFAULT SHIFT CLOCK HOURS & CLINIC LOCATION -->
-  <div id="settingsModal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-5 space-y-5 max-h-[90vh] overflow-y-auto">
+  <!-- Task 2: UNIFIED SETTINGS MODAL WITH WINDOWS SMOOTH SCROLLING + GOOGLE CALENDAR SYNC -->
+  <div id="settingsModal" onclick="if(event.target===this) window.closeSettingsModal()" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center p-4">
+    <div class="modal-scroll-pane bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-5 space-y-5 max-h-[90vh] overflow-y-auto shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
         <div>
           <h3 class="font-bold text-lg">Settings & Data Management</h3>
@@ -1310,7 +1336,7 @@
       <!-- Default Clinic Shift Clock Hours & Location -->
       <div class="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-3 text-xs">
         <h4 class="font-bold uppercase tracking-wider text-[11px] text-emerald-500">Default Shift Clock Times & Clinic Location</h4>
-        <p class="text-[11px] text-slate-500">Used as defaults on your Calendar & Google Calendar export (clock duration does not alter 8hr/6hr/4hr pay targets).</p>
+        <p class="text-[11px] text-slate-500">Used as defaults on your Calendar & Google Calendar sync (clock duration does not alter 8hr/6hr/4hr pay targets).</p>
         <div>
           <label class="block font-semibold mb-1 text-slate-500">Clinic Name & Address (Location)</label>
           <input type="text" id="setClinicAddress" placeholder="Brockville Optometric Centre, Brockville, ON" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 font-medium" />
@@ -1357,8 +1383,8 @@
 
       <div class="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-3 text-xs">
         <div class="flex items-center justify-between">
-          <h4 class="font-bold uppercase tracking-wider text-[11px] text-sky-500">Automated Google Drive Backup</h4>
-          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/15 text-sky-500">Monthly Overwrite</span>
+          <h4 class="font-bold uppercase tracking-wider text-[11px] text-sky-500">Google Drive Backup & Google Calendar Sync</h4>
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/15 text-sky-500">OAuth 2.0</span>
         </div>
         <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700/70 space-y-1.5">
           <div class="flex items-center justify-between">
@@ -1366,21 +1392,26 @@
             <span id="lastDriveBackupLabel" class="mono font-bold text-slate-900 dark:text-slate-100">Never</span>
           </div>
           <div class="text-[11px] text-slate-500">
-            Updates <span class="mono font-semibold">OptoTrack_Backup.json</span> & <span class="mono font-semibold">OptoTrack_Master_Ledger.xlsx</span> in-place on Google Drive.
+            Updates <span class="mono font-semibold">OptoTrack_Backup.json</span> & <span class="mono font-semibold">OptoTrack_Master_Ledger.xlsx</span> on Drive, and powers direct Google Calendar shift sync.
           </div>
           <div id="driveSyncStatusMsg" class="hidden text-[11px] font-semibold pt-1"></div>
         </div>
         <div>
-          <label class="block font-semibold mb-1 text-slate-500">Target Personal Google Account Email (For Silent Auto-Backup)</label>
+          <label class="block font-semibold mb-1 text-slate-500">Target Personal Google Account Email</label>
           <input type="email" id="setBackupAccountEmail" placeholder="rolandlewis2812@gmail.com" onchange="window.saveBackupAccountEmail(this.value)" class="w-full px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 mono text-[11px]" />
         </div>
         <div>
           <label class="block font-semibold mb-1 text-slate-500">Google OAuth Client ID</label>
           <input type="text" id="setDriveClientId" placeholder="xxxx.apps.googleusercontent.com" onchange="window.saveDriveClientId(this.value)" class="w-full px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 mono text-[11px]" />
         </div>
-        <button onclick="window.triggerManualDriveBackup()" id="manualDriveBackupBtn" class="w-full py-2.5 rounded-xl font-bold bg-sky-600 hover:bg-sky-500 text-white shadow-sm transition flex items-center justify-center gap-2">
-          <span>☁️ Choose Google Account & Backup Now</span>
-        </button>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <button onclick="window.triggerManualDriveBackup()" id="manualDriveBackupBtn" class="py-2.5 px-3 rounded-xl font-bold bg-sky-600 hover:bg-sky-500 text-white shadow-sm transition flex items-center justify-center gap-1.5">
+            <span>☁️ Drive Backup Now</span>
+          </button>
+          <button onclick="window.syncCalendarToGoogle('month')" class="py-2.5 px-3 rounded-xl font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm transition flex items-center justify-center gap-1.5">
+            <span>📅 Sync Month to GCal</span>
+          </button>
+        </div>
       </div>
 
       <div class="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-3 text-xs">
@@ -1409,7 +1440,7 @@
   </div>
 
   <!-- ADD YEAR MODAL -->
-  <div id="addYearModal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+  <div id="addYearModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-sm w-full p-5 space-y-4">
       <div class="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
         <h3 class="font-bold text-lg">Add Tracking Year</h3>
@@ -1439,7 +1470,7 @@
   </div>
 
   <!-- CLOUD MODAL -->
-  <div id="cloudModal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+  <div id="cloudModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-5 space-y-4">
       <div class="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
         <div><h3 class="font-bold text-lg">Cloud Sync & Account</h3><p class="text-xs text-slate-500">Project: <span class="mono font-semibold text-brand-500">optotrack-tracker</span></p></div>
@@ -1472,12 +1503,25 @@
 
     const REMEMBER_EMAIL_KEY = 'optotrack_remembered_email';
     const DRIVE_TOKEN_KEY = 'optotrack_drive_access_token';
+    const GCAL_TOKEN_KEY = 'optotrack_gcal_access_token';
     const DRIVE_CLIENT_ID_KEY = 'optotrack_drive_client_id';
     const DRIVE_ACCOUNT_EMAIL_KEY = 'optotrack_drive_account_email';
     const THEME_MODE_KEY = 'optotrack_theme_mode';
     let driveAccessToken = sessionStorage.getItem(DRIVE_TOKEN_KEY) || null;
+    let gcalAccessToken = sessionStorage.getItem(GCAL_TOKEN_KEY) || null;
     let showAllYearLogs = false;
     let calendarMonthIdx = new Date().getMonth();
+    let skipNextRemoteRender = false;
+
+    // Task 2: Lock background scrolling when modals are open to prevent Windows wheel jitter
+    function syncBodyModalLock() {
+      const modalIds = ['taxEstimatorModal', 'calendarDayModal', 'mobileMoreSheet', 'benchmarkModal', 'yearPickerModal', 'monthModal', 'quarterModal', 'dailyLogModal', 'editLogModal', 'recordModal', 'extrasModal', 'settingsModal', 'addYearModal', 'cloudModal'];
+      const anyOpen = modalIds.some(id => {
+        const el = document.getElementById(id);
+        return el && !el.classList.contains('hidden');
+      });
+      document.body.classList.toggle('modal-open', anyOpen);
+    }
 
     const systemDarkQuery = window.matchMedia('(prefers-color-scheme: dark)');
     function applyEffectiveTheme(mode) {
@@ -1499,6 +1543,7 @@
       state.themeMode = next;
       localStorage.setItem(THEME_MODE_KEY, next);
       applyEffectiveTheme(next);
+      skipNextRemoteRender = true;
       pushStateToCloud();
     };
     applyEffectiveTheme(localStorage.getItem(THEME_MODE_KEY) || 'auto');
@@ -1530,8 +1575,8 @@
       }
     };
 
-    window.openMobileMoreSheet = () => document.getElementById('mobileMoreSheet')?.classList.remove('hidden');
-    window.closeMobileMoreSheet = () => document.getElementById('mobileMoreSheet')?.classList.add('hidden');
+    window.openMobileMoreSheet = () => { document.getElementById('mobileMoreSheet')?.classList.remove('hidden'); syncBodyModalLock(); };
+    window.closeMobileMoreSheet = () => { document.getElementById('mobileMoreSheet')?.classList.add('hidden'); syncBodyModalLock(); };
 
     let celebrationTimeout = null;
     window.triggerRecordCelebration = (brokenRecordsList = []) => {
@@ -1733,7 +1778,8 @@
         yearPaidExtras: { '2025': { health: 0, bonusPaid: 0 }, '2026': { health: 0, bonusPaid: 0 }, '2027': { health: 0, bonusPaid: 0 } },
         taxProfiles: { '2025': makeDefaultTaxYearObj(), '2026': makeDefaultTaxYearObj(), '2027': makeDefaultTaxYearObj() },
         dailyLogs: [],
-        calendarDays: {}
+        calendarDays: {},
+        gcalSyncedEvents: {}
       };
     }
 
@@ -1808,6 +1854,7 @@
         state.settings.shiftTimes = { start8h: '08:30', end8h: '17:00', start6h: '08:30', end6h: '15:00', start4h: '08:30', end4h: '12:30' };
       }
       if (!state.calendarDays || typeof state.calendarDays !== 'object') state.calendarDays = {};
+      if (!state.gcalSyncedEvents || typeof state.gcalSyncedEvents !== 'object') state.gcalSyncedEvents = {};
       if (!state.taxProfiles || typeof state.taxProfiles !== 'object') state.taxProfiles = {};
       Object.keys(state.years || {}).forEach(yr => {
         if (!state.taxProfiles[yr]) {
@@ -1978,12 +2025,20 @@
         type = customEntry.type;
         if (customEntry.payHours !== undefined && customEntry.payHours !== null) {
           payHours = Number(customEntry.payHours);
+        } else if (type === 'work_8h') {
+          payHours = 8;
+        } else if (type === 'work_6h') {
+          payHours = 6;
         } else if (type === 'work_full') {
           payHours = isFriday ? 6 : 8;
         } else if (type === 'half') {
           payHours = 4;
         } else {
           payHours = 0;
+        }
+        // Normalize work_8h / work_6h to work_full for styling while preserving exact 8hr/6hr payHours
+        if (type === 'work_8h' || type === 'work_6h') {
+          type = 'work_full';
         }
       } else if (loggedShift) {
         const sHrs = loggedShift.shiftHours !== undefined ? Number(loggedShift.shiftHours) : (isFriday ? 6 : 8);
@@ -2052,8 +2107,8 @@
     function getCalendarMonthStats(yearStr, monthIdx) {
       const y = Number(yearStr);
       const daysInMonth = new Date(y, monthIdx + 1, 0).getDate();
-      let fullMtCount = 0, fullFriCount = 0, halfMtCount = 0, halfFriCount = 0, weekendWorkCount = 0;
-      let vacationCount = 0, sickCount = 0, eventCount = 0, statCount = 0, halfTotalCount = 0;
+      let full8hCount = 0, full6hCount = 0, halfMtCount = 0, halfFriCount = 0;
+      let vacationCount = 0, sickCount = 0, eventCount = 0, closedCount = 0, statCount = 0, halfTotalCount = 0;
       const dayInfos = [];
 
       for (let d = 1; d <= daysInMonth; d++) {
@@ -2063,16 +2118,16 @@
         if (info.type === 'vacation') vacationCount++;
         else if (info.type === 'sick') sickCount++;
         else if (info.type === 'event') eventCount++;
+        else if (info.type === 'closed') closedCount++;
 
         if (info.payHours === 4 || info.type === 'half') {
           halfTotalCount++;
           if (info.isFriday) halfFriCount++;
           else halfMtCount++;
         } else if (info.payHours === 8) {
-          if (info.isWeekend) weekendWorkCount++;
-          else fullMtCount++;
+          full8hCount++;
         } else if (info.payHours === 6) {
-          fullFriCount++;
+          full6hCount++;
         }
       }
 
@@ -2080,23 +2135,24 @@
       const fRate = Number(state.settings.fRate) || 630;
       const halfRate = Number(state.settings.halfRate) || 480;
 
-      const scheduledMtSlots = fullMtCount + halfMtCount + weekendWorkCount;
-      const scheduledFriSlots = fullFriCount + halfFriCount;
+      const scheduledMtSlots = full8hCount + halfMtCount;
+      const scheduledFriSlots = full6hCount + halfFriCount;
       const shiftTargetAdj = (halfMtCount * (halfRate - mtRate)) + (halfFriCount * (halfRate - fRate));
-      const totalScheduledShiftUnits = fullMtCount + fullFriCount + weekendWorkCount + (halfTotalCount * 0.5);
+      const totalScheduledShiftUnits = full8hCount + full6hCount + (halfTotalCount * 0.5);
       const computedTargetDollar = Math.max(0, (scheduledMtSlots * mtRate) + (scheduledFriSlots * fRate) + shiftTargetAdj);
 
       return {
         daysInMonth,
         dayInfos,
-        fullMtCount,
-        fullFriCount,
+        fullMtCount: full8hCount,
+        fullFriCount: full6hCount,
         halfMtCount,
         halfFriCount,
         halfTotalCount,
         vacationCount,
         sickCount,
         eventCount,
+        closedCount,
         statCount,
         scheduledMtSlots,
         scheduledFriSlots,
@@ -2131,7 +2187,7 @@
       });
     }
 
-    // ================= CRA & ONTARIO OPTOMETRY TAX ESTIMATOR ENGINE =================
+    // ================= TASK 6: CRA & ONTARIO TAX ESTIMATOR ENGINE (FIXED 2025 GROSS VS TOTAL PAID VARIANCE) =================
     function computeGraduatedTax(taxableIncome, brackets) {
       if (taxableIncome <= 0) return 0;
       let tax = 0;
@@ -2162,15 +2218,34 @@
       const months = state.years[yearStr] || [];
       const ym = getYearMetrics(yearStr, maxMonthIdxOverride);
       const tp = state.taxProfiles?.[yearStr] || makeDefaultTaxYearObj();
+      const nowYear = new Date().getFullYear();
+      const isPastCompletedYear = Number(yearStr) < nowYear;
 
-      const totalScheduledShifts = months.reduce((acc, m) => acc + (Number(m.mtDays) || 0) + (Number(m.fDays) || 0), 0);
+      const sliceEnd = maxMonthIdxOverride !== null ? maxMonthIdxOverride : 11;
+      const slicedMonths = months.slice(0, sliceEnd + 1);
+
+      // Task 6 Fix:
+      // 1) In completed past years (e.g., 2025 where you started in June), only count scheduled shifts from ACTIVE months,
+      //    and ensure the predicted gross is never lower than what you actually earned/received (YTD Total Paid or YTD Net + Health).
+      // 2) In the current/active year, use Daily Rate × Total Scheduled Shifts (plus any Health Spending claimed), or YTD Total Paid if higher.
       const dailyRateUsed = ym.avgDailyNet > 0 ? ym.avgDailyNet : 0;
-      let estPredictedGrossSalary = dailyRateUsed * totalScheduledShifts;
-      if (maxMonthIdxOverride !== null) {
-        const slicedShifts = months.slice(0, maxMonthIdxOverride + 1).reduce((acc, m) => acc + (Number(m.mtDays) || 0) + (Number(m.fDays) || 0), 0);
-        estPredictedGrossSalary = dailyRateUsed * slicedShifts;
+      let totalScheduledShifts = 0;
+      let formulaGross = 0;
+
+      if (isPastCompletedYear && maxMonthIdxOverride === null) {
+        totalScheduledShifts = slicedMonths.reduce((acc, m, idx) => {
+          const c = calculateMonth(m, state.settings, getEffectiveMonthOhipMode(yearStr, idx));
+          return c.isActive ? acc + c.mtDays + c.fDays : acc;
+        }, 0);
+        // In a completed past year, actual gross remuneration is the greater of Total Paid YTD or (YTD 24% Net + Health Claimed)
+        formulaGross = Math.max(ym.ytdTotalPaid, ym.ytdNet + ym.healthPaid, dailyRateUsed * totalScheduledShifts);
+      } else {
+        totalScheduledShifts = slicedMonths.reduce((acc, m) => acc + (Number(m.mtDays) || 0) + (Number(m.fDays) || 0), 0);
+        const projectedByRate = (dailyRateUsed * totalScheduledShifts) + ym.healthPaid;
+        formulaGross = Math.max(projectedByRate, ym.ytdTotalPaid, ym.ytdNet + ym.healthPaid);
       }
 
+      const estPredictedGrossSalary = formulaGross;
       const hasConfirmedGross = tp.confirmed && tp.confirmedGross !== null && tp.confirmedGross !== undefined && tp.confirmedGross !== '';
       const grossPracticeIncome = hasConfirmedGross ? Number(tp.confirmedGross) : estPredictedGrossSalary;
 
@@ -2288,6 +2363,7 @@
       return {
         yearStr,
         mode,
+        isPastCompletedYear,
         isConfirmed: !!(tp.confirmed || hasConfirmedGross || hasConfFed || hasConfProv || hasConfCorp || hasConfTakeHome),
         totalScheduledShifts,
         dailyRateUsed,
@@ -2489,7 +2565,12 @@
                 ensureLayoutsValid();
                 ensureRecordBaselineInitialized();
                 applyEffectiveTheme(state.themeMode || localStorage.getItem(THEME_MODE_KEY) || 'auto');
-                renderAll();
+                // Task 3: If this snapshot is merely echoing an in-place chart mode toggle, do not re-render the whole page or jump scroll
+                if (skipNextRemoteRender) {
+                  skipNextRemoteRender = false;
+                } else {
+                  renderAll();
+                }
                 isApplyingRemote = false;
                 checkMonthlyAutoSync();
               } else {
@@ -2577,8 +2658,9 @@
     window.openBenchmarkModal = () => {
       populateYearControls();
       document.getElementById('benchmarkModal').classList.remove('hidden');
+      syncBodyModalLock();
     };
-    window.closeBenchmarkModal = () => document.getElementById('benchmarkModal').classList.add('hidden');
+    window.closeBenchmarkModal = () => { document.getElementById('benchmarkModal').classList.add('hidden'); syncBodyModalLock(); };
     window.selectBenchmarkFromModal = (val) => {
       state.benchmarkMode = val;
       window.closeBenchmarkModal();
@@ -2658,8 +2740,9 @@
     window.openYearPickerModal = () => {
       populateYearControls();
       document.getElementById('yearPickerModal').classList.remove('hidden');
+      syncBodyModalLock();
     };
-    window.closeYearPickerModal = () => document.getElementById('yearPickerModal').classList.add('hidden');
+    window.closeYearPickerModal = () => { document.getElementById('yearPickerModal').classList.add('hidden'); syncBodyModalLock(); };
     window.selectYearFromPopup = (yr) => {
       state.currentYear = yr;
       showAllYearLogs = false;
@@ -2672,6 +2755,7 @@
       const nextYr = existing.length ? Math.max(...existing) + 1 : 2028;
       document.getElementById('inputNewYear').value = nextYr;
       document.getElementById('addYearModal').classList.remove('hidden');
+      syncBodyModalLock();
     };
 
     window.navigatePage = (pageId) => {
@@ -2990,7 +3074,7 @@
       forecastCone: { title: 'Quarterly Payout Cone & Trajectory Forecast', sub: 'Cumulative quarter 24% net & bonus payout forecast.' },
       annualSalaryCone: { title: 'Annual Projected Salary & Total Earnings Trajectory', sub: 'Starts from YTD Net Cut earned and adds remaining work days.' },
       quarterSeasonality: { title: 'Historical Quarterly Seasonality (Full Quarters Only)', sub: 'Compares average 24% Net & Bonus across Q1–Q4.' },
-      timeOffBreakdown: { title: 'Time-Off & Absence Breakdown', sub: 'Tracks Vacation, Sick, CE/Events, and 4-Hr Half Days across active years.' },
+      timeOffBreakdown: { title: 'Time-Off & Absence Breakdown', sub: 'Tracks Vacation, Sick, CE/Events, Clinic Closed, and 4-Hr Half Days across active years.' },
       daysWorkedTrend: { title: 'Annual Days Worked & Pacing Trend', sub: 'Total Days Worked per year vs. Average Days Worked / Active Month.' },
       taxesPaidHistory: { title: 'Annual Taxes Paid Breakdown (Fed / Prov / Corp)', sub: 'Confirmed or estimated Federal, Ontario Provincial, and Corporate taxes across active years.' },
       netTakeHomeHistory: { title: 'Annual Net Take-Home Earnings Trend', sub: 'Tracks post-tax Net Take-Home Pay vs. Pre-Tax Gross Salary across worked years.' }
@@ -3317,7 +3401,9 @@
       document.getElementById('topCardTakeHomeStatusBadge').innerHTML = confBadge;
 
       document.getElementById('topCardPredGross').textContent = fmtCurr(curTax.grossPracticeIncome);
-      document.getElementById('topCardPredGrossSub').textContent = `${fmtCurr(curTax.dailyRateUsed)}/d × ${curTax.totalScheduledShifts} shifts`;
+      document.getElementById('topCardPredGrossSub').textContent = curTax.isPastCompletedYear
+        ? `Actual / Reconciled ${state.currentYear} Gross (${curTax.totalScheduledShifts} shifts)`
+        : `${fmtCurr(curTax.dailyRateUsed)}/d × ${curTax.totalScheduledShifts} shifts`;
 
       document.getElementById('topCardEstTax').textContent = fmtCurr(curTax.finalTotalTax);
       document.getElementById('topCardEstTaxSub').textContent = curTax.mode === 'corp'
@@ -3516,7 +3602,7 @@
         moreWrap.classList.add('hidden');
       }
     }
-// ================= CALENDAR RENDERING, MULTI-EVENT & SHIFT TIME OVERRIDES (TASK 9 & 10) =================
+// ================= CALENDAR RENDERING, MULTI-EVENT, SHIFT TIME OVERRIDES & GOOGLE CALENDAR SYNC =================
     function getMonthHeatmapBadgeHtml(monthIdx) {
       const hist = computeHistoricalMonthlyDailyAverages();
       const h = hist[monthIdx];
@@ -3555,6 +3641,12 @@
           pill: 'bg-sky-500 text-white',
           short: '4hr',
           full: '4-Hr Half'
+        },
+        closed: {
+          bg: 'bg-rose-500/10 hover:bg-rose-500/20 border-rose-500/35 text-slate-900 dark:text-slate-100',
+          pill: 'bg-rose-500 text-white',
+          short: 'Closed',
+          full: 'Clinic Closed'
         },
         vacation: {
           bg: 'bg-emerald-500/15 hover:bg-emerald-500/25 border-emerald-500/40 text-slate-900 dark:text-slate-100',
@@ -3599,6 +3691,7 @@
         const isToday = info.dateStr === todayStr;
         const todayRing = isToday ? 'ring-2 ring-brand-500 ring-offset-1 dark:ring-offset-slate-900' : '';
         const payTag = info.payHours > 0 ? `${info.payHours}hr` : st.short;
+        const pillCls = info.payHours === 6 ? 'bg-indigo-500 text-white' : st.pill;
         const timeRangeStr = info.payHours > 0 && info.startTime && info.endTime ? `${info.startTime}–${info.endTime}` : '';
         const extraEvtCount = info.extraEvents ? info.extraEvents.length : 0;
 
@@ -3613,7 +3706,7 @@
                 </div>
               </div>
               <div class="w-full truncate">
-                ${info.type !== 'weekend' ? `<span class="inline-block px-1 py-0.2 rounded text-[9px] font-bold ${st.pill} truncate max-w-full">${payTag}</span>` : ''}
+                ${info.type !== 'weekend' ? `<span class="inline-block px-1 py-0.2 rounded text-[9px] font-bold ${pillCls} truncate max-w-full">${payTag}</span>` : ''}
               </div>
             </button>
           `;
@@ -3629,7 +3722,7 @@
               </div>
               <div class="space-y-0.5 w-full min-w-0">
                 ${info.statHolidayName ? `<div class="text-[9px] font-bold text-rose-400 truncate">${info.statHolidayName}</div>` : ''}
-                ${info.type !== 'weekend' ? `<div class="flex items-center gap-1 flex-wrap"><span class="inline-block px-1.5 py-0.5 rounded-md text-[10px] font-bold ${st.pill} truncate">${info.payHours > 0 ? `${info.payHours}hr Shift` : st.full}</span>${timeRangeStr ? `<span class="mono text-[9px] text-slate-400 truncate">${timeRangeStr}</span>` : ''}</div>` : `<span class="text-[10px] text-slate-400">Weekend</span>`}
+                ${info.type !== 'weekend' ? `<div class="flex items-center gap-1 flex-wrap"><span class="inline-block px-1.5 py-0.5 rounded-md text-[10px] font-bold ${pillCls} truncate">${info.payHours > 0 ? `${info.payHours}hr Shift` : st.full}</span>${timeRangeStr ? `<span class="mono text-[9px] text-slate-400 truncate">${timeRangeStr}</span>` : ''}</div>` : `<span class="text-[10px] text-slate-400">Weekend</span>`}
                 ${info.note ? `<div class="text-[10px] text-slate-500 dark:text-slate-300 truncate font-medium">${info.note}</div>` : ''}
                 ${extraEvtsHtml}
               </div>
@@ -3662,7 +3755,7 @@
       gridEl.innerHTML = cellsHtml;
 
       document.getElementById('homeCalSyncStatusText').innerHTML = isFutureSyncActive
-        ? `<span class="text-emerald-500 font-semibold">✓ Auto-Sync Active (Future Month):</span> Marking Vacation, Sick, or 4-Hr Half Days in ${monthNamesFull[mIdx]} ${yearStr} automatically updates your Ledger Target.`
+        ? `<span class="text-emerald-500 font-semibold">✓ Auto-Sync Active (Future Month):</span> Marking Vacation, Sick, Clinic Closed, or 4-Hr/6-Hr/8-Hr shifts in ${monthNamesFull[mIdx]} ${yearStr} automatically updates your Ledger Target.`
         : `<span class="text-slate-400">Worked / Historical Month:</span> Ledger targets for ${monthNamesFull[mIdx]} ${yearStr} are locked to your recorded shifts.`;
 
       statsEl.innerHTML = `
@@ -3672,12 +3765,12 @@
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div class="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-            <span class="text-[10px] text-slate-400 block">8-Hr M–T / 6-Hr Fri</span>
-            <span class="font-extrabold mono text-sm">${stats.fullMtCount} M–T • ${stats.fullFriCount} Fri</span>
+            <span class="text-[10px] text-slate-400 block">8-Hr / 6-Hr Shifts</span>
+            <span class="font-extrabold mono text-sm">${stats.fullMtCount} 8hr • ${stats.fullFriCount} 6hr</span>
           </div>
           <div class="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-            <span class="text-[10px] text-slate-400 block">4-Hr Half Days</span>
-            <span class="font-extrabold mono text-sm text-sky-400">${stats.halfTotalCount} half</span>
+            <span class="text-[10px] text-slate-400 block">4-Hr Half / Closed</span>
+            <span class="font-extrabold mono text-sm text-sky-400">${stats.halfTotalCount} 4hr • <span class="text-rose-400">${stats.closedCount} closed</span></span>
           </div>
           <div class="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
             <span class="text-[10px] text-slate-400 block">Vacation / Sick</span>
@@ -3744,13 +3837,14 @@
           <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${isFutureSyncActive ? 'bg-emerald-500/15 text-emerald-500' : 'bg-slate-500/15 text-slate-400'}">${isFutureSyncActive ? 'Future Auto-Sync' : 'Worked Lock'}</span>
         </div>
         <div class="space-y-2">
-          <div class="flex justify-between"><span>Full 8-Hr Mon–Thu Shifts:</span><span class="mono font-bold">${stats.fullMtCount}</span></div>
-          <div class="flex justify-between"><span>Full 6-Hr Friday Shifts:</span><span class="mono font-bold">${stats.fullFriCount}</span></div>
+          <div class="flex justify-between"><span>8-Hr Full Shifts:</span><span class="mono font-bold">${stats.fullMtCount}</span></div>
+          <div class="flex justify-between"><span>6-Hr Shifts:</span><span class="mono font-bold text-indigo-400">${stats.fullFriCount}</span></div>
           <div class="flex justify-between text-sky-400"><span>4-Hr Half-Day Shifts ($480):</span><span class="mono font-bold">${stats.halfTotalCount}</span></div>
+          <div class="flex justify-between text-rose-400"><span>Clinic Closed / No Patients:</span><span class="mono font-bold">${stats.closedCount}</span></div>
           <div class="flex justify-between text-emerald-500"><span>Vacation Days:</span><span class="mono font-bold">${stats.vacationCount}</span></div>
           <div class="flex justify-between text-amber-500"><span>Sick / Personal Days:</span><span class="mono font-bold">${stats.sickCount}</span></div>
           <div class="flex justify-between text-purple-400"><span>CE / Clinic Events:</span><span class="mono font-bold">${stats.eventCount}</span></div>
-          <div class="flex justify-between text-rose-400"><span>Ontario Stat Holidays:</span><span class="mono font-bold">${stats.statCount}</span></div>
+          <div class="flex justify-between text-rose-500"><span>Ontario Stat Holidays:</span><span class="mono font-bold">${stats.statCount}</span></div>
         </div>
         <div class="pt-3 border-t border-slate-200 dark:border-slate-800 space-y-1.5">
           <div class="flex justify-between">
@@ -3765,12 +3859,13 @@
         </div>
       `;
 
-      let yrVac = 0, yrSick = 0, yrEvt = 0, yrHalf = 0, yrStat = 0;
+      let yrVac = 0, yrSick = 0, yrEvt = 0, yrClosed = 0, yrHalf = 0, yrStat = 0;
       for (let m = 0; m < 12; m++) {
         const ms = getCalendarMonthStats(yearStr, m);
         yrVac += ms.vacationCount;
         yrSick += ms.sickCount;
         yrEvt += ms.eventCount;
+        yrClosed += ms.closedCount;
         yrHalf += ms.halfTotalCount;
         yrStat += ms.statCount;
       }
@@ -3780,9 +3875,10 @@
         <div class="space-y-1.5">
           <div class="flex justify-between"><span>Total Vacation Days:</span><span class="mono font-bold text-emerald-500">${yrVac} days</span></div>
           <div class="flex justify-between"><span>Total Sick / Personal:</span><span class="mono font-bold text-amber-500">${yrSick} days</span></div>
+          <div class="flex justify-between"><span>Clinic Closed / No Patients:</span><span class="mono font-bold text-rose-400">${yrClosed} days</span></div>
           <div class="flex justify-between"><span>Total CE / Clinic Events:</span><span class="mono font-bold text-purple-400">${yrEvt} days</span></div>
           <div class="flex justify-between"><span>Total 4-Hr Half Days:</span><span class="mono font-bold text-sky-400">${yrHalf} shifts</span></div>
-          <div class="flex justify-between"><span>Weekday Stat Holidays:</span><span class="mono font-bold text-rose-400">${yrStat} days</span></div>
+          <div class="flex justify-between"><span>Weekday Stat Holidays:</span><span class="mono font-bold text-rose-500">${yrStat} days</span></div>
         </div>
       `;
     }
@@ -3836,6 +3932,7 @@
       saveAndRender();
     };
 
+    // ================= TASK 4 & TASK 5: CALENDAR DAY MODAL HANDLERS =================
     let editingCalDateStr = null;
     let selectedCalModalType = 'work_full';
     let modalExtraEventsTemp = [];
@@ -3876,6 +3973,15 @@
       renderCalModalExtraEvents();
     };
 
+    function highlightCalTypeButton(btnKey) {
+      document.querySelectorAll('.cal-type-btn').forEach(btn => {
+        const isSel = btn.getAttribute('data-cal-btn') === btnKey;
+        btn.classList.toggle('ring-2', isSel);
+        btn.classList.toggle('ring-brand-500', isSel);
+        btn.classList.toggle('bg-brand-500/15', isSel);
+      });
+    }
+
     window.onCalPayHoursSelectChange = (val) => {
       const hrs = Number(val) || 0;
       const defClock = getDefaultShiftClockTimes(hrs);
@@ -3883,27 +3989,31 @@
         document.getElementById('calDayStartTime').value = defClock.startTime;
         document.getElementById('calDayEndTime').value = defClock.endTime;
       } else {
-        document.getElementById('calDayStartTime').value = '';
-        document.getElementById('calDayEndTime').value = '';
+        document.getElementById('calDayStartTime').value = '08:00';
+        document.getElementById('calDayEndTime').value = '08:01';
       }
-      if (hrs === 4) {
-        selectedCalModalType = 'half';
-      } else if (hrs === 8 || hrs === 6) {
+      if (hrs === 8) {
         selectedCalModalType = 'work_full';
+        highlightCalTypeButton('work_8h');
+      } else if (hrs === 6) {
+        selectedCalModalType = 'work_full';
+        highlightCalTypeButton('work_6h');
+      } else if (hrs === 4) {
+        selectedCalModalType = 'half';
+        highlightCalTypeButton('half');
       }
-      document.querySelectorAll('.cal-type-btn').forEach(btn => {
-        const isSel = btn.getAttribute('data-cal-type') === selectedCalModalType;
-        btn.classList.toggle('ring-2', isSel);
-        btn.classList.toggle('ring-brand-500', isSel);
-        btn.classList.toggle('bg-brand-500/15', isSel);
-      });
     };
 
     window.applyDefaultShiftTimesToCalModal = () => {
       const hrs = Number(document.getElementById('calDayPayHoursSelect').value) || 0;
-      const defClock = getDefaultShiftClockTimes(hrs);
-      document.getElementById('calDayStartTime').value = defClock.startTime;
-      document.getElementById('calDayEndTime').value = defClock.endTime;
+      if (hrs > 0) {
+        const defClock = getDefaultShiftClockTimes(hrs);
+        document.getElementById('calDayStartTime').value = defClock.startTime;
+        document.getElementById('calDayEndTime').value = defClock.endTime;
+      } else {
+        document.getElementById('calDayStartTime').value = '08:00';
+        document.getElementById('calDayEndTime').value = '08:01';
+      }
     };
 
     window.openCalendarDayModal = (dateStr) => {
@@ -3923,17 +4033,20 @@
       const paySel = document.getElementById('calDayPayHoursSelect');
       if (paySel) {
         paySel.options[0].textContent = `8-Hr Full Day ($${mtR})`;
-        paySel.options[1].textContent = `6-Hr Fri Shift ($${fR})`;
+        paySel.options[1].textContent = `6-Hr Shift ($${fR})`;
         paySel.options[2].textContent = `4-Hr Half Day ($${hR})`;
       }
-
-      const fullShiftRate = info.isFriday ? fR : mtR;
-      document.getElementById('calModalFullShiftSub').textContent = info.isFriday ? `6hr Fri ($${fullShiftRate})` : `8hr M–T ($${fullShiftRate})`;
+      const b8 = document.getElementById('calBtn8hSub');
+      const b6 = document.getElementById('calBtn6hSub');
+      const b4 = document.getElementById('calBtn4hSub');
+      if (b8) b8.textContent = `$${mtR} Target`;
+      if (b6) b6.textContent = `$${fR} Target`;
+      if (b4) b4.textContent = `$${hR} Target`;
 
       const statBanner = document.getElementById('calDayStatHolidayBanner');
       if (info.statHolidayName) {
         statBanner.classList.remove('hidden');
-        document.getElementById('calDayStatHolidayName').textContent = `Ontario Statutory Holiday: ${info.statHolidayName}`;
+        document.getElementById('calDayStatHolidayName').textContent = `Ontario Statutory Holiday: ${info.statHolidayName} (Skipped during Google Calendar Sync)`;
       } else {
         statBanner.classList.add('hidden');
       }
@@ -3950,42 +4063,54 @@
       modalExtraEventsTemp = JSON.parse(JSON.stringify(info.extraEvents || []));
       renderCalModalExtraEvents();
 
-      window.selectCalDayType(info.type === 'stat' || info.type === 'weekend' ? 'off' : info.type, info.payHours);
-      document.getElementById('calDayStartTime').value = info.startTime || '';
-      document.getElementById('calDayEndTime').value = info.endTime || '';
+      let btnKeyToSelect = info.type;
+      if (info.type === 'work_full') {
+        btnKeyToSelect = info.payHours === 6 ? 'work_6h' : 'work_8h';
+      } else if (info.type === 'stat' || info.type === 'weekend') {
+        btnKeyToSelect = 'off';
+      }
+
+      window.selectCalDayType(btnKeyToSelect, info.payHours);
+      if (info.startTime) document.getElementById('calDayStartTime').value = info.startTime;
+      if (info.endTime) document.getElementById('calDayEndTime').value = info.endTime;
+
       document.getElementById('calendarDayModal').classList.remove('hidden');
+      syncBodyModalLock();
     };
 
-    window.selectCalDayType = (typeKey, explicitPayHours = null) => {
-      selectedCalModalType = typeKey;
-      document.querySelectorAll('.cal-type-btn').forEach(btn => {
-        const isSel = btn.getAttribute('data-cal-type') === typeKey;
-        btn.classList.toggle('ring-2', isSel);
-        btn.classList.toggle('ring-brand-500', isSel);
-        btn.classList.toggle('bg-brand-500/15', isSel);
-      });
-
-      let isFri = false;
-      if (editingCalDateStr) {
-        const [y, m, d] = editingCalDateStr.split('-').map(Number);
-        isFri = new Date(y, m - 1, d).getDay() === 5;
-      }
+    window.selectCalDayType = (btnKey, explicitPayHours = null) => {
+      highlightCalTypeButton(btnKey);
 
       let targetPayHrs = explicitPayHours;
-      if (targetPayHrs === null || targetPayHrs === undefined) {
-        if (typeKey === 'work_full') targetPayHrs = isFri ? 6 : 8;
-        else if (typeKey === 'half') targetPayHrs = 4;
-        else targetPayHrs = 0;
+      if (btnKey === 'work_8h') {
+        selectedCalModalType = 'work_full';
+        targetPayHrs = 8;
+      } else if (btnKey === 'work_6h') {
+        selectedCalModalType = 'work_full';
+        targetPayHrs = 6;
+      } else if (btnKey === 'half') {
+        selectedCalModalType = 'half';
+        targetPayHrs = 4;
+      } else {
+        selectedCalModalType = btnKey;
+        targetPayHrs = 0;
       }
+
       document.getElementById('calDayPayHoursSelect').value = String(targetPayHrs);
-      const defClock = getDefaultShiftClockTimes(targetPayHrs);
-      document.getElementById('calDayStartTime').value = defClock.startTime;
-      document.getElementById('calDayEndTime').value = defClock.endTime;
+      if (targetPayHrs > 0) {
+        const defClock = getDefaultShiftClockTimes(targetPayHrs);
+        document.getElementById('calDayStartTime').value = defClock.startTime;
+        document.getElementById('calDayEndTime').value = defClock.endTime;
+      } else {
+        document.getElementById('calDayStartTime').value = '08:00';
+        document.getElementById('calDayEndTime').value = '08:01';
+      }
     };
 
     window.closeCalendarDayModal = () => {
       editingCalDateStr = null;
       document.getElementById('calendarDayModal').classList.add('hidden');
+      syncBodyModalLock();
     };
 
     window.saveCalendarDayModal = () => {
@@ -4022,6 +4147,205 @@
       saveAndRender();
     };
 
+    // ================= TASK 7: GOOGLE CALENDAR DIRECT SYNC INTEGRATION =================
+    function showGcalSyncBanner(msg, isError = false) {
+      const banner = document.getElementById('gcalSyncStatusBanner');
+      if (banner) {
+        banner.textContent = msg;
+        banner.className = isError
+          ? 'mt-2 p-2.5 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-400 text-xs font-semibold block'
+          : 'mt-2 p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-semibold block';
+      }
+      const driveStatus = document.getElementById('driveSyncStatusMsg');
+      if (driveStatus) {
+        driveStatus.textContent = msg;
+        driveStatus.className = isError
+          ? 'text-[11px] font-semibold pt-1 text-rose-500 block'
+          : 'text-[11px] font-semibold pt-1 text-emerald-500 block';
+      }
+    }
+
+    function buildGoogleCalendarEventsForDay(info) {
+      // Rule 1: Do NOT sync Ontario Statutory Holidays unless the doctor explicitly overrode the day to work
+      if (info.statHolidayName && !info.hasCustomOverride) {
+        return [];
+      }
+
+      const clinicLoc = state.settings?.clinicAddress || 'Brockville Optometric Centre, Brockville, ON';
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Toronto';
+      const events = [];
+
+      // Primary Day Event
+      if (info.payHours > 0 && (info.type === 'work_full' || info.type === 'half')) {
+        const sTime = info.startTime || '08:30';
+        const eTime = info.endTime || (info.payHours === 8 ? '17:00' : (info.payHours === 6 ? '15:00' : '12:30'));
+        events.push({
+          keySuffix: 'primary',
+          body: {
+            summary: 'Work',
+            location: clinicLoc,
+            description: `OptoTrack ${info.payHours}hr Shift${info.note ? ' — ' + info.note : ''}`,
+            start: { dateTime: `${info.dateStr}T${sTime}:00`, timeZone: tz },
+            end: { dateTime: `${info.dateStr}T${eTime}:00`, timeZone: tz },
+            transparency: 'opaque'
+          }
+        });
+      } else if (['vacation', 'sick', 'closed', 'event'].includes(info.type) || (info.type === 'off' && info.hasCustomOverride && !info.isWeekend)) {
+        // Rule 2: Days off sync as a non-clashing 8:00 AM to 8:01 AM event (marked "transparent"/Free) and remain editable in Google Calendar
+        const labelMap = {
+          vacation: 'Vacation Day (Off)',
+          sick: 'Sick / Personal Day (Off)',
+          closed: 'Clinic Closed / No Patients',
+          event: 'CE / Clinic Event',
+          off: 'Day Off'
+        };
+        const baseTitle = labelMap[info.type] || 'Day Off';
+        const summary = info.note ? `${baseTitle}: ${info.note}` : baseTitle;
+        const customOverrideEntry = state.calendarDays?.[info.dateStr];
+        const sTime = (customOverrideEntry && customOverrideEntry.startTime) ? customOverrideEntry.startTime : '08:00';
+        const eTime = (customOverrideEntry && customOverrideEntry.endTime) ? customOverrideEntry.endTime : '08:01';
+        events.push({
+          keySuffix: 'primary',
+          body: {
+            summary,
+            description: `Synced from OptoTrack (${baseTitle})`,
+            start: { dateTime: `${info.dateStr}T${sTime}:00`, timeZone: tz },
+            end: { dateTime: `${info.dateStr}T${eTime}:00`, timeZone: tz },
+            transparency: 'transparent'
+          }
+        });
+      }
+
+      // Multi-Event Support: Additional events on the same day
+      (info.extraEvents || []).forEach((ev, idx) => {
+        if (!ev.title) return;
+        const sT = ev.startTime || '18:00';
+        const eT = ev.endTime || '19:00';
+        events.push({
+          keySuffix: `extra_${idx}`,
+          body: {
+            summary: ev.title,
+            location: clinicLoc,
+            description: 'Additional event synced from OptoTrack',
+            start: { dateTime: `${info.dateStr}T${sT}:00`, timeZone: tz },
+            end: { dateTime: `${info.dateStr}T${eT}:00`, timeZone: tz }
+          }
+        });
+      });
+
+      return events;
+    }
+
+    async function upsertSingleGoogleCalendarEvent(token, syncKey, eventBody) {
+      ensureLayoutsValid();
+      const existingEventId = state.gcalSyncedEvents?.[syncKey] || null;
+
+      if (existingEventId) {
+        const putRes = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${encodeURIComponent(existingEventId)}`, {
+          method: 'PUT',
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify(eventBody)
+        });
+        if (putRes.ok) {
+          const data = await putRes.json();
+          state.gcalSyncedEvents[syncKey] = data.id;
+          return;
+        }
+      }
+
+      const postRes = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(eventBody)
+      });
+      if (!postRes.ok) {
+        throw new Error(`Google Calendar API error (${postRes.status})`);
+      }
+      const created = await postRes.json();
+      if (created && created.id) {
+        state.gcalSyncedEvents[syncKey] = created.id;
+      }
+    }
+
+    async function executeGoogleCalendarSync(token, scope = 'month') {
+      const yearStr = state.currentYear;
+      const monthNamesFull = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+      const monthsToSync = scope === 'year' ? [0,1,2,3,4,5,6,7,8,9,10,11] : [calendarMonthIdx];
+      const scopeLabel = scope === 'year' ? `Full Year ${yearStr}` : `${monthNamesFull[calendarMonthIdx]} ${yearStr}`;
+
+      showGcalSyncBanner(`Syncing ${scopeLabel} to your Google Calendar...`);
+
+      try {
+        let syncedCount = 0;
+        for (const mIdx of monthsToSync) {
+          const stats = getCalendarMonthStats(yearStr, mIdx);
+          for (const dayInfo of stats.dayInfos) {
+            const dayEvents = buildGoogleCalendarEventsForDay(dayInfo);
+            for (const evItem of dayEvents) {
+              const syncKey = `${dayInfo.dateStr}_${evItem.keySuffix}`;
+              await upsertSingleGoogleCalendarEvent(token, syncKey, evItem.body);
+              syncedCount++;
+            }
+          }
+        }
+
+        skipNextRemoteRender = true;
+        await pushStateToCloud();
+        showGcalSyncBanner(`✓ Synced ${syncedCount} events for ${scopeLabel} to Google Calendar (Stat Holidays skipped).`);
+      } catch (err) {
+        gcalAccessToken = null;
+        sessionStorage.removeItem(GCAL_TOKEN_KEY);
+        showGcalSyncBanner(`Google Calendar sync failed: ${err.message}. Click Sync again to re-authorize Calendar access.`, true);
+      }
+    }
+
+    window.syncCalendarToGoogle = async (scope = 'month') => {
+      if (gcalAccessToken) {
+        await executeGoogleCalendarSync(gcalAccessToken, scope);
+        return;
+      }
+
+      const clientId = (document.getElementById('setDriveClientId')?.value || state.driveClientId || localStorage.getItem(DRIVE_CLIENT_ID_KEY) || '').trim();
+      const targetEmail = (document.getElementById('setBackupAccountEmail')?.value || state.backupAccountEmail || localStorage.getItem(DRIVE_ACCOUNT_EMAIL_KEY) || currentUser?.email || '').trim();
+
+      if (clientId && window.google?.accounts?.oauth2) {
+        const tokenClient = window.google.accounts.oauth2.initTokenClient({
+          client_id: clientId,
+          scope: 'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/drive.file',
+          hint: targetEmail || undefined,
+          callback: async (resp) => {
+            if (resp.access_token) {
+              gcalAccessToken = resp.access_token;
+              driveAccessToken = resp.access_token;
+              sessionStorage.setItem(GCAL_TOKEN_KEY, gcalAccessToken);
+              sessionStorage.setItem(DRIVE_TOKEN_KEY, driveAccessToken);
+              await executeGoogleCalendarSync(gcalAccessToken, scope);
+            }
+          }
+        });
+        tokenClient.requestAccessToken({ prompt: '' });
+        return;
+      }
+
+      try {
+        const provider = new GoogleAuthProvider();
+        provider.addScope('https://www.googleapis.com/auth/calendar.events');
+        provider.addScope('https://www.googleapis.com/auth/drive.file');
+        provider.setCustomParameters({ prompt: 'select_account' });
+        const res = await signInWithPopup(auth, provider);
+        const cred = GoogleAuthProvider.credentialFromResult(res);
+        if (cred && cred.accessToken) {
+          gcalAccessToken = cred.accessToken;
+          driveAccessToken = cred.accessToken;
+          sessionStorage.setItem(GCAL_TOKEN_KEY, gcalAccessToken);
+          sessionStorage.setItem(DRIVE_TOKEN_KEY, driveAccessToken);
+          await executeGoogleCalendarSync(gcalAccessToken, scope);
+        }
+      } catch (e) {
+        showGcalSyncBanner(`Authorization needed to sync with Google Calendar: ${e.message}`, true);
+      }
+    };
+
     // ================= TAX ESTIMATOR MODAL HANDLERS =================
     let activeTaxModalMode = 'sole_prop';
 
@@ -4053,10 +4377,12 @@
 
       window.setTaxFilingMode(activeTaxModalMode);
       document.getElementById('taxEstimatorModal').classList.remove('hidden');
+      syncBodyModalLock();
     };
 
     window.closeTaxEstimatorModal = () => {
       document.getElementById('taxEstimatorModal').classList.add('hidden');
+      syncBodyModalLock();
     };
 
     window.setTaxFilingMode = (mode) => {
@@ -4104,7 +4430,9 @@
       const calc = calculateYearTaxAndSalarySummary(state.currentYear);
 
       document.getElementById('taxModalPreviewGross').textContent = fmtCurr(calc.grossPracticeIncome);
-      document.getElementById('taxModalPreviewGrossSub').textContent = `${fmtCurr(calc.dailyRateUsed)}/d × ${calc.totalScheduledShifts} scheduled shifts`;
+      document.getElementById('taxModalPreviewGrossSub').textContent = calc.isPastCompletedYear
+        ? `Actual / Reconciled ${state.currentYear} Gross (${calc.totalScheduledShifts} shifts)`
+        : `${fmtCurr(calc.dailyRateUsed)}/d × ${calc.totalScheduledShifts} scheduled shifts`;
       document.getElementById('taxModalPreviewTotalTax').textContent = fmtCurr(calc.finalTotalTax);
       document.getElementById('taxModalPreviewTaxSub').textContent = `Effective Rate: ${fmtNum(calc.effectiveTaxRatePct, 1)}% (${calc.isConfirmed ? 'Confirmed' : 'Estimated'})`;
       document.getElementById('taxModalPreviewTakeHome').textContent = fmtCurr(calc.finalNetTakeHome);
@@ -4190,7 +4518,13 @@
 
     window.setConeQuarter = (qk) => { state.coneQuarter = qk; saveAndRender(); };
 
-    window.setTimeOffChartMode = (mode) => {
+    // Task 3: Prevent any scroll jump when toggling Time-Off chart mode
+    window.setTimeOffChartMode = (mode, ev) => {
+      if (ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+      }
+      const savedScrollY = window.scrollY;
       state.timeOffChartMode = mode;
       const yrBtn = document.getElementById('timeOffModeYearlyBtn');
       const mthBtn = document.getElementById('timeOffModeMonthlyBtn');
@@ -4200,6 +4534,8 @@
       }
       renderSingleChartCanvas('timeOffBreakdown', 'chartPageTimeOffBreakdown');
       renderSingleChartCanvas('timeOffBreakdown', 'homePinnedChart_timeOffBreakdown');
+      window.scrollTo(0, savedScrollY);
+      skipNextRemoteRender = true;
       pushStateToCloud();
     };
 
@@ -4544,14 +4880,14 @@
         const activeYears = getWorkedYearsList();
         if (toMode === 'yearly') {
           applyMultiYearScrollWidth(canvasId, activeYears.length);
-          const vacArr = [], sickArr = [], evtArr = [], halfArr = [];
+          const vacArr = [], sickArr = [], evtArr = [], closedArr = [], halfArr = [];
           activeYears.forEach(yr => {
-            let v = 0, s = 0, e = 0, h = 0;
+            let v = 0, s = 0, e = 0, cl = 0, h = 0;
             for (let m = 0; m < 12; m++) {
               const st = getCalendarMonthStats(yr, m);
-              v += st.vacationCount; s += st.sickCount; e += st.eventCount; h += st.halfTotalCount;
+              v += st.vacationCount; s += st.sickCount; e += st.eventCount; cl += st.closedCount; h += st.halfTotalCount;
             }
-            vacArr.push(v); sickArr.push(s); evtArr.push(e); halfArr.push(h);
+            vacArr.push(v); sickArr.push(s); evtArr.push(e); closedArr.push(cl); halfArr.push(h);
           });
           chartsObj[canvasId] = new Chart(canvasEl, {
             type: 'bar',
@@ -4560,6 +4896,7 @@
               datasets: [
                 { label: 'Vacation Days', data: vacArr, backgroundColor: 'rgba(16, 185, 129, 0.85)', borderRadius: 4, maxBarThickness: 54 },
                 { label: 'Sick / Personal', data: sickArr, backgroundColor: 'rgba(245, 158, 11, 0.85)', borderRadius: 4, maxBarThickness: 54 },
+                { label: 'Clinic Closed', data: closedArr, backgroundColor: 'rgba(244, 63, 94, 0.85)', borderRadius: 4, maxBarThickness: 54 },
                 { label: 'CE / Events', data: evtArr, backgroundColor: 'rgba(168, 85, 247, 0.85)', borderRadius: 4, maxBarThickness: 54 },
                 { label: '4-Hr Half Days', data: halfArr, backgroundColor: 'rgba(56, 189, 248, 0.85)', borderRadius: 4, maxBarThickness: 54 }
               ]
@@ -4569,16 +4906,17 @@
         } else {
           applyMultiYearScrollWidth(canvasId, 12);
           const mNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-          const vacM = [], sickM = [], evtM = [], halfM = [];
+          const vacM = [], sickM = [], evtM = [], closedM = [], halfM = [];
           const yrCount = Math.max(1, activeYears.length);
           for (let m = 0; m < 12; m++) {
-            let v = 0, s = 0, e = 0, h = 0;
+            let v = 0, s = 0, e = 0, cl = 0, h = 0;
             activeYears.forEach(yr => {
               const st = getCalendarMonthStats(yr, m);
-              v += st.vacationCount; s += st.sickCount; e += st.eventCount; h += st.halfTotalCount;
+              v += st.vacationCount; s += st.sickCount; e += st.eventCount; cl += st.closedCount; h += st.halfTotalCount;
             });
             vacM.push(Number((v / yrCount).toFixed(2)));
             sickM.push(Number((s / yrCount).toFixed(2)));
+            closedM.push(Number((cl / yrCount).toFixed(2)));
             evtM.push(Number((e / yrCount).toFixed(2)));
             halfM.push(Number((h / yrCount).toFixed(2)));
           }
@@ -4589,6 +4927,7 @@
               datasets: [
                 { label: 'Avg Vacation / Mth', data: vacM, backgroundColor: 'rgba(16, 185, 129, 0.85)', borderRadius: 4 },
                 { label: 'Avg Sick / Mth', data: sickM, backgroundColor: 'rgba(245, 158, 11, 0.85)', borderRadius: 4 },
+                { label: 'Avg Clinic Closed / Mth', data: closedM, backgroundColor: 'rgba(244, 63, 94, 0.85)', borderRadius: 4 },
                 { label: 'Avg CE / Mth', data: evtM, backgroundColor: 'rgba(168, 85, 247, 0.85)', borderRadius: 4 },
                 { label: 'Avg 4-Hr Half / Mth', data: halfM, backgroundColor: 'rgba(56, 189, 248, 0.85)', borderRadius: 4 }
               ]
@@ -4760,6 +5099,7 @@
 
     window.closeAddYearModal = () => {
       document.getElementById('addYearModal').classList.add('hidden');
+      syncBodyModalLock();
     };
     window.confirmAddYear = () => {
       const newYr = String(Number(document.getElementById('inputNewYear').value) || '').trim();
@@ -4781,7 +5121,7 @@
       }
       state.currentYear = newYr;
       showAllYearLogs = false;
-      document.getElementById('addYearModal').classList.add('hidden');
+      window.closeAddYearModal();
       saveAndRender();
     };
 
@@ -4802,6 +5142,7 @@
       document.getElementById('editPaid').value = m.paid ?? 0; document.getElementById('editPatients').value = m.patients ?? 0;
       window.updateMonthModalFormulaPreview();
       document.getElementById('monthModal').classList.remove('hidden');
+      syncBodyModalLock();
     };
     window.updateMonthModalFormulaPreview = () => {
       const m = state.years[state.currentYear]?.[editingMonthIdx] || {};
@@ -4809,7 +5150,7 @@
       const shiftAdj = Number(m.shiftTargetAdj) || 0;
       document.getElementById('formulaTargetPreview').textContent = fmtCurr(Math.max(0, (mt * state.settings.mtRate) + (f * state.settings.fRate) + shiftAdj));
     };
-    window.closeMonthModal = () => document.getElementById('monthModal').classList.add('hidden');
+    window.closeMonthModal = () => { document.getElementById('monthModal').classList.add('hidden'); syncBodyModalLock(); };
     window.saveMonthModal = () => {
       const beforeSnap = snapshotAllRecords();
       const m = state.years[state.currentYear][editingMonthIdx];
@@ -4833,6 +5174,7 @@
       document.getElementById('qEditActualNet').value = q.qConf.actualNet ?? ''; document.getElementById('qEditActualBonus').value = q.qConf.actualBonus ?? '';
       document.getElementById('qEditConfirmed').checked = !!q.qConf.confirmed;
       document.getElementById('quarterModal').classList.remove('hidden');
+      syncBodyModalLock();
     };
     window.calcQuarterBonusFromNet = () => {
       const q = calculateQuarterSummary(state.currentYear, editingQuarterKey);
@@ -4845,7 +5187,7 @@
       document.getElementById('qEditConfirmed').checked = true;
     };
     window.resetQuarterActuals = () => { state.quarterConfirmations[state.currentYear][editingQuarterKey] = { confirmed: false, actualNet: null, actualBonus: null }; window.closeQuarterModal(); saveAndRender(); };
-    window.closeQuarterModal = () => document.getElementById('quarterModal').classList.add('hidden');
+    window.closeQuarterModal = () => { document.getElementById('quarterModal').classList.add('hidden'); syncBodyModalLock(); };
     window.saveQuarterModal = () => {
       const beforeSnap = snapshotAllRecords();
       const nr = document.getElementById('qEditActualNet').value.trim(), br = document.getElementById('qEditActualBonus').value.trim();
@@ -4898,6 +5240,7 @@
       document.getElementById('logNote').value = '';
       window.onLogDateChange();
       document.getElementById('dailyLogModal').classList.remove('hidden');
+      syncBodyModalLock();
     };
 
     window.onLogMonthChange = () => {
@@ -4933,7 +5276,7 @@
       document.getElementById('deltaRecordAlert').classList.toggle('hidden', dGross <= (state.recordHigh?.amount || 0));
     };
 
-    window.closeDailyLogModal = () => document.getElementById('dailyLogModal').classList.add('hidden');
+    window.closeDailyLogModal = () => { document.getElementById('dailyLogModal').classList.add('hidden'); syncBodyModalLock(); };
     window.saveDailyLog = () => {
       ensureRecordBaselineInitialized();
       const beforeSnap = snapshotAllRecords();
@@ -5023,8 +5366,9 @@
       document.getElementById('editLogShiftHours').value = sHrs;
       document.getElementById('editLogScheduledHours').value = schedHrs;
       document.getElementById('editLogModal').classList.remove('hidden');
+      syncBodyModalLock();
     };
-    window.closeEditLogModal = () => document.getElementById('editLogModal').classList.add('hidden');
+    window.closeEditLogModal = () => { document.getElementById('editLogModal').classList.add('hidden'); syncBodyModalLock(); };
     window.saveEditedDailyLog = () => {
       if (editingLogIdx === null) return;
       ensureRecordBaselineInitialized();
@@ -5118,8 +5462,9 @@
       document.getElementById('inputRecordDate').value = state.recordHigh.baselineDate ?? state.recordHigh.date ?? '';
       document.getElementById('inputRecordNote').value = state.recordHigh.baselineNote ?? state.recordHigh.note ?? '';
       document.getElementById('recordModal').classList.remove('hidden');
+      syncBodyModalLock();
     };
-    window.closeRecordModal = () => document.getElementById('recordModal').classList.add('hidden');
+    window.closeRecordModal = () => { document.getElementById('recordModal').classList.add('hidden'); syncBodyModalLock(); };
     window.saveRecordModal = () => {
       ensureRecordBaselineInitialized();
       const beforeSnap = snapshotAllRecords();
@@ -5139,11 +5484,12 @@
       const ex = state.yearPaidExtras?.[state.currentYear] || { health: 0, bonusPaid: 0 };
       document.getElementById('inputHealthPaid').value = ex.health ?? 0; document.getElementById('inputBonusPaid').value = ex.bonusPaid ?? 0;
       document.getElementById('extrasModal').classList.remove('hidden');
+      syncBodyModalLock();
     };
     window.syncBonusRowFromQuarters = () => {
       document.getElementById('inputBonusPaid').value = ['Q1','Q2','Q3','Q4'].reduce((a, qk) => { const q = calculateQuarterSummary(state.currentYear, qk); return a + (q.isConfirmed ? q.displayBonus : 0); }, 0).toFixed(2);
     };
-    window.closeExtrasModal = () => document.getElementById('extrasModal').classList.add('hidden');
+    window.closeExtrasModal = () => { document.getElementById('extrasModal').classList.add('hidden'); syncBodyModalLock(); };
     window.saveExtrasModal = () => {
       const beforeSnap = snapshotAllRecords();
       state.yearPaidExtras[state.currentYear] = { health: Math.min(1000, Math.max(0, Number(document.getElementById('inputHealthPaid').value) || 0)), bonusPaid: Number(document.getElementById('inputBonusPaid').value) || 0 };
@@ -5170,8 +5516,9 @@
       renderSettingsNavCustomizer();
       updateDriveSettingsLabels();
       document.getElementById('settingsModal').classList.remove('hidden');
+      syncBodyModalLock();
     };
-    window.closeSettingsModal = () => document.getElementById('settingsModal').classList.add('hidden');
+    window.closeSettingsModal = () => { document.getElementById('settingsModal').classList.add('hidden'); syncBodyModalLock(); };
     window.saveSettingsModal = () => {
       ensureLayoutsValid();
       state.settings.netPct = Number(document.getElementById('setNetPct').value) || 24;
@@ -5198,8 +5545,8 @@
         document.getElementById('authUserLabel').textContent = currentUser.email || currentUser.uid;
       }
     }
-    window.openCloudModal = () => document.getElementById('cloudModal').classList.remove('hidden');
-    window.closeCloudModal = () => document.getElementById('cloudModal').classList.add('hidden');
+    window.openCloudModal = () => { document.getElementById('cloudModal').classList.remove('hidden'); syncBodyModalLock(); };
+    window.closeCloudModal = () => { document.getElementById('cloudModal').classList.add('hidden'); syncBodyModalLock(); };
     window.signInWithGoogle = async () => {
       const gErr = document.getElementById('gateErrorMsg');
       gErr.classList.add('hidden');
@@ -5207,12 +5554,15 @@
         await setPersistence(auth, browserSessionPersistence);
         const provider = new GoogleAuthProvider();
         provider.addScope('https://www.googleapis.com/auth/drive.file');
+        provider.addScope('https://www.googleapis.com/auth/calendar.events');
         provider.setCustomParameters({ prompt: 'select_account' });
         const res = await signInWithPopup(auth, provider);
         const cred = GoogleAuthProvider.credentialFromResult(res);
         if (cred && cred.accessToken) {
           driveAccessToken = cred.accessToken;
+          gcalAccessToken = cred.accessToken;
           sessionStorage.setItem(DRIVE_TOKEN_KEY, driveAccessToken);
+          sessionStorage.setItem(GCAL_TOKEN_KEY, gcalAccessToken);
         }
       } catch (e) {
         gErr.textContent = e.message;
@@ -5242,7 +5592,9 @@
     window.signOutUser = async () => {
       window.closeCloudModal();
       driveAccessToken = null;
+      gcalAccessToken = null;
       sessionStorage.removeItem(DRIVE_TOKEN_KEY);
+      sessionStorage.removeItem(GCAL_TOKEN_KEY);
       if (auth) await signOut(auth);
     };
     window.forcePushToCloud = async () => { await pushStateToCloud(); window.closeCloudModal(); };
@@ -5251,6 +5603,7 @@
       const clean = (val || '').trim();
       state.driveClientId = clean;
       localStorage.setItem(DRIVE_CLIENT_ID_KEY, clean);
+      skipNextRemoteRender = true;
       pushStateToCloud();
     };
 
@@ -5258,6 +5611,7 @@
       const clean = (val || '').trim();
       state.backupAccountEmail = clean;
       localStorage.setItem(DRIVE_ACCOUNT_EMAIL_KEY, clean);
+      skipNextRemoteRender = true;
       pushStateToCloud();
     };
 
@@ -5366,6 +5720,7 @@
         state.lastDriveSyncMonth = ym;
         state.lastDriveBackupTimestamp = formattedStamp;
         updateDriveSettingsLabels();
+        skipNextRemoteRender = true;
         await pushStateToCloud();
 
         if (statusEl) {
@@ -5397,11 +5752,13 @@
 
         const clientConfig = {
           client_id: clientId,
-          scope: 'https://www.googleapis.com/auth/drive.file',
+          scope: 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/calendar.events',
           callback: async (resp) => {
             if (resp.access_token) {
               driveAccessToken = resp.access_token;
+              gcalAccessToken = resp.access_token;
               sessionStorage.setItem(DRIVE_TOKEN_KEY, driveAccessToken);
+              sessionStorage.setItem(GCAL_TOKEN_KEY, gcalAccessToken);
               await executeDriveUpload(driveAccessToken, !isManual);
             }
           }
@@ -5426,12 +5783,15 @@
       try {
         const provider = new GoogleAuthProvider();
         provider.addScope('https://www.googleapis.com/auth/drive.file');
+        provider.addScope('https://www.googleapis.com/auth/calendar.events');
         provider.setCustomParameters({ prompt: 'select_account' });
         const res = await signInWithPopup(auth, provider);
         const cred = GoogleAuthProvider.credentialFromResult(res);
         if (cred && cred.accessToken) {
           driveAccessToken = cred.accessToken;
+          gcalAccessToken = cred.accessToken;
           sessionStorage.setItem(DRIVE_TOKEN_KEY, driveAccessToken);
+          sessionStorage.setItem(GCAL_TOKEN_KEY, gcalAccessToken);
           await executeDriveUpload(driveAccessToken, false);
         }
       } catch (e) {
