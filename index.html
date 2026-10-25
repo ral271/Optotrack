@@ -175,6 +175,13 @@
       <nav id="desktopSidebarNav" class="flex-1 py-4 px-2.5 space-y-2"></nav>
 
       <div class="p-2.5 border-t border-slate-800/80 space-y-1.5">
+        <button onclick="window.openTaxEstimatorModal()" title="CRA & Ontario Tax Estimator" class="w-full flex items-center gap-3.5 p-2.5 rounded-xl text-xs font-semibold text-emerald-400 hover:text-white hover:bg-emerald-500/15 transition">
+          <svg class="w-5 h-5 shrink-0 mx-auto md:mx-0" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+          </svg>
+          <span class="sidebar-label hidden truncate">Tax Estimator</span>
+        </button>
+
         <button onclick="window.openSettingsModal()" title="Settings, Exports & Backups" class="w-full flex items-center gap-3.5 p-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800/60 transition">
           <svg class="w-5 h-5 shrink-0 mx-auto md:mx-0" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
@@ -318,6 +325,65 @@
 
       <!-- PAGE 1: DASHBOARD -->
       <main id="pageDashboard" class="max-w-7xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-6 flex flex-col gap-6 block">
+
+        <!-- TOP-OF-DASHBOARD PROJECTED SALARY, ESTIMATED TAXES & NET TAKE-HOME SUMMARY (3 BOXES) -->
+        <div id="dashBlock_annualSummary" data-block-id="annualSummary" class="customizable-block">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Box 1: Predicted Gross Salary -->
+            <div onclick="window.openTaxEstimatorModal()" class="cursor-pointer bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 hover:border-brand-500/50 shadow-sm flex flex-col justify-between min-w-0 transition">
+              <div>
+                <div class="flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-1.5 min-w-0">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 truncate">Predicted Gross Salary</span>
+                    <span id="topCardGrossStatusBadge"></span>
+                  </div>
+                  <span id="bmPredGrossPill" class="shrink-0"></span>
+                </div>
+                <div id="topCardPredGross" class="text-2xl sm:text-3xl font-extrabold mono mt-1.5 text-sky-600 dark:text-sky-400 truncate">$0.00</div>
+              </div>
+              <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500">
+                <span id="topCardPredGrossSub" class="truncate">Daily Rate × Scheduled Shifts</span>
+                <span class="text-brand-500 font-semibold shrink-0 ml-2">Confirm / Edit →</span>
+              </div>
+            </div>
+
+            <!-- Box 2: Estimated Total Taxes Owed -->
+            <div onclick="window.openTaxEstimatorModal()" class="cursor-pointer bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 hover:border-rose-500/50 shadow-sm flex flex-col justify-between min-w-0 transition">
+              <div>
+                <div class="flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-1.5 min-w-0">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 truncate">Estimated Taxes Owed</span>
+                    <span id="topCardTaxStatusBadge"></span>
+                  </div>
+                  <span id="bmEstTaxPill" class="shrink-0"></span>
+                </div>
+                <div id="topCardEstTax" class="text-2xl sm:text-3xl font-extrabold mono mt-1.5 text-rose-600 dark:text-rose-400 truncate">$0.00</div>
+              </div>
+              <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500">
+                <span id="topCardEstTaxSub" class="truncate mono">Fed + Prov + CPP</span>
+                <span id="topCardEffTaxRate" class="font-bold mono text-rose-400 shrink-0 ml-2">0.0% Eff.</span>
+              </div>
+            </div>
+
+            <!-- Box 3: Net Take-Home Amount -->
+            <div onclick="window.openTaxEstimatorModal()" class="cursor-pointer bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 hover:border-emerald-500/50 shadow-sm flex flex-col justify-between min-w-0 transition">
+              <div>
+                <div class="flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-1.5 min-w-0">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 truncate">Net Take-Home Pay</span>
+                    <span id="topCardTakeHomeStatusBadge"></span>
+                  </div>
+                  <span id="bmTakeHomePill" class="shrink-0"></span>
+                </div>
+                <div id="topCardTakeHome" class="text-2xl sm:text-3xl font-extrabold mono mt-1.5 text-emerald-600 dark:text-emerald-400 truncate">$0.00</div>
+              </div>
+              <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500">
+                <span id="topCardTakeHomeSub" class="truncate">After Estimated Taxes & CPP</span>
+                <span id="topCardMonthlyTakeHome" class="font-semibold mono text-emerald-500 shrink-0 ml-2">$0/mth</span>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <!-- BLOCK: KPI CARDS -->
         <div id="dashBlock_kpis" data-block-id="kpis" class="customizable-block">
@@ -492,7 +558,7 @@
           </div>
         </div>
 
-        <!-- Task 2 & Task 4: INTERACTIVE HOME SCREEN CALENDAR BLOCK -->
+        <!-- INTERACTIVE HOME SCREEN CALENDAR BLOCK -->
         <section id="dashBlock_calendar" data-block-id="calendar" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-6 shadow-sm space-y-4">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div class="flex flex-wrap items-center gap-2.5">
@@ -501,7 +567,7 @@
                   <span>Clinic Schedule & Vacation Pacing</span>
                   <span id="homeCalHeatmapBadge"></span>
                 </h2>
-                <p id="homeCalSyncStatusText" class="text-xs text-slate-500">Click any date to mark Vacation, Sick, 4-Hr Half Day, or Event.</p>
+                <p id="homeCalSyncStatusText" class="text-xs text-slate-500">Click any date to adjust shift hours, pay classification, or add multiple events.</p>
               </div>
             </div>
             <div class="flex items-center gap-2 self-start sm:self-center">
@@ -537,12 +603,11 @@
         </div>
         <div id="recordsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
       </main>
-
-      <!-- PAGE 3: CHARTS & TRENDS -->
+<!-- PAGE 3: CHARTS & TRENDS -->
       <main id="pageCharts" class="hidden max-w-7xl w-full mx-auto px-3 sm:px-6 py-6 space-y-6">
         <div class="border-b border-slate-200 dark:border-slate-800 pb-5">
           <h2 class="text-2xl sm:text-3xl font-extrabold">Charts & Trends</h2>
-          <p class="text-slate-500 mt-1 text-sm">Visualize your year-over-year pacing, historical monthly vacation averages, seasonality, and time-off trends.</p>
+          <p class="text-slate-500 mt-1 text-sm">Visualize your year-over-year pacing, historical monthly vacation averages, seasonality, tax history, and time-off trends.</p>
         </div>
         <div id="chartsGridContainer" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div id="chartBlock_netTarget" data-chart-id="netTarget" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm min-w-0">
@@ -569,6 +634,7 @@
             <p class="text-xs text-slate-500 mb-4">Monthly patients seen vs. average net revenue per patient.</p>
             <div class="h-64"><canvas id="chartPagePatients"></canvas></div>
           </div>
+
           <div id="chartBlock_breakdown" data-chart-id="breakdown" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm min-w-0">
             <h3 class="font-bold text-sm sm:text-base mb-1">Monthly Collections Breakdown</h3>
             <p class="text-xs text-slate-500 mb-4">Accounts Received vs. OHIP Reconciliation stacked collections.</p>
@@ -619,29 +685,57 @@
             <div id="seasonalitySummaryCards" class="grid grid-cols-1 sm:grid-cols-4 gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-xs"></div>
           </div>
 
-          <!-- Task 5: NEW CHART 1 — Time-Off & Absence Breakdown Chart (with Annual vs Monthly Avg Toggle) -->
+          <!-- Time-Off & Absence Breakdown Chart (Smooth in-place toggle + Active-year filtering + Scroll protection) -->
           <div id="chartBlock_timeOffBreakdown" data-chart-id="timeOffBreakdown" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm min-w-0">
             <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
               <h3 class="font-bold text-sm sm:text-base">Time-Off & Absence Breakdown</h3>
               <div class="inline-flex rounded-lg p-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] font-bold">
-                <button id="timeOffModeYearlyBtn" onclick="window.setTimeOffChartMode('yearly')" class="px-2 py-0.5 rounded-md transition">By Year</button>
-                <button id="timeOffModeMonthlyBtn" onclick="window.setTimeOffChartMode('monthly_avg')" class="px-2 py-0.5 rounded-md transition">Monthly Avg</button>
+                <button id="timeOffModeYearlyBtn" type="button" onclick="window.setTimeOffChartMode('yearly')" class="px-2 py-0.5 rounded-md transition">By Year</button>
+                <button id="timeOffModeMonthlyBtn" type="button" onclick="window.setTimeOffChartMode('monthly_avg')" class="px-2 py-0.5 rounded-md transition">Monthly Avg</button>
               </div>
             </div>
-            <p class="text-xs text-slate-500 mb-4">Tracks Vacation, Sick, CE/Events, and 4-Hr Half Days logged on your Calendar.</p>
-            <div class="h-64"><canvas id="chartPageTimeOffBreakdown"></canvas></div>
+            <p class="text-xs text-slate-500 mb-4">Tracks Vacation, Sick, CE/Events, and 4-Hr Half Days across active years.</p>
+            <div class="overflow-x-auto pb-1">
+              <div id="wrap_chartPageTimeOffBreakdown" class="h-64 min-w-full"><canvas id="chartPageTimeOffBreakdown"></canvas></div>
+            </div>
           </div>
 
-          <!-- Task 5: NEW CHART 2 — Annual Days Worked & Shift Pacing Historical Trend -->
+          <!-- Streamlined Annual Days Worked & Pacing Trend Chart (Single bar for Days Worked + Avg Days/Mth line) -->
           <div id="chartBlock_daysWorkedTrend" data-chart-id="daysWorkedTrend" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm min-w-0">
             <h3 class="font-bold text-sm sm:text-base mb-1">Annual Days Worked & Pacing Trend</h3>
-            <p class="text-xs text-slate-500 mb-4">Compares Total Days Worked vs. Scheduled Shifts and Average Days / Month across recorded years.</p>
-            <div class="h-64"><canvas id="chartPageDaysWorkedTrend"></canvas></div>
+            <p class="text-xs text-slate-500 mb-4">Total Days Worked per year vs. Average Days Worked / Active Month across worked years.</p>
+            <div class="overflow-x-auto pb-1">
+              <div id="wrap_chartPageDaysWorkedTrend" class="h-64 min-w-full"><canvas id="chartPageDaysWorkedTrend"></canvas></div>
+            </div>
+          </div>
+
+          <!-- Confirmed Annual Taxes Paid Historical Chart (Stacked Federal, Provincial, Corporate + Eff Rate) -->
+          <div id="chartBlock_taxesPaidHistory" data-chart-id="taxesPaidHistory" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm min-w-0">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+              <h3 class="font-bold text-sm sm:text-base">Annual Taxes Paid Breakdown (Fed / Prov / Corp)</h3>
+              <button onclick="window.openTaxEstimatorModal()" class="text-[11px] font-bold text-brand-500 hover:underline">Open Tax Suite →</button>
+            </div>
+            <p class="text-xs text-slate-500 mb-4">Confirmed or estimated Federal, Ontario Provincial (incl. CPP), and Corporate taxes across active years.</p>
+            <div class="overflow-x-auto pb-1">
+              <div id="wrap_chartPageTaxesPaidHistory" class="h-64 min-w-full"><canvas id="chartPageTaxesPaidHistory"></canvas></div>
+            </div>
+          </div>
+
+          <!-- Annual Net Take-Home Pay Historical Trend Chart -->
+          <div id="chartBlock_netTakeHomeHistory" data-chart-id="netTakeHomeHistory" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm min-w-0">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+              <h3 class="font-bold text-sm sm:text-base">Annual Net Take-Home Earnings Trend</h3>
+              <button onclick="window.openTaxEstimatorModal()" class="text-[11px] font-bold text-emerald-500 hover:underline">Confirm Year-End →</button>
+            </div>
+            <p class="text-xs text-slate-500 mb-4">Tracks your post-tax Net Take-Home Pay vs. Pre-Tax Gross Salary across worked years.</p>
+            <div class="overflow-x-auto pb-1">
+              <div id="wrap_chartPageNetTakeHomeHistory" class="h-64 min-w-full"><canvas id="chartPageNetTakeHomeHistory"></canvas></div>
+            </div>
           </div>
         </div>
       </main>
 
-      <!-- Task 2 & Task 4: PAGE 4 — FULL INTERACTIVE CALENDAR & ONTARIO STAT HOLIDAY SUITE -->
+      <!-- PAGE 4: FULL INTERACTIVE CALENDAR & ONTARIO STAT HOLIDAY SUITE -->
       <main id="pageCalendar" class="hidden max-w-7xl w-full mx-auto px-3 sm:px-6 py-6 space-y-6">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
           <div>
@@ -649,7 +743,7 @@
               <h2 class="text-2xl sm:text-3xl font-extrabold">Clinic Schedule & Vacation Planner</h2>
               <span id="fullCalHeatmapBadge"></span>
             </div>
-            <p id="fullCalLedgerSyncNotice" class="text-slate-500 mt-1 text-xs sm:text-sm">Ontario Statutory Holidays are pre-populated automatically. Future months sync directly with your Monthly Production Ledger targets.</p>
+            <p id="fullCalLedgerSyncNotice" class="text-slate-500 mt-1 text-xs sm:text-sm">Ontario Statutory Holidays are pre-populated automatically. Click any day to adjust start/end times, pay classification (8hr/6hr/4hr), or add multiple events.</p>
           </div>
           <div class="flex items-center gap-2 self-start md:self-center">
             <button onclick="window.jumpCalendarToToday()" class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-brand-500/15 border border-slate-200 dark:border-slate-700 transition">Today</button>
@@ -661,7 +755,7 @@
           </div>
         </div>
 
-        <!-- Task 2: 12-Month Vacation Heatmap Quick-Jump Strip -->
+        <!-- 12-Month Vacation Heatmap Quick-Jump Strip -->
         <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-3.5 shadow-sm space-y-2">
           <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
             <span class="font-bold text-slate-500 uppercase tracking-wider text-[11px]">12-Month Historical Earnings & Vacation Heatmap (<span id="calStripYearLbl">2026</span>)</span>
@@ -698,13 +792,152 @@
 
   </div><!-- END PROTECTED APP SHELL -->
 
-  <!-- Task 4: CALENDAR DAY STATUS & NOTE EDITOR MODAL -->
+  <!-- ADVANCED OPTOMETRY PRACTICE CRA TAX ESTIMATOR & ANNUAL RECONCILIATION MODAL -->
+  <div id="taxEstimatorModal" onclick="if(event.target===this) window.closeTaxEstimatorModal()" class="fixed inset-0 z-50 hidden bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-4xl w-full p-4 sm:p-6 space-y-5 max-h-[92vh] overflow-y-auto shadow-2xl">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🧮</span>
+            <h3 class="font-extrabold text-lg sm:text-xl">Optometry CRA & Ontario Tax Estimator (<span id="taxModalYearLbl">2026</span>)</h3>
+          </div>
+          <p class="text-xs text-slate-500">Up-to-date CRA Federal + Ontario brackets, Ontario Surtax, Health Premium, CPP1 & CPP2, Tuition Credit & Corp SBD (12.2%).</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="inline-flex rounded-xl p-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold">
+            <button type="button" id="taxModeSolePropBtn" onclick="window.setTaxFilingMode('sole_prop')" class="px-3 py-1.5 rounded-lg transition">Sole Proprietor</button>
+            <button type="button" id="taxModeCorpBtn" onclick="window.setTaxFilingMode('corp')" class="px-3 py-1.5 rounded-lg transition">Prof. Corporation (MPC)</button>
+          </div>
+          <button onclick="window.closeTaxEstimatorModal()" class="p-1.5 text-slate-400 hover:text-white">✕</button>
+        </div>
+      </div>
+
+      <!-- Live Top 3 Summary Preview inside Tax Modal -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-sky-500/10 border border-sky-500/30">
+          <span class="text-sky-600 dark:text-sky-400 font-bold uppercase text-[10px] block">1. Predicted / Confirmed Gross Salary</span>
+          <div id="taxModalPreviewGross" class="text-xl font-extrabold mono text-sky-600 dark:text-sky-400 mt-0.5">$0.00</div>
+          <span id="taxModalPreviewGrossSub" class="text-[11px] text-slate-500 block mt-0.5">Daily Rate × Scheduled Shifts</span>
+        </div>
+        <div class="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30">
+          <span class="text-rose-600 dark:text-rose-400 font-bold uppercase text-[10px] block">2. Total Taxes + CPP Owed</span>
+          <div id="taxModalPreviewTotalTax" class="text-xl font-extrabold mono text-rose-600 dark:text-rose-400 mt-0.5">$0.00</div>
+          <span id="taxModalPreviewTaxSub" class="text-[11px] text-slate-500 block mt-0.5">Effective Rate: 0.0%</span>
+        </div>
+        <div class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
+          <span class="text-emerald-600 dark:text-emerald-400 font-bold uppercase text-[10px] block">3. Net Take-Home Pay</span>
+          <div id="taxModalPreviewTakeHome" class="text-xl font-extrabold mono text-emerald-600 dark:text-emerald-400 mt-0.5">$0.00</div>
+          <span id="taxModalPreviewTakeHomeSub" class="text-[11px] text-slate-500 block mt-0.5">$0.00 / month after tax</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 text-xs">
+        <!-- Left Column: Deductions, Professional Fees, Registered Accounts, Education Credit -->
+        <div class="space-y-4 bg-slate-50 dark:bg-slate-800/40 p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
+          <h4 class="font-bold uppercase tracking-wider text-[11px] text-brand-500">Professional Expenses, Registered Deductions & Credits</h4>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block font-semibold mb-1 text-slate-500">Professional License & Dues ($)</label>
+              <input type="number" step="10" id="taxInputLicenseFees" oninput="window.onTaxInputChanged()" placeholder="CCO, OAOO, CMPA..." class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono font-semibold" />
+            </div>
+            <div>
+              <label class="block font-semibold mb-1 text-slate-500">Other Business Expenses ($)</label>
+              <input type="number" step="50" id="taxInputBizExpenses" oninput="window.onTaxInputChanged()" placeholder="CE, Loupes, Auto, Tech..." class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono font-semibold" />
+            </div>
+            <div>
+              <label class="block font-semibold mb-1 text-slate-500">Registered Deductions ($)</label>
+              <input type="number" step="100" id="taxInputRegistered" oninput="window.onTaxInputChanged()" placeholder="RRSP + FHSA Contributions" class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono font-semibold" />
+            </div>
+            <div>
+              <label class="block font-semibold mb-1 text-slate-500">Expected Other Income ($)</label>
+              <input type="number" step="50" id="taxInputOtherIncome" oninput="window.onTaxInputChanged()" placeholder="Interest, GICs, Dividends..." class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono font-semibold" />
+            </div>
+            <div>
+              <label class="block font-semibold mb-1 text-slate-500">Federal Education / Tuition ($)</label>
+              <input type="number" step="100" id="taxInputEduAmount" oninput="window.onTaxInputChanged()" placeholder="Eligible Tuition Carryforward" class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono font-semibold" />
+            </div>
+            <div>
+              <label class="block font-semibold mb-1 text-slate-500">Education Credit Rate (%)</label>
+              <input type="number" step="0.5" id="taxInputEduPct" oninput="window.onTaxInputChanged()" value="15" class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono font-semibold" />
+            </div>
+          </div>
+
+          <!-- Professional Corporation Salary vs Dividend Controls (Shown when Corp mode active) -->
+          <div id="taxCorpControlsBox" class="hidden pt-3 border-t border-slate-200 dark:border-slate-700 space-y-2.5">
+            <h5 class="font-bold text-purple-400 uppercase text-[10px] tracking-wider">Ontario Professional Corporation (12.2% Small Business Rate)</h5>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block font-semibold mb-1 text-slate-500">T4 Salary Paid by Corp ($)</label>
+                <input type="number" step="1000" id="taxInputCorpSalary" oninput="window.onTaxInputChanged()" placeholder="0" class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono font-semibold" />
+              </div>
+              <div>
+                <label class="block font-semibold mb-1 text-slate-500">Non-Eligible Dividends ($)</label>
+                <input type="number" step="1000" id="taxInputCorpDividends" oninput="window.onTaxInputChanged()" placeholder="0" class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono font-semibold" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Detailed CRA Breakdown Box -->
+          <div id="taxDetailedBreakdownBox" class="pt-3 border-t border-slate-200 dark:border-slate-700 space-y-1.5 text-[11px]"></div>
+        </div>
+
+        <!-- Right Column: Year-End Manual Confirmation & Lock (Gross Salary, Federal, Provincial, Corporate, Take-Home) -->
+        <div class="space-y-4 bg-slate-50 dark:bg-slate-800/40 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <h4 class="font-bold uppercase tracking-wider text-[11px] text-emerald-500">Year-End Actual Confirmation (<span id="taxConfirmYearLbl">2026</span>)</h4>
+              <button type="button" onclick="window.fillConfirmWithEstimates()" class="text-[11px] font-bold text-brand-500 hover:underline">Copy Estimates ↓</button>
+            </div>
+            <p class="text-[11px] text-slate-500">Confirm your final Gross Salary, actual Federal, Ontario Provincial, and Corporate taxes paid, and final Net Take-Home Pay. Confirmed values lock into the 3 Dashboard cards and Historical Tax / Take-Home charts.</p>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div class="col-span-2">
+                <label class="block font-semibold mb-1 text-slate-500">Confirmed Annual Gross Salary ($)</label>
+                <input type="number" step="0.01" id="taxConfirmGross" oninput="window.onTaxInputChanged()" placeholder="Leave blank to use live formula (Daily Avg × Shifts)" class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono font-semibold" />
+              </div>
+              <div>
+                <label class="block font-semibold mb-1 text-slate-500">Confirmed Federal Tax ($)</label>
+                <input type="number" step="0.01" id="taxConfirmFederal" oninput="window.onTaxInputChanged()" placeholder="Est. Federal" class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono font-semibold" />
+              </div>
+              <div>
+                <label class="block font-semibold mb-1 text-slate-500">Confirmed Provincial + CPP ($)</label>
+                <input type="number" step="0.01" id="taxConfirmProvincial" oninput="window.onTaxInputChanged()" placeholder="Est. Ontario + CPP" class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono font-semibold" />
+              </div>
+              <div>
+                <label class="block font-semibold mb-1 text-slate-500">Confirmed Corporate Tax ($)</label>
+                <input type="number" step="0.01" id="taxConfirmCorporate" oninput="window.onTaxInputChanged()" placeholder="0.00" class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono font-semibold" />
+              </div>
+              <div>
+                <label class="block font-semibold mb-1 text-slate-500">Confirmed Net Take-Home ($)</label>
+                <input type="number" step="0.01" id="taxConfirmTakeHome" oninput="window.onTaxInputChanged()" placeholder="Auto: Gross − Total Tax" class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono font-semibold" />
+              </div>
+            </div>
+
+            <label class="inline-flex items-center gap-2 pt-1 cursor-pointer select-none">
+              <input type="checkbox" id="taxConfirmLockedCheckbox" onchange="window.onTaxInputChanged()" class="rounded text-emerald-600" />
+              <span class="font-bold text-slate-700 dark:text-slate-200">Mark <span id="taxCheckboxYrLbl">2026</span> Taxes & Take-Home as Confirmed</span>
+            </label>
+          </div>
+
+          <div class="flex items-center justify-between pt-3 border-t border-slate-200 dark:border-slate-700">
+            <button type="button" onclick="window.resetTaxYearConfirmations()" class="text-xs font-semibold text-rose-500 hover:underline">Clear Confirmed Overrides</button>
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="window.closeTaxEstimatorModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-200 dark:bg-slate-800">Cancel</button>
+              <button type="button" onclick="window.saveTaxEstimatorModal()" class="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm">Save Tax Profile</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CALENDAR DAY SHIFT TIME OVERRIDES, PAY CLASSIFICATION (8HR/6HR/4HR) & MULTI-EVENT MODAL -->
   <div id="calendarDayModal" onclick="if(event.target===this) window.closeCalendarDayModal()" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-5 space-y-4 shadow-2xl">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-lg w-full p-5 space-y-4 max-h-[90vh] overflow-y-auto shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
         <div>
           <h3 id="calDayModalTitle" class="font-bold text-lg">Edit Clinic Day</h3>
-          <p id="calDayModalSub" class="text-xs text-slate-500">Select shift or time-off status</p>
+          <p id="calDayModalSub" class="text-xs text-slate-500">Customize shift times, pay classification & multiple events</p>
         </div>
         <button onclick="window.closeCalendarDayModal()" class="p-1 text-slate-400 hover:text-white">✕</button>
       </div>
@@ -714,7 +947,7 @@
         <span id="calDayStatHolidayName">Ontario Statutory Holiday</span>
       </div>
 
-      <div class="grid grid-cols-2 gap-2 text-xs" id="calDayStatusButtons">
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs" id="calDayStatusButtons">
         <button type="button" onclick="window.selectCalDayType('work_full')" data-cal-type="work_full" class="cal-type-btn p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-left font-bold flex items-center gap-2 hover:bg-brand-500/10 transition">
           <span class="w-2.5 h-2.5 rounded-full bg-brand-500 shrink-0"></span>
           <div><div>Full Shift</div><div id="calModalFullShiftSub" class="text-[10px] text-slate-400 font-normal">8hr M–T / 6hr Fri</div></div>
@@ -741,9 +974,52 @@
         </button>
       </div>
 
+      <!-- Shift Start/End Time Override & Pay Classification Selector -->
+      <div id="calShiftTimingBox" class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-3 text-xs">
+        <div class="flex items-center justify-between">
+          <span class="font-bold text-slate-700 dark:text-slate-200">Shift Clock Hours & Pay Classification</span>
+          <button type="button" onclick="window.applyDefaultShiftTimesToCalModal()" class="text-[11px] font-semibold text-brand-500 hover:underline">Use Settings Default</button>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+          <div>
+            <label class="block font-semibold mb-1 text-slate-500">Pay Classification</label>
+            <select id="calDayPayHoursSelect" onchange="window.onCalPayHoursSelectChange(this.value)" class="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 font-bold mono">
+              <option value="8">8-Hr Full Day ($780)</option>
+              <option value="6">6-Hr Fri Shift ($630)</option>
+              <option value="4">4-Hr Half Day ($480)</option>
+              <option value="0">0-Hr (Time Off / Event)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold mb-1 text-slate-500">Start Time</label>
+            <input type="time" id="calDayStartTime" class="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono font-semibold" />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1 text-slate-500">End Time</label>
+            <input type="time" id="calDayEndTime" class="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono font-semibold" />
+          </div>
+        </div>
+        <p class="text-[10px] text-slate-400">Clock times can be longer/shorter than 8h (e.g. leaving early or 8:30–5:30) while Pay Classification controls your ledger target.</p>
+      </div>
+
       <div class="text-xs">
-        <label class="block font-semibold mb-1 text-slate-500">Day Note / Event Label (optional)</label>
-        <input type="text" id="calDayNoteInput" placeholder="e.g. Halifax Trip, CE Conference, Morning Clinic..." class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700" />
+        <label class="block font-semibold mb-1 text-slate-500">Primary Day Note (optional)</label>
+        <input type="text" id="calDayNoteInput" placeholder="e.g. Leaving at 4:00 PM, Halifax Trip..." class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700" />
+      </div>
+
+      <!-- Multiple Events per Day Section -->
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2.5 text-xs">
+        <div class="flex items-center justify-between">
+          <span class="font-bold text-slate-700 dark:text-slate-200">Additional Events on This Day</span>
+          <span id="calExtraEventsCountBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-400">0 events</span>
+        </div>
+        <div id="calExtraEventsList" class="space-y-1.5"></div>
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 pt-1">
+          <input type="text" id="calNewEventTitle" placeholder="Event title (e.g. Evening CE Dinner)" class="sm:col-span-5 px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700" />
+          <input type="time" id="calNewEventStart" value="18:00" class="sm:col-span-2 px-2 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono" />
+          <input type="time" id="calNewEventEnd" value="20:00" class="sm:col-span-2 px-2 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono" />
+          <button type="button" onclick="window.addExtraEventToCalModal()" class="sm:col-span-3 px-2.5 py-1.5 rounded-lg font-bold bg-purple-600 hover:bg-purple-500 text-white transition">+ Add Event</button>
+        </div>
       </div>
 
       <div id="calDayFutureSyncHint" class="p-2.5 rounded-xl bg-brand-500/10 border border-brand-500/25 text-[11px] text-brand-400"></div>
@@ -767,8 +1043,12 @@
         <button onclick="window.closeMobileMoreSheet()" class="text-slate-400 p-1">✕</button>
       </div>
       <div class="grid grid-cols-1 gap-2 text-xs">
+        <button onclick="window.closeMobileMoreSheet(); window.openTaxEstimatorModal();" class="w-full p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 flex items-center justify-between font-bold">
+          <span class="flex items-center gap-3"><span class="text-base">🧮</span><span>CRA & Ontario Tax Estimator Suite</span></span>
+          <span>→</span>
+        </button>
         <button onclick="window.closeMobileMoreSheet(); window.openSettingsModal();" class="w-full p-3.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center justify-between font-semibold">
-          <span class="flex items-center gap-3"><span class="text-base">⚙️</span><span>Settings, Rates, Navbar & Backups</span></span>
+          <span class="flex items-center gap-3"><span class="text-base">⚙️</span><span>Settings, Shift Hours, Navbar & Backups</span></span>
           <span class="text-slate-400">→</span>
         </button>
         <button onclick="window.closeMobileMoreSheet(); window.toggleLayoutEditMode();" class="w-full p-3.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center justify-between font-semibold">
@@ -994,13 +1274,13 @@
     </div>
   </div>
 
-  <!-- UNIFIED SETTINGS MODAL -->
+  <!-- UNIFIED SETTINGS MODAL WITH DEFAULT SHIFT CLOCK HOURS & CLINIC LOCATION -->
   <div id="settingsModal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-5 space-y-5 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
         <div>
           <h3 class="font-bold text-lg">Settings & Data Management</h3>
-          <p class="text-xs text-slate-500">Contract rates, navbar customization, exports & backups</p>
+          <p class="text-xs text-slate-500">Contract rates, shift clock times, navbar, exports & backups</p>
         </div>
         <button onclick="window.closeSettingsModal()" class="p-1 text-slate-400 hover:text-white">✕</button>
       </div>
@@ -1025,8 +1305,44 @@
             <input type="number" step="1" id="setHalfRate" class="w-full px-2.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-bold" />
           </div>
         </div>
+      </div>
+
+      <!-- Default Clinic Shift Clock Hours & Location -->
+      <div class="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-3 text-xs">
+        <h4 class="font-bold uppercase tracking-wider text-[11px] text-emerald-500">Default Shift Clock Times & Clinic Location</h4>
+        <p class="text-[11px] text-slate-500">Used as defaults on your Calendar & Google Calendar export (clock duration does not alter 8hr/6hr/4hr pay targets).</p>
+        <div>
+          <label class="block font-semibold mb-1 text-slate-500">Clinic Name & Address (Location)</label>
+          <input type="text" id="setClinicAddress" placeholder="Brockville Optometric Centre, Brockville, ON" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 font-medium" />
+        </div>
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block font-semibold mb-1 text-slate-500">8-Hr Start Time</label>
+            <input type="time" id="setStart8h" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1 text-slate-500">8-Hr End Time</label>
+            <input type="time" id="setEnd8h" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1 text-slate-500">6-Hr (Fri) Start</label>
+            <input type="time" id="setStart6h" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1 text-slate-500">6-Hr (Fri) End</label>
+            <input type="time" id="setEnd6h" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1 text-slate-500">4-Hr (Half) Start</label>
+            <input type="time" id="setStart4h" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1 text-slate-500">4-Hr (Half) End</label>
+            <input type="time" id="setEnd4h" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
+          </div>
+        </div>
         <div class="flex justify-end pt-1">
-          <button onclick="window.saveSettingsModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white transition">Save Contract Rates</button>
+          <button onclick="window.saveSettingsModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white transition">Save Rates & Shift Times</button>
         </div>
       </div>
 
@@ -1315,13 +1631,33 @@
       month: m, mtDays: 16, fDays: 4, daysWorked: 0, gross: 0, reci: 0, ohip: 0, totalOhip: 0, paid: 0, patients: 0, customTarget: null, shiftTargetAdj: 0
     }));
 
+    function makeDefaultTaxYearObj() {
+      return {
+        mode: 'sole_prop',
+        licenseFees: 0,
+        bizExpenses: 0,
+        registeredDeductions: 0,
+        otherIncome: 0,
+        eduAmount: 0,
+        eduCreditPct: 15,
+        corpSalary: 0,
+        corpDividends: 0,
+        confirmed: false,
+        confirmedGross: null,
+        confirmedFederal: null,
+        confirmedProvincial: null,
+        confirmedCorporate: null,
+        confirmedTakeHome: null
+      };
+    }
+
     function getDefaultLayouts() {
       return {
-        dashBlocks: ['kpis', 'quarters', 'ledger', 'bottomRow', 'calendar'],
+        dashBlocks: ['annualSummary', 'kpis', 'quarters', 'ledger', 'bottomRow', 'calendar'],
         dashKpis: ['net', 'paid', 'daily', 'revpt'],
         dashPinnedCharts: [],
         recordsOrder: ['rec_dailyGross', 'rec_yrPaid', 'rec_qtrNet', 'rec_mthPts', 'rec_dailyPts', 'rec_yrDays', 'rec_mthDays', 'rec_mthGross', 'rec_mthDailyAvg'],
-        chartsOrder: ['netTarget', 'dailyAvg', 'patients', 'breakdown', 'forecastCone', 'annualSalaryCone', 'quarterSeasonality', 'timeOffBreakdown', 'daysWorkedTrend'],
+        chartsOrder: ['netTarget', 'dailyAvg', 'patients', 'breakdown', 'forecastCone', 'annualSalaryCone', 'quarterSeasonality', 'timeOffBreakdown', 'daysWorkedTrend', 'taxesPaidHistory', 'netTakeHomeHistory'],
         navOrder: ['pageDashboard', 'pageRecords', 'logDay', 'pageCharts', 'pageCalendar'],
         navHidden: [],
         widgetSizes: {
@@ -1339,6 +1675,8 @@
           chart_quarterSeasonality: 'full',
           chart_timeOffBreakdown: 'normal',
           chart_daysWorkedTrend: 'normal',
+          chart_taxesPaidHistory: 'normal',
+          chart_netTakeHomeHistory: 'normal',
           pinned_netTarget: 'normal',
           pinned_dailyAvg: 'normal',
           pinned_patients: 'normal',
@@ -1348,6 +1686,8 @@
           pinned_quarterSeasonality: 'full',
           pinned_timeOffBreakdown: 'normal',
           pinned_daysWorkedTrend: 'normal',
+          pinned_taxesPaidHistory: 'normal',
+          pinned_netTakeHomeHistory: 'normal',
           rec_rec_dailyGross: 'normal',
           rec_rec_yrPaid: 'normal',
           rec_rec_qtrNet: 'normal',
@@ -1370,7 +1710,18 @@
         lastDriveBackupTimestamp: null,
         driveClientId: localStorage.getItem(DRIVE_CLIENT_ID_KEY) || '',
         backupAccountEmail: localStorage.getItem(DRIVE_ACCOUNT_EMAIL_KEY) || '',
-        settings: { netPct: 24, mtRate: 780, fRate: 630, halfRate: 480 },
+        settings: {
+          netPct: 24,
+          mtRate: 780,
+          fRate: 630,
+          halfRate: 480,
+          clinicAddress: 'Brockville Optometric Centre, Brockville, ON',
+          shiftTimes: {
+            start8h: '08:30', end8h: '17:00',
+            start6h: '08:30', end6h: '15:00',
+            start4h: '08:30', end4h: '12:30'
+          }
+        },
         recordHigh: { amount: 0, date: '—', note: '', baselineAmount: 0, baselineDate: '—', baselineNote: '', fromLog: false },
         layouts: getDefaultLayouts(),
         years: { '2025': makeBlankYear(), '2026': makeBlankYear(), '2027': makeBlankYear() },
@@ -1380,6 +1731,7 @@
           '2027': { Q1: { confirmed: false, actualNet: null, actualBonus: null }, Q2: { confirmed: false, actualNet: null, actualBonus: null }, Q3: { confirmed: false, actualNet: null, actualBonus: null }, Q4: { confirmed: false, actualNet: null, actualBonus: null } }
         },
         yearPaidExtras: { '2025': { health: 0, bonusPaid: 0 }, '2026': { health: 0, bonusPaid: 0 }, '2027': { health: 0, bonusPaid: 0 } },
+        taxProfiles: { '2025': makeDefaultTaxYearObj(), '2026': makeDefaultTaxYearObj(), '2027': makeDefaultTaxYearObj() },
         dailyLogs: [],
         calendarDays: {}
       };
@@ -1449,16 +1801,35 @@
 
     function ensureLayoutsValid() {
       const def = getDefaultLayouts();
-      if (!state.settings) state.settings = { netPct: 24, mtRate: 780, fRate: 630, halfRate: 480 };
+      if (!state.settings) state.settings = getEmptyState().settings;
       if (!state.settings.halfRate) state.settings.halfRate = 480;
+      if (!state.settings.clinicAddress) state.settings.clinicAddress = 'Brockville Optometric Centre, Brockville, ON';
+      if (!state.settings.shiftTimes) {
+        state.settings.shiftTimes = { start8h: '08:30', end8h: '17:00', start6h: '08:30', end6h: '15:00', start4h: '08:30', end4h: '12:30' };
+      }
       if (!state.calendarDays || typeof state.calendarDays !== 'object') state.calendarDays = {};
+      if (!state.taxProfiles || typeof state.taxProfiles !== 'object') state.taxProfiles = {};
+      Object.keys(state.years || {}).forEach(yr => {
+        if (!state.taxProfiles[yr]) {
+          state.taxProfiles[yr] = makeDefaultTaxYearObj();
+        } else {
+          state.taxProfiles[yr] = { ...makeDefaultTaxYearObj(), ...state.taxProfiles[yr] };
+        }
+      });
+
       if (!state.timeOffChartMode) state.timeOffChartMode = 'yearly';
       if (!state.layouts) state.layouts = def;
       if (!Array.isArray(state.layouts.dashBlocks)) {
         state.layouts.dashBlocks = def.dashBlocks;
-      } else if (!state.layouts.dashBlocks.includes('calendar') && !state.layouts._calInitialized) {
-        state.layouts.dashBlocks.push('calendar');
-        state.layouts._calInitialized = true;
+      } else {
+        if (!state.layouts.dashBlocks.includes('annualSummary') && !state.layouts._annSummaryInitialized) {
+          state.layouts.dashBlocks.unshift('annualSummary');
+          state.layouts._annSummaryInitialized = true;
+        }
+        if (!state.layouts.dashBlocks.includes('calendar') && !state.layouts._calInitialized) {
+          state.layouts.dashBlocks.push('calendar');
+          state.layouts._calInitialized = true;
+        }
       }
       if (!Array.isArray(state.layouts.dashKpis)) state.layouts.dashKpis = def.dashKpis;
       if (!Array.isArray(state.layouts.dashPinnedCharts)) state.layouts.dashPinnedCharts = [];
@@ -1487,7 +1858,7 @@
       }
     }
 
-    // ================= TASK 2 & 4: ONTARIO STATUTORY HOLIDAYS & CALENDAR ENGINE =================
+    // ================= ONTARIO STATUTORY HOLIDAYS & CALENDAR ENGINE =================
     function formatDateStr(y, mIdx, d) {
       return `${y}-${String(mIdx + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
     }
@@ -1579,6 +1950,15 @@
       return null;
     }
 
+    function getDefaultShiftClockTimes(payHours) {
+      const st = state.settings?.shiftTimes || { start8h: '08:30', end8h: '17:00', start6h: '08:30', end6h: '15:00', start4h: '08:30', end4h: '12:30' };
+      const h = Number(payHours);
+      if (h === 8) return { startTime: st.start8h || '08:30', endTime: st.end8h || '17:00' };
+      if (h === 6) return { startTime: st.start6h || '08:30', endTime: st.end6h || '15:00' };
+      if (h === 4) return { startTime: st.start4h || '08:30', endTime: st.end4h || '12:30' };
+      return { startTime: '', endTime: '' };
+    }
+
     function getEffectiveCalendarDayInfo(yearStr, monthIdx, dayNum) {
       const y = Number(yearStr);
       const dateStr = formatDateStr(y, monthIdx, dayNum);
@@ -1592,20 +1972,39 @@
 
       let type = 'off';
       let note = customEntry?.note || '';
+      let payHours = isWeekend || statHolidayName ? 0 : (isFriday ? 6 : 8);
 
       if (customEntry && customEntry.type) {
         type = customEntry.type;
+        if (customEntry.payHours !== undefined && customEntry.payHours !== null) {
+          payHours = Number(customEntry.payHours);
+        } else if (type === 'work_full') {
+          payHours = isFriday ? 6 : 8;
+        } else if (type === 'half') {
+          payHours = 4;
+        } else {
+          payHours = 0;
+        }
       } else if (loggedShift) {
-        const sHrs = loggedShift.shiftHours !== undefined ? Number(loggedShift.shiftHours) : 8;
-        type = sHrs === 4 ? 'half' : 'work_full';
+        const sHrs = loggedShift.shiftHours !== undefined ? Number(loggedShift.shiftHours) : (isFriday ? 6 : 8);
+        payHours = sHrs;
+        type = sHrs === 4 ? 'half' : (sHrs > 0 ? 'work_full' : 'off');
         if (!note && loggedShift.note) note = loggedShift.note;
       } else if (statHolidayName) {
         type = 'stat';
+        payHours = 0;
       } else if (!isWeekend) {
         type = 'work_full';
+        payHours = isFriday ? 6 : 8;
       } else {
         type = 'weekend';
+        payHours = 0;
       }
+
+      const defClock = getDefaultShiftClockTimes(payHours);
+      const startTime = customEntry?.startTime || defClock.startTime;
+      const endTime = customEntry?.endTime || defClock.endTime;
+      const extraEvents = Array.isArray(customEntry?.extraEvents) ? customEntry.extraEvents : [];
 
       return {
         dateStr,
@@ -1615,13 +2014,16 @@
         isFriday,
         statHolidayName,
         type,
+        payHours,
+        startTime,
+        endTime,
+        extraEvents,
         note,
         hasCustomOverride: !!(customEntry && customEntry.type),
         loggedShift
       };
     }
 
-    // Task 4: Determine whether a month is an unworked future month that should auto-sync with the Ledger
     function isFutureUnworkedMonth(yearStr, monthIdx) {
       const yNum = Number(yearStr);
       const mObj = state.years[yearStr]?.[monthIdx];
@@ -1661,14 +2063,16 @@
         if (info.type === 'vacation') vacationCount++;
         else if (info.type === 'sick') sickCount++;
         else if (info.type === 'event') eventCount++;
-        else if (info.type === 'half') {
+
+        if (info.payHours === 4 || info.type === 'half') {
           halfTotalCount++;
           if (info.isFriday) halfFriCount++;
           else halfMtCount++;
-        } else if (info.type === 'work_full') {
+        } else if (info.payHours === 8) {
           if (info.isWeekend) weekendWorkCount++;
-          else if (info.isFriday) fullFriCount++;
           else fullMtCount++;
+        } else if (info.payHours === 6) {
+          fullFriCount++;
         }
       }
 
@@ -1676,7 +2080,6 @@
       const fRate = Number(state.settings.fRate) || 630;
       const halfRate = Number(state.settings.halfRate) || 480;
 
-      // Each scheduled day (including a 4-hr half day) occupies 1 shift slot on the calendar, while shiftTargetAdj adjusts the dollar target for 4-hr days ($480 vs $780/$630)
       const scheduledMtSlots = fullMtCount + halfMtCount + weekendWorkCount;
       const scheduledFriSlots = fullFriCount + halfFriCount;
       const shiftTargetAdj = (halfMtCount * (halfRate - mtRate)) + (halfFriCount * (halfRate - fRate));
@@ -1703,7 +2106,6 @@
       };
     }
 
-    // Task 4: Cross-check & sync future unworked months with the Monthly Production Ledger
     function syncFutureMonthCalendarToLedger(yearStr, monthIdx) {
       if (!isFutureUnworkedMonth(yearStr, monthIdx)) return false;
       const mObj = state.years[yearStr]?.[monthIdx];
@@ -1727,6 +2129,191 @@
       touchedMonths.forEach(mIdx => {
         syncFutureMonthCalendarToLedger(yearStr, mIdx);
       });
+    }
+
+    // ================= CRA & ONTARIO OPTOMETRY TAX ESTIMATOR ENGINE =================
+    function computeGraduatedTax(taxableIncome, brackets) {
+      if (taxableIncome <= 0) return 0;
+      let tax = 0;
+      let prevCap = 0;
+      for (const b of brackets) {
+        if (taxableIncome > prevCap) {
+          const slice = Math.min(taxableIncome, b.upTo) - prevCap;
+          tax += slice * b.rate;
+          prevCap = b.upTo;
+        } else {
+          break;
+        }
+      }
+      return tax;
+    }
+
+    function calculateOntarioHealthPremium(taxableIncome) {
+      if (taxableIncome <= 20000) return 0;
+      if (taxableIncome <= 36000) return Math.min(300, (taxableIncome - 20000) * 0.06);
+      if (taxableIncome <= 48000) return Math.min(450, 300 + (taxableIncome - 36000) * 0.06);
+      if (taxableIncome <= 72000) return Math.min(600, 450 + (taxableIncome - 48000) * 0.25);
+      if (taxableIncome <= 200000) return Math.min(750, 600 + (taxableIncome - 72000) * 0.25);
+      return Math.min(900, 750 + (taxableIncome - 200000) * 0.25);
+    }
+
+    function calculateYearTaxAndSalarySummary(yearStr, maxMonthIdxOverride = null) {
+      ensureLayoutsValid();
+      const months = state.years[yearStr] || [];
+      const ym = getYearMetrics(yearStr, maxMonthIdxOverride);
+      const tp = state.taxProfiles?.[yearStr] || makeDefaultTaxYearObj();
+
+      const totalScheduledShifts = months.reduce((acc, m) => acc + (Number(m.mtDays) || 0) + (Number(m.fDays) || 0), 0);
+      const dailyRateUsed = ym.avgDailyNet > 0 ? ym.avgDailyNet : 0;
+      let estPredictedGrossSalary = dailyRateUsed * totalScheduledShifts;
+      if (maxMonthIdxOverride !== null) {
+        const slicedShifts = months.slice(0, maxMonthIdxOverride + 1).reduce((acc, m) => acc + (Number(m.mtDays) || 0) + (Number(m.fDays) || 0), 0);
+        estPredictedGrossSalary = dailyRateUsed * slicedShifts;
+      }
+
+      const hasConfirmedGross = tp.confirmed && tp.confirmedGross !== null && tp.confirmedGross !== undefined && tp.confirmedGross !== '';
+      const grossPracticeIncome = hasConfirmedGross ? Number(tp.confirmedGross) : estPredictedGrossSalary;
+
+      const licenseFees = Number(tp.licenseFees) || 0;
+      const bizExpenses = Number(tp.bizExpenses) || 0;
+      const registeredDeductions = Number(tp.registeredDeductions) || 0;
+      const otherIncome = Number(tp.otherIncome) || 0;
+      const eduAmount = Number(tp.eduAmount) || 0;
+      const eduCreditPct = Number(tp.eduCreditPct) || 15;
+      const mode = tp.mode || 'sole_prop';
+
+      const FED_BRACKETS = [
+        { upTo: 58484, rate: 0.15 },
+        { upTo: 116967, rate: 0.205 },
+        { upTo: 181405, rate: 0.26 },
+        { upTo: 258482, rate: 0.29 },
+        { upTo: Infinity, rate: 0.33 }
+      ];
+      const ON_BRACKETS = [
+        { upTo: 53891, rate: 0.0505 },
+        { upTo: 107785, rate: 0.0915 },
+        { upTo: 150000, rate: 0.1116 },
+        { upTo: 220000, rate: 0.1216 },
+        { upTo: Infinity, rate: 0.1316 }
+      ];
+      const FED_BPA = 16452;
+      const ON_BPA = 12989;
+
+      const CPP_YMPE = 73200;
+      const CPP_YAMPE = 83400;
+      const CPP_BASIC_EXEMPTION = 3500;
+
+      let estFederalTax = 0;
+      let estProvincialTaxAndCpp = 0;
+      let estCorporateTax = 0;
+      let cppTotalContribution = 0;
+      let ontarioHealthPrem = 0;
+      let ontarioSurtax = 0;
+      let netProfessionalIncome = Math.max(0, grossPracticeIncome - licenseFees - bizExpenses);
+
+      if (mode === 'sole_prop') {
+        const pensionable1 = Math.max(0, Math.min(netProfessionalIncome, CPP_YMPE) - CPP_BASIC_EXEMPTION);
+        const cpp1Employee = pensionable1 * 0.0595;
+        const cpp1Employer = pensionable1 * 0.0595;
+        const pensionable2 = Math.max(0, Math.min(netProfessionalIncome, CPP_YAMPE) - CPP_YMPE);
+        const cpp2Employee = pensionable2 * 0.04;
+        const cpp2Employer = pensionable2 * 0.04;
+        cppTotalContribution = cpp1Employee + cpp1Employer + cpp2Employee + cpp2Employer;
+        const cppDeductionFromIncome = cpp1Employer + cpp2Employer + cpp2Employee;
+        const cppNonRefundableCreditBase = cpp1Employee;
+
+        const taxableIncome = Math.max(0, netProfessionalIncome + otherIncome - registeredDeductions - cppDeductionFromIncome);
+
+        const grossFedTax = computeGraduatedTax(taxableIncome, FED_BRACKETS);
+        const fedBpaCredit = FED_BPA * 0.15;
+        const fedCppCredit = cppNonRefundableCreditBase * 0.15;
+        const fedTuitionCredit = eduAmount * (eduCreditPct / 100);
+        estFederalTax = Math.max(0, grossFedTax - fedBpaCredit - fedCppCredit - fedTuitionCredit);
+
+        const grossOnTax = computeGraduatedTax(taxableIncome, ON_BRACKETS);
+        const onBpaCredit = ON_BPA * 0.0505;
+        const onCppCredit = cppNonRefundableCreditBase * 0.0505;
+        const basicOnTax = Math.max(0, grossOnTax - onBpaCredit - onCppCredit);
+        const surtaxTier1 = Math.max(0, basicOnTax - 5818) * 0.20;
+        const surtaxTier2 = Math.max(0, basicOnTax - 7446) * 0.36;
+        ontarioSurtax = surtaxTier1 + surtaxTier2;
+        ontarioHealthPrem = calculateOntarioHealthPremium(taxableIncome);
+        const totalOntarioIncomeTax = basicOnTax + ontarioSurtax + ontarioHealthPrem;
+
+        estProvincialTaxAndCpp = totalOntarioIncomeTax + cppTotalContribution;
+        estCorporateTax = 0;
+      } else {
+        const corpSalary = Number(tp.corpSalary) || 0;
+        const corpDividends = Number(tp.corpDividends) || 0;
+
+        const pensionable1 = Math.max(0, Math.min(corpSalary, CPP_YMPE) - CPP_BASIC_EXEMPTION);
+        const cpp1Emp = pensionable1 * 0.0595;
+        const pensionable2 = Math.max(0, Math.min(corpSalary, CPP_YAMPE) - CPP_YMPE);
+        const cpp2Emp = pensionable2 * 0.04;
+        cppTotalContribution = (cpp1Emp + cpp2Emp) * 2;
+
+        const corpActiveIncome = Math.max(0, netProfessionalIncome - corpSalary - (cpp1Emp + cpp2Emp));
+        estCorporateTax = corpActiveIncome * 0.122;
+
+        const grossedUpDivs = corpDividends * 1.15;
+        const personalTaxable = Math.max(0, corpSalary + grossedUpDivs + otherIncome - registeredDeductions - cpp2Emp);
+
+        const grossFed = computeGraduatedTax(personalTaxable, FED_BRACKETS);
+        const fedDivCredit = grossedUpDivs * 0.090301;
+        const fedTuitionCredit = eduAmount * (eduCreditPct / 100);
+        estFederalTax = Math.max(0, grossFed - (FED_BPA * 0.15) - (cpp1Emp * 0.15) - fedDivCredit - fedTuitionCredit);
+
+        const grossOn = computeGraduatedTax(personalTaxable, ON_BRACKETS);
+        const basicOn = Math.max(0, grossOn - (ON_BPA * 0.0505) - (cpp1Emp * 0.0505));
+        ontarioSurtax = Math.max(0, basicOn - 5818) * 0.20 + Math.max(0, basicOn - 7446) * 0.36;
+        const onDivCredit = grossedUpDivs * 0.029863;
+        ontarioHealthPrem = calculateOntarioHealthPremium(personalTaxable);
+        estProvincialTaxAndCpp = Math.max(0, basicOn + ontarioSurtax - onDivCredit) + ontarioHealthPrem + cppTotalContribution;
+      }
+
+      const hasConfFed = tp.confirmed && tp.confirmedFederal !== null && tp.confirmedFederal !== undefined && tp.confirmedFederal !== '';
+      const hasConfProv = tp.confirmed && tp.confirmedProvincial !== null && tp.confirmedProvincial !== undefined && tp.confirmedProvincial !== '';
+      const hasConfCorp = tp.confirmed && tp.confirmedCorporate !== null && tp.confirmedCorporate !== undefined && tp.confirmedCorporate !== '';
+      const hasConfTakeHome = tp.confirmed && tp.confirmedTakeHome !== null && tp.confirmedTakeHome !== undefined && tp.confirmedTakeHome !== '';
+
+      const finalFederalTax = hasConfFed ? Number(tp.confirmedFederal) : estFederalTax;
+      const finalProvincialTax = hasConfProv ? Number(tp.confirmedProvincial) : estProvincialTaxAndCpp;
+      const finalCorporateTax = hasConfCorp ? Number(tp.confirmedCorporate) : estCorporateTax;
+      const finalTotalTax = finalFederalTax + finalProvincialTax + finalCorporateTax;
+
+      const estNetTakeHome = Math.max(0, grossPracticeIncome + otherIncome - licenseFees - bizExpenses - finalTotalTax);
+      const finalNetTakeHome = hasConfTakeHome ? Number(tp.confirmedTakeHome) : estNetTakeHome;
+      const effectiveTaxRatePct = grossPracticeIncome > 0 ? (finalTotalTax / grossPracticeIncome) * 100 : 0;
+
+      return {
+        yearStr,
+        mode,
+        isConfirmed: !!(tp.confirmed || hasConfirmedGross || hasConfFed || hasConfProv || hasConfCorp || hasConfTakeHome),
+        totalScheduledShifts,
+        dailyRateUsed,
+        estPredictedGrossSalary,
+        grossPracticeIncome,
+        netProfessionalIncome,
+        licenseFees,
+        bizExpenses,
+        registeredDeductions,
+        otherIncome,
+        eduAmount,
+        eduCreditPct,
+        estFederalTax,
+        estProvincialTaxAndCpp,
+        estCorporateTax,
+        cppTotalContribution,
+        ontarioHealthPrem,
+        ontarioSurtax,
+        finalFederalTax,
+        finalProvincialTax,
+        finalCorporateTax,
+        finalTotalTax,
+        estNetTakeHome,
+        finalNetTakeHome,
+        effectiveTaxRatePct
+      };
     }
 
     const NAV_ITEMS_META = {
@@ -1961,6 +2548,15 @@
     };
 
     function saveAndRender() { pushStateToCloud(); renderAll(); }
+
+    function getWorkedYearsList() {
+      const sortedYears = Object.keys(state.years || {}).sort();
+      const worked = sortedYears.filter(yr => {
+        const ym = getYearMetrics(yr, 11);
+        return ym.ytdDaysWorked > 0 || ym.ytdGross > 0 || ym.ytdNet > 0;
+      });
+      return worked.length > 0 ? worked : [state.currentYear];
+    }
 
     function getEligibleBenchmarkYears() {
       const nowYear = new Date().getFullYear();
@@ -2329,15 +2925,20 @@
     function getBenchmarkComparisonMetrics() {
       const mode = state.benchmarkMode || 'prev_year', curYear = state.currentYear;
       const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const workedYrs = getWorkedYearsList();
       if (mode === 'all_time') {
-        const allM = Object.keys(state.years).map(y => getYearMetrics(y, null));
+        const allM = workedYrs.map(y => getYearMetrics(y, null));
+        const allT = workedYrs.map(y => calculateYearTaxAndSalarySummary(y, null));
         return {
           label: 'All-Time Peak',
           ytdNet: Math.max(...allM.map(x => x.ytdNet)), ytdGross: Math.max(...allM.map(x => x.ytdGross)),
           ytdTotalPaid: Math.max(...allM.map(x => x.ytdTotalPaid)), avgDailyNet: Math.max(...allM.map(x => x.avgDailyNet)),
           avgRevPerPt: Math.max(...allM.map(x => x.avgRevPerPt)), ytdDaysWorked: Math.max(...allM.map(x => x.ytdDaysWorked)),
           avgDaysPerMth: Math.max(...allM.map(x => x.avgDaysPerMth)), ytdPatients: Math.max(...allM.map(x => x.ytdPatients)),
-          avgPtsPerDay: Math.max(...allM.map(x => x.avgPtsPerDay)), avgPtsPerMth: Math.max(...allM.map(x => x.avgPtsPerMth))
+          avgPtsPerDay: Math.max(...allM.map(x => x.avgPtsPerDay)), avgPtsPerMth: Math.max(...allM.map(x => x.avgPtsPerMth)),
+          predGrossSalary: Math.max(...allT.map(x => x.grossPracticeIncome)),
+          estTotalTax: Math.max(...allT.map(x => x.finalTotalTax)),
+          netTakeHome: Math.max(...allT.map(x => x.finalNetTakeHome))
         };
       }
       if (mode === 'prev_year') {
@@ -2345,18 +2946,30 @@
         if (!state.years[compareYear]) compareYear = '2025';
         const ytdCut = getLastActiveMonthIndex(curYear), avgCut = getAverageCutoffIndex(curYear);
         const bmYtd = getYearMetrics(compareYear, ytdCut), bmAvg = getYearMetrics(compareYear, avgCut);
+        const bmTax = calculateYearTaxAndSalarySummary(compareYear, null);
         return {
           label: `${compareYear} (Jan–${monthNames[ytdCut]})`, ytdNet: bmYtd.ytdNet, ytdGross: bmYtd.ytdGross, ytdTotalPaid: bmYtd.ytdTotalPaid,
           ytdDaysWorked: bmYtd.ytdDaysWorked, ytdPatients: bmYtd.ytdPatients, avgDailyNet: bmAvg.avgDailyNet, avgRevPerPt: bmAvg.avgRevPerPt,
-          avgDaysPerMth: bmAvg.avgDaysPerMth, avgPtsPerDay: bmAvg.avgPtsPerDay, avgPtsPerMth: bmAvg.avgPtsPerMth
+          avgDaysPerMth: bmAvg.avgDaysPerMth, avgPtsPerDay: bmAvg.avgPtsPerDay, avgPtsPerMth: bmAvg.avgPtsPerMth,
+          predGrossSalary: bmTax.grossPracticeIncome,
+          estTotalTax: bmTax.finalTotalTax,
+          netTakeHome: bmTax.finalNetTakeHome
         };
       }
       const targetYear = state.years[mode] ? mode : '2025';
-      return { label: `${targetYear} Full Year`, ...getYearMetrics(targetYear, null) };
+      const bmTax = calculateYearTaxAndSalarySummary(targetYear, null);
+      return {
+        label: `${targetYear} Full Year`,
+        ...getYearMetrics(targetYear, null),
+        predGrossSalary: bmTax.grossPracticeIncome,
+        estTotalTax: bmTax.finalTotalTax,
+        netTakeHome: bmTax.finalNetTakeHome
+      };
     }
 
     // ================= DRAG & DROP + SIDE-DRAG WIDGET RESIZING ENGINE =================
     const BLOCK_LABELS = {
+      annualSummary: 'Top Projected Salary, Tax & Take-Home Cards',
       kpis: 'Top KPI Summary Row',
       quarters: 'Quarterly Bonus Estimator',
       ledger: 'Monthly Production Ledger',
@@ -2377,8 +2990,10 @@
       forecastCone: { title: 'Quarterly Payout Cone & Trajectory Forecast', sub: 'Cumulative quarter 24% net & bonus payout forecast.' },
       annualSalaryCone: { title: 'Annual Projected Salary & Total Earnings Trajectory', sub: 'Starts from YTD Net Cut earned and adds remaining work days.' },
       quarterSeasonality: { title: 'Historical Quarterly Seasonality (Full Quarters Only)', sub: 'Compares average 24% Net & Bonus across Q1–Q4.' },
-      timeOffBreakdown: { title: 'Time-Off & Absence Breakdown', sub: 'Tracks Vacation, Sick, CE/Events, and 4-Hr Half Days logged on Calendar.' },
-      daysWorkedTrend: { title: 'Annual Days Worked & Pacing Trend', sub: 'Compares Total Days Worked vs. Scheduled Shifts across recorded years.' }
+      timeOffBreakdown: { title: 'Time-Off & Absence Breakdown', sub: 'Tracks Vacation, Sick, CE/Events, and 4-Hr Half Days across active years.' },
+      daysWorkedTrend: { title: 'Annual Days Worked & Pacing Trend', sub: 'Total Days Worked per year vs. Average Days Worked / Active Month.' },
+      taxesPaidHistory: { title: 'Annual Taxes Paid Breakdown (Fed / Prov / Corp)', sub: 'Confirmed or estimated Federal, Ontario Provincial, and Corporate taxes across active years.' },
+      netTakeHomeHistory: { title: 'Annual Net Take-Home Earnings Trend', sub: 'Tracks post-tax Net Take-Home Pay vs. Pre-Tax Gross Salary across worked years.' }
     };
 
     let activeDragState = { listKey: null, itemKey: null };
@@ -2539,6 +3154,7 @@
       state.layouts = {
         ...def,
         _calInitialized: true,
+        _annSummaryInitialized: true,
         widgetSizes: resetSizes
       };
       saveAndRender();
@@ -2582,7 +3198,7 @@
 
       document.querySelectorAll('.layout-ctrl-bar, .side-resize-handle').forEach(el => el.remove());
 
-      const allDashBlocks = ['kpis', 'quarters', 'ledger', 'bottomRow', 'calendar'];
+      const allDashBlocks = ['annualSummary', 'kpis', 'quarters', 'ledger', 'bottomRow', 'calendar'];
       allDashBlocks.forEach(bid => {
         const el = document.getElementById(`dashBlock_${bid}`);
         if (!el) return;
@@ -2658,7 +3274,9 @@
               ${makeEditOverlayBar('dashPinnedCharts', cid, `Pinned: ${meta.title}`, true, sizeKey)}
               <h3 class="font-bold text-sm sm:text-base mb-1">${meta.title}</h3>
               <p class="text-xs text-slate-500 mb-4">${meta.sub}</p>
-              <div class="h-64"><canvas id="homePinnedChart_${cid}"></canvas></div>
+              <div class="overflow-x-auto pb-1">
+                <div id="wrap_homePinnedChart_${cid}" class="h-64 min-w-full"><canvas id="homePinnedChart_${cid}"></canvas></div>
+              </div>
             </div>
           `;
         }).join('');
@@ -2686,7 +3304,37 @@
       }
     }
 
+    function renderTopAnnualSummaryCards() {
+      const curTax = calculateYearTaxAndSalarySummary(state.currentYear);
+      const bm = getBenchmarkComparisonMetrics();
+
+      const confBadge = curTax.isConfirmed
+        ? `<span class="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/15 text-emerald-500">✓ Confirmed</span>`
+        : `<span class="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-amber-500/15 text-amber-500">Est.</span>`;
+
+      document.getElementById('topCardGrossStatusBadge').innerHTML = confBadge;
+      document.getElementById('topCardTaxStatusBadge').innerHTML = confBadge;
+      document.getElementById('topCardTakeHomeStatusBadge').innerHTML = confBadge;
+
+      document.getElementById('topCardPredGross').textContent = fmtCurr(curTax.grossPracticeIncome);
+      document.getElementById('topCardPredGrossSub').textContent = `${fmtCurr(curTax.dailyRateUsed)}/d × ${curTax.totalScheduledShifts} shifts`;
+
+      document.getElementById('topCardEstTax').textContent = fmtCurr(curTax.finalTotalTax);
+      document.getElementById('topCardEstTaxSub').textContent = curTax.mode === 'corp'
+        ? `Fed ${fmtCurr(curTax.finalFederalTax)} • Prov ${fmtCurr(curTax.finalProvincialTax)} • Corp ${fmtCurr(curTax.finalCorporateTax)}`
+        : `Fed ${fmtCurr(curTax.finalFederalTax)} • ON+CPP ${fmtCurr(curTax.finalProvincialTax)}`;
+      document.getElementById('topCardEffTaxRate').textContent = `${fmtNum(curTax.effectiveTaxRatePct, 1)}% Eff.`;
+
+      document.getElementById('topCardTakeHome').textContent = fmtCurr(curTax.finalNetTakeHome);
+      document.getElementById('topCardMonthlyTakeHome').textContent = `${fmtCurr(curTax.finalNetTakeHome / 12)}/mth`;
+
+      document.getElementById('bmPredGrossPill').innerHTML = makeDiffPill(curTax.grossPracticeIncome, bm.predGrossSalary, bm.label, 'currency');
+      document.getElementById('bmEstTaxPill').innerHTML = makeDiffPill(curTax.finalTotalTax, bm.estTotalTax, bm.label, 'currency');
+      document.getElementById('bmTakeHomePill').innerHTML = makeDiffPill(curTax.finalNetTakeHome, bm.netTakeHome, bm.label, 'currency');
+    }
+
     function renderKPIs() {
+      renderTopAnnualSummaryCards();
       const cur = getYearMetrics(state.currentYear), bm = getBenchmarkComparisonMetrics();
       const firstActiveIdx = getFirstActiveMonthIndex(state.currentYear);
       const cutoffIdx = Math.max(firstActiveIdx, getAverageCutoffIndex(state.currentYear));
@@ -2868,8 +3516,7 @@
         moreWrap.classList.add('hidden');
       }
     }
-
-    // ================= TASK 2 & 4: HOME CALENDAR WIDGET & FULL CALENDAR PAGE RENDERING =================
+// ================= CALENDAR RENDERING, MULTI-EVENT & SHIFT TIME OVERRIDES (TASK 9 & 10) =================
     function getMonthHeatmapBadgeHtml(monthIdx) {
       const hist = computeHistoricalMonthlyDailyAverages();
       const h = hist[monthIdx];
@@ -2893,7 +3540,7 @@
 
       let cells = '';
       for (let i = 0; i < firstDow; i++) {
-        cells += `<div class="${compact ? 'h-12 sm:h-14' : 'h-20 sm:h-24'} rounded-xl bg-slate-100/40 dark:bg-slate-900/30 border border-transparent"></div>`;
+        cells += `<div class="${compact ? 'h-12 sm:h-14' : 'h-24 sm:h-28'} rounded-xl bg-slate-100/40 dark:bg-slate-900/30 border border-transparent"></div>`;
       }
 
       const typeStyles = {
@@ -2951,31 +3598,40 @@
         const st = typeStyles[info.type] || typeStyles.off;
         const isToday = info.dateStr === todayStr;
         const todayRing = isToday ? 'ring-2 ring-brand-500 ring-offset-1 dark:ring-offset-slate-900' : '';
-        const shiftSubLabel = info.type === 'work_full' ? (info.isFriday ? '6hr Fri' : '8hr M-T') : st.full;
+        const payTag = info.payHours > 0 ? `${info.payHours}hr` : st.short;
+        const timeRangeStr = info.payHours > 0 && info.startTime && info.endTime ? `${info.startTime}–${info.endTime}` : '';
+        const extraEvtCount = info.extraEvents ? info.extraEvents.length : 0;
 
         if (compact) {
           cells += `
             <button type="button" onclick="window.openCalendarDayModal('${info.dateStr}')" class="h-12 sm:h-14 p-1.5 rounded-xl border ${st.bg} ${todayRing} flex flex-col justify-between text-left transition overflow-hidden">
               <div class="flex items-center justify-between w-full">
                 <span class="mono font-extrabold text-[11px] ${isToday ? 'text-brand-500 underline' : ''}">${info.dayNum}</span>
-                ${info.statHolidayName ? `<span title="${info.statHolidayName}" class="text-[10px]">🍁</span>` : ''}
+                <div class="flex items-center gap-0.5">
+                  ${extraEvtCount > 0 ? `<span class="w-1.5 h-1.5 rounded-full bg-purple-500" title="${extraEvtCount} extra event(s)"></span>` : ''}
+                  ${info.statHolidayName ? `<span title="${info.statHolidayName}" class="text-[10px]">🍁</span>` : ''}
+                </div>
               </div>
               <div class="w-full truncate">
-                ${info.type !== 'weekend' ? `<span class="inline-block px-1 py-0.2 rounded text-[9px] font-bold ${st.pill} truncate max-w-full">${info.type === 'work_full' ? (info.isFriday ? '6h' : '8h') : st.short}</span>` : ''}
+                ${info.type !== 'weekend' ? `<span class="inline-block px-1 py-0.2 rounded text-[9px] font-bold ${st.pill} truncate max-w-full">${payTag}</span>` : ''}
               </div>
             </button>
           `;
         } else {
+          const extraEvtsHtml = (info.extraEvents || []).slice(0, 2).map(ev =>
+            `<div class="text-[9px] px-1 py-0.2 rounded bg-purple-500/20 text-purple-300 font-semibold truncate">+ ${ev.startTime ? ev.startTime + ' ' : ''}${ev.title}</div>`
+          ).join('');
           cells += `
-            <button type="button" onclick="window.openCalendarDayModal('${info.dateStr}')" class="h-20 sm:h-24 p-2 rounded-xl border ${st.bg} ${todayRing} flex flex-col justify-between text-left transition overflow-hidden group">
+            <button type="button" onclick="window.openCalendarDayModal('${info.dateStr}')" class="h-24 sm:h-28 p-2 rounded-xl border ${st.bg} ${todayRing} flex flex-col justify-between text-left transition overflow-hidden group">
               <div class="flex items-center justify-between w-full gap-1">
                 <span class="mono font-extrabold text-xs sm:text-sm ${isToday ? 'text-brand-500 underline' : ''}">${info.dayNum}</span>
                 ${info.loggedShift ? `<span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 mono font-bold text-[9px]" title="Logged Net">${fmtCurr(info.loggedShift.net)}</span>` : (info.statHolidayName ? `<span class="text-[10px]" title="${info.statHolidayName}">🍁</span>` : '')}
               </div>
               <div class="space-y-0.5 w-full min-w-0">
                 ${info.statHolidayName ? `<div class="text-[9px] font-bold text-rose-400 truncate">${info.statHolidayName}</div>` : ''}
-                ${info.type !== 'weekend' ? `<span class="inline-block px-1.5 py-0.5 rounded-md text-[10px] font-bold ${st.pill} truncate max-w-full">${shiftSubLabel}</span>` : `<span class="text-[10px] text-slate-400">Weekend</span>`}
+                ${info.type !== 'weekend' ? `<div class="flex items-center gap-1 flex-wrap"><span class="inline-block px-1.5 py-0.5 rounded-md text-[10px] font-bold ${st.pill} truncate">${info.payHours > 0 ? `${info.payHours}hr Shift` : st.full}</span>${timeRangeStr ? `<span class="mono text-[9px] text-slate-400 truncate">${timeRangeStr}</span>` : ''}</div>` : `<span class="text-[10px] text-slate-400">Weekend</span>`}
                 ${info.note ? `<div class="text-[10px] text-slate-500 dark:text-slate-300 truncate font-medium">${info.note}</div>` : ''}
+                ${extraEvtsHtml}
               </div>
             </button>
           `;
@@ -3109,7 +3765,6 @@
         </div>
       `;
 
-      // Full-year time-off totals
       let yrVac = 0, yrSick = 0, yrEvt = 0, yrHalf = 0, yrStat = 0;
       for (let m = 0; m < 12; m++) {
         const ms = getCalendarMonthStats(yearStr, m);
@@ -3183,6 +3838,73 @@
 
     let editingCalDateStr = null;
     let selectedCalModalType = 'work_full';
+    let modalExtraEventsTemp = [];
+
+    function renderCalModalExtraEvents() {
+      const listEl = document.getElementById('calExtraEventsList');
+      const badgeEl = document.getElementById('calExtraEventsCountBadge');
+      if (badgeEl) badgeEl.textContent = `${modalExtraEventsTemp.length} event${modalExtraEventsTemp.length === 1 ? '' : 's'}`;
+      if (!listEl) return;
+      if (modalExtraEventsTemp.length === 0) {
+        listEl.innerHTML = `<div class="text-[11px] text-slate-400 italic py-1">No additional events on this date.</div>`;
+        return;
+      }
+      listEl.innerHTML = modalExtraEventsTemp.map((ev, idx) => `
+        <div class="flex items-center justify-between gap-2 p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs">
+          <div class="min-w-0">
+            <span class="font-bold text-purple-400">${ev.title}</span>
+            <span class="mono text-[10px] text-slate-400 ml-1.5">${ev.startTime || ''} ${ev.endTime ? '– ' + ev.endTime : ''}</span>
+          </div>
+          <button type="button" onclick="window.removeExtraEventFromCalModal(${idx})" class="text-rose-400 hover:text-rose-500 font-bold px-1.5">✕</button>
+        </div>
+      `).join('');
+    }
+
+    window.addExtraEventToCalModal = () => {
+      const titleInput = document.getElementById('calNewEventTitle');
+      const title = (titleInput.value || '').trim();
+      if (!title) return;
+      const startTime = document.getElementById('calNewEventStart').value || '';
+      const endTime = document.getElementById('calNewEventEnd').value || '';
+      modalExtraEventsTemp.push({ title, startTime, endTime });
+      titleInput.value = '';
+      renderCalModalExtraEvents();
+    };
+
+    window.removeExtraEventFromCalModal = (idx) => {
+      modalExtraEventsTemp.splice(idx, 1);
+      renderCalModalExtraEvents();
+    };
+
+    window.onCalPayHoursSelectChange = (val) => {
+      const hrs = Number(val) || 0;
+      const defClock = getDefaultShiftClockTimes(hrs);
+      if (hrs > 0) {
+        document.getElementById('calDayStartTime').value = defClock.startTime;
+        document.getElementById('calDayEndTime').value = defClock.endTime;
+      } else {
+        document.getElementById('calDayStartTime').value = '';
+        document.getElementById('calDayEndTime').value = '';
+      }
+      if (hrs === 4) {
+        selectedCalModalType = 'half';
+      } else if (hrs === 8 || hrs === 6) {
+        selectedCalModalType = 'work_full';
+      }
+      document.querySelectorAll('.cal-type-btn').forEach(btn => {
+        const isSel = btn.getAttribute('data-cal-type') === selectedCalModalType;
+        btn.classList.toggle('ring-2', isSel);
+        btn.classList.toggle('ring-brand-500', isSel);
+        btn.classList.toggle('bg-brand-500/15', isSel);
+      });
+    };
+
+    window.applyDefaultShiftTimesToCalModal = () => {
+      const hrs = Number(document.getElementById('calDayPayHoursSelect').value) || 0;
+      const defClock = getDefaultShiftClockTimes(hrs);
+      document.getElementById('calDayStartTime').value = defClock.startTime;
+      document.getElementById('calDayEndTime').value = defClock.endTime;
+    };
 
     window.openCalendarDayModal = (dateStr) => {
       editingCalDateStr = dateStr;
@@ -3195,7 +3917,17 @@
       const formattedTitle = dtObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
       document.getElementById('calDayModalTitle').textContent = formattedTitle;
 
-      const fullShiftRate = info.isFriday ? (state.settings.fRate || 630) : (state.settings.mtRate || 780);
+      const mtR = Number(state.settings.mtRate) || 780;
+      const fR = Number(state.settings.fRate) || 630;
+      const hR = Number(state.settings.halfRate) || 480;
+      const paySel = document.getElementById('calDayPayHoursSelect');
+      if (paySel) {
+        paySel.options[0].textContent = `8-Hr Full Day ($${mtR})`;
+        paySel.options[1].textContent = `6-Hr Fri Shift ($${fR})`;
+        paySel.options[2].textContent = `4-Hr Half Day ($${hR})`;
+      }
+
+      const fullShiftRate = info.isFriday ? fR : mtR;
       document.getElementById('calModalFullShiftSub').textContent = info.isFriday ? `6hr Fri ($${fullShiftRate})` : `8hr M–T ($${fullShiftRate})`;
 
       const statBanner = document.getElementById('calDayStatHolidayBanner');
@@ -3215,11 +3947,16 @@
       }
 
       document.getElementById('calDayNoteInput').value = info.note || '';
-      window.selectCalDayType(info.type === 'stat' || info.type === 'weekend' ? 'off' : info.type);
+      modalExtraEventsTemp = JSON.parse(JSON.stringify(info.extraEvents || []));
+      renderCalModalExtraEvents();
+
+      window.selectCalDayType(info.type === 'stat' || info.type === 'weekend' ? 'off' : info.type, info.payHours);
+      document.getElementById('calDayStartTime').value = info.startTime || '';
+      document.getElementById('calDayEndTime').value = info.endTime || '';
       document.getElementById('calendarDayModal').classList.remove('hidden');
     };
 
-    window.selectCalDayType = (typeKey) => {
+    window.selectCalDayType = (typeKey, explicitPayHours = null) => {
       selectedCalModalType = typeKey;
       document.querySelectorAll('.cal-type-btn').forEach(btn => {
         const isSel = btn.getAttribute('data-cal-type') === typeKey;
@@ -3227,6 +3964,23 @@
         btn.classList.toggle('ring-brand-500', isSel);
         btn.classList.toggle('bg-brand-500/15', isSel);
       });
+
+      let isFri = false;
+      if (editingCalDateStr) {
+        const [y, m, d] = editingCalDateStr.split('-').map(Number);
+        isFri = new Date(y, m - 1, d).getDay() === 5;
+      }
+
+      let targetPayHrs = explicitPayHours;
+      if (targetPayHrs === null || targetPayHrs === undefined) {
+        if (typeKey === 'work_full') targetPayHrs = isFri ? 6 : 8;
+        else if (typeKey === 'half') targetPayHrs = 4;
+        else targetPayHrs = 0;
+      }
+      document.getElementById('calDayPayHoursSelect').value = String(targetPayHrs);
+      const defClock = getDefaultShiftClockTimes(targetPayHrs);
+      document.getElementById('calDayStartTime').value = defClock.startTime;
+      document.getElementById('calDayEndTime').value = defClock.endTime;
     };
 
     window.closeCalendarDayModal = () => {
@@ -3238,13 +3992,20 @@
       if (!editingCalDateStr) return;
       ensureLayoutsValid();
       const note = document.getElementById('calDayNoteInput').value.trim();
+      const payHours = Number(document.getElementById('calDayPayHoursSelect').value) || 0;
+      const startTime = document.getElementById('calDayStartTime').value || '';
+      const endTime = document.getElementById('calDayEndTime').value || '';
+
       state.calendarDays[editingCalDateStr] = {
         type: selectedCalModalType,
-        note
+        payHours,
+        startTime,
+        endTime,
+        note,
+        extraEvents: modalExtraEventsTemp
       };
       const [yStr, mStr] = editingCalDateStr.split('-');
       const mIdx = Number(mStr) - 1;
-      // Automatically cross-check & update Ledger Target if this is a future unworked month
       syncFutureMonthCalendarToLedger(yStr, mIdx);
       window.closeCalendarDayModal();
       saveAndRender();
@@ -3258,6 +4019,132 @@
       delete state.calendarDays[editingCalDateStr];
       syncFutureMonthCalendarToLedger(yStr, mIdx);
       window.closeCalendarDayModal();
+      saveAndRender();
+    };
+
+    // ================= TAX ESTIMATOR MODAL HANDLERS =================
+    let activeTaxModalMode = 'sole_prop';
+
+    window.openTaxEstimatorModal = () => {
+      ensureLayoutsValid();
+      const yr = state.currentYear;
+      const tp = state.taxProfiles[yr] || makeDefaultTaxYearObj();
+      activeTaxModalMode = tp.mode || 'sole_prop';
+
+      document.getElementById('taxModalYearLbl').textContent = yr;
+      document.getElementById('taxConfirmYearLbl').textContent = yr;
+      document.getElementById('taxCheckboxYrLbl').textContent = yr;
+
+      document.getElementById('taxInputLicenseFees').value = tp.licenseFees || '';
+      document.getElementById('taxInputBizExpenses').value = tp.bizExpenses || '';
+      document.getElementById('taxInputRegistered').value = tp.registeredDeductions || '';
+      document.getElementById('taxInputOtherIncome').value = tp.otherIncome || '';
+      document.getElementById('taxInputEduAmount').value = tp.eduAmount || '';
+      document.getElementById('taxInputEduPct').value = tp.eduCreditPct ?? 15;
+      document.getElementById('taxInputCorpSalary').value = tp.corpSalary || '';
+      document.getElementById('taxInputCorpDividends').value = tp.corpDividends || '';
+
+      document.getElementById('taxConfirmGross').value = tp.confirmedGross ?? '';
+      document.getElementById('taxConfirmFederal').value = tp.confirmedFederal ?? '';
+      document.getElementById('taxConfirmProvincial').value = tp.confirmedProvincial ?? '';
+      document.getElementById('taxConfirmCorporate').value = tp.confirmedCorporate ?? '';
+      document.getElementById('taxConfirmTakeHome').value = tp.confirmedTakeHome ?? '';
+      document.getElementById('taxConfirmLockedCheckbox').checked = !!tp.confirmed;
+
+      window.setTaxFilingMode(activeTaxModalMode);
+      document.getElementById('taxEstimatorModal').classList.remove('hidden');
+    };
+
+    window.closeTaxEstimatorModal = () => {
+      document.getElementById('taxEstimatorModal').classList.add('hidden');
+    };
+
+    window.setTaxFilingMode = (mode) => {
+      activeTaxModalMode = mode;
+      const spBtn = document.getElementById('taxModeSolePropBtn');
+      const corpBtn = document.getElementById('taxModeCorpBtn');
+      if (spBtn && corpBtn) {
+        spBtn.className = mode === 'sole_prop' ? 'px-3 py-1.5 rounded-lg bg-brand-600 text-white shadow-sm transition' : 'px-3 py-1.5 rounded-lg text-slate-500 dark:text-slate-400 transition';
+        corpBtn.className = mode === 'corp' ? 'px-3 py-1.5 rounded-lg bg-purple-600 text-white shadow-sm transition' : 'px-3 py-1.5 rounded-lg text-slate-500 dark:text-slate-400 transition';
+      }
+      document.getElementById('taxCorpControlsBox').classList.toggle('hidden', mode !== 'corp');
+      window.onTaxInputChanged();
+    };
+
+    function applyModalInputsToTempTaxProfile() {
+      const yr = state.currentYear;
+      if (!state.taxProfiles[yr]) state.taxProfiles[yr] = makeDefaultTaxYearObj();
+      const tp = state.taxProfiles[yr];
+      tp.mode = activeTaxModalMode;
+      tp.licenseFees = Number(document.getElementById('taxInputLicenseFees').value) || 0;
+      tp.bizExpenses = Number(document.getElementById('taxInputBizExpenses').value) || 0;
+      tp.registeredDeductions = Number(document.getElementById('taxInputRegistered').value) || 0;
+      tp.otherIncome = Number(document.getElementById('taxInputOtherIncome').value) || 0;
+      tp.eduAmount = Number(document.getElementById('taxInputEduAmount').value) || 0;
+      tp.eduCreditPct = Number(document.getElementById('taxInputEduPct').value) || 15;
+      tp.corpSalary = Number(document.getElementById('taxInputCorpSalary').value) || 0;
+      tp.corpDividends = Number(document.getElementById('taxInputCorpDividends').value) || 0;
+
+      const cg = document.getElementById('taxConfirmGross').value.trim();
+      const cf = document.getElementById('taxConfirmFederal').value.trim();
+      const cp = document.getElementById('taxConfirmProvincial').value.trim();
+      const cc = document.getElementById('taxConfirmCorporate').value.trim();
+      const cth = document.getElementById('taxConfirmTakeHome').value.trim();
+
+      tp.confirmedGross = cg === '' ? null : Number(cg);
+      tp.confirmedFederal = cf === '' ? null : Number(cf);
+      tp.confirmedProvincial = cp === '' ? null : Number(cp);
+      tp.confirmedCorporate = cc === '' ? null : Number(cc);
+      tp.confirmedTakeHome = cth === '' ? null : Number(cth);
+      tp.confirmed = document.getElementById('taxConfirmLockedCheckbox').checked || cg !== '' || cf !== '' || cp !== '' || cc !== '' || cth !== '';
+    }
+
+    window.onTaxInputChanged = () => {
+      applyModalInputsToTempTaxProfile();
+      const calc = calculateYearTaxAndSalarySummary(state.currentYear);
+
+      document.getElementById('taxModalPreviewGross').textContent = fmtCurr(calc.grossPracticeIncome);
+      document.getElementById('taxModalPreviewGrossSub').textContent = `${fmtCurr(calc.dailyRateUsed)}/d × ${calc.totalScheduledShifts} scheduled shifts`;
+      document.getElementById('taxModalPreviewTotalTax').textContent = fmtCurr(calc.finalTotalTax);
+      document.getElementById('taxModalPreviewTaxSub').textContent = `Effective Rate: ${fmtNum(calc.effectiveTaxRatePct, 1)}% (${calc.isConfirmed ? 'Confirmed' : 'Estimated'})`;
+      document.getElementById('taxModalPreviewTakeHome').textContent = fmtCurr(calc.finalNetTakeHome);
+      document.getElementById('taxModalPreviewTakeHomeSub').textContent = `${fmtCurr(calc.finalNetTakeHome / 12)} / month after tax`;
+
+      const eduSaving = calc.eduAmount * (calc.eduCreditPct / 100);
+      document.getElementById('taxDetailedBreakdownBox').innerHTML = `
+        <div class="flex justify-between"><span>Net Practice Income (After Dues & Overhead):</span><span class="mono font-bold">${fmtCurr(calc.netProfessionalIncome)}</span></div>
+        <div class="flex justify-between"><span>Estimated Federal Income Tax:</span><span class="mono font-semibold text-rose-400">${fmtCurr(calc.estFederalTax)}</span></div>
+        <div class="flex justify-between"><span>Estimated Ontario Tax + Surtax (${fmtCurr(calc.ontarioSurtax)}) + OHP (${fmtCurr(calc.ontarioHealthPrem)}):</span><span class="mono font-semibold text-amber-400">${fmtCurr(calc.estProvincialTaxAndCpp - calc.cppTotalContribution)}</span></div>
+        <div class="flex justify-between"><span>Self-Employed CPP1 + CPP2 Contributions:</span><span class="mono font-semibold text-sky-400">${fmtCurr(calc.cppTotalContribution)}</span></div>
+        ${calc.mode === 'corp' ? `<div class="flex justify-between"><span>Ontario Corporate Tax (12.2% Small Business):</span><span class="mono font-semibold text-purple-400">${fmtCurr(calc.estCorporateTax)}</span></div>` : ''}
+        ${eduSaving > 0 ? `<div class="flex justify-between text-emerald-400"><span>Federal Tuition / Education Credit Applied (${calc.eduCreditPct}%):</span><span class="mono font-bold">-${fmtCurr(eduSaving)}</span></div>` : ''}
+      `;
+    };
+
+    window.fillConfirmWithEstimates = () => {
+      const calc = calculateYearTaxAndSalarySummary(state.currentYear);
+      document.getElementById('taxConfirmGross').value = calc.estPredictedGrossSalary.toFixed(2);
+      document.getElementById('taxConfirmFederal').value = calc.estFederalTax.toFixed(2);
+      document.getElementById('taxConfirmProvincial').value = calc.estProvincialTaxAndCpp.toFixed(2);
+      document.getElementById('taxConfirmCorporate').value = calc.estCorporateTax.toFixed(2);
+      document.getElementById('taxConfirmTakeHome').value = calc.estNetTakeHome.toFixed(2);
+      document.getElementById('taxConfirmLockedCheckbox').checked = true;
+      window.onTaxInputChanged();
+    };
+
+    window.resetTaxYearConfirmations = () => {
+      document.getElementById('taxConfirmGross').value = '';
+      document.getElementById('taxConfirmFederal').value = '';
+      document.getElementById('taxConfirmProvincial').value = '';
+      document.getElementById('taxConfirmCorporate').value = '';
+      document.getElementById('taxConfirmTakeHome').value = '';
+      document.getElementById('taxConfirmLockedCheckbox').checked = false;
+      window.onTaxInputChanged();
+    };
+
+    window.saveTaxEstimatorModal = () => {
+      applyModalInputsToTempTaxProfile();
+      window.closeTaxEstimatorModal();
       saveAndRender();
     };
 
@@ -3302,7 +4189,19 @@
     }
 
     window.setConeQuarter = (qk) => { state.coneQuarter = qk; saveAndRender(); };
-    window.setTimeOffChartMode = (mode) => { state.timeOffChartMode = mode; saveAndRender(); };
+
+    window.setTimeOffChartMode = (mode) => {
+      state.timeOffChartMode = mode;
+      const yrBtn = document.getElementById('timeOffModeYearlyBtn');
+      const mthBtn = document.getElementById('timeOffModeMonthlyBtn');
+      if (yrBtn && mthBtn) {
+        yrBtn.className = mode === 'yearly' ? 'px-2 py-0.5 rounded-md bg-brand-600 text-white shadow-sm transition' : 'px-2 py-0.5 rounded-md text-slate-500 dark:text-slate-400 transition';
+        mthBtn.className = mode === 'monthly_avg' ? 'px-2 py-0.5 rounded-md bg-brand-600 text-white shadow-sm transition' : 'px-2 py-0.5 rounded-md text-slate-500 dark:text-slate-400 transition';
+      }
+      renderSingleChartCanvas('timeOffBreakdown', 'chartPageTimeOffBreakdown');
+      renderSingleChartCanvas('timeOffBreakdown', 'homePinnedChart_timeOffBreakdown');
+      pushStateToCloud();
+    };
 
     function getMonthRemainingDaysAndTarget(mCalc, mIdx, lastActiveIdx) {
       const schedDays = (mCalc.mtDays + mCalc.fDays) || 0;
@@ -3355,6 +4254,16 @@
       });
 
       return results;
+    }
+
+    function applyMultiYearScrollWidth(canvasId, itemCount) {
+      const wrap = document.getElementById(`wrap_${canvasId}`);
+      if (!wrap) return;
+      if (itemCount > 5) {
+        wrap.style.minWidth = `${itemCount * 95}px`;
+      } else {
+        wrap.style.minWidth = '100%';
+      }
     }
 
     function renderSingleChartCanvas(chartKey, canvasId) {
@@ -3624,7 +4533,6 @@
           }).join('');
         }
       } else if (chartKey === 'timeOffBreakdown') {
-        // Task 5: Time-Off & Absence Breakdown Chart (Yearly vs Monthly Avg Toggle)
         const toMode = state.timeOffChartMode || 'yearly';
         const yrBtn = document.getElementById('timeOffModeYearlyBtn');
         const mthBtn = document.getElementById('timeOffModeMonthlyBtn');
@@ -3633,10 +4541,11 @@
           mthBtn.className = toMode === 'monthly_avg' ? 'px-2 py-0.5 rounded-md bg-brand-600 text-white shadow-sm transition' : 'px-2 py-0.5 rounded-md text-slate-500 dark:text-slate-400 transition';
         }
 
-        const sortedYears = Object.keys(state.years || {}).sort();
+        const activeYears = getWorkedYearsList();
         if (toMode === 'yearly') {
+          applyMultiYearScrollWidth(canvasId, activeYears.length);
           const vacArr = [], sickArr = [], evtArr = [], halfArr = [];
-          sortedYears.forEach(yr => {
+          activeYears.forEach(yr => {
             let v = 0, s = 0, e = 0, h = 0;
             for (let m = 0; m < 12; m++) {
               const st = getCalendarMonthStats(yr, m);
@@ -3647,23 +4556,24 @@
           chartsObj[canvasId] = new Chart(canvasEl, {
             type: 'bar',
             data: {
-              labels: sortedYears,
+              labels: activeYears,
               datasets: [
-                { label: 'Vacation Days', data: vacArr, backgroundColor: 'rgba(16, 185, 129, 0.85)', borderRadius: 4 },
-                { label: 'Sick / Personal', data: sickArr, backgroundColor: 'rgba(245, 158, 11, 0.85)', borderRadius: 4 },
-                { label: 'CE / Events', data: evtArr, backgroundColor: 'rgba(168, 85, 247, 0.85)', borderRadius: 4 },
-                { label: '4-Hr Half Days', data: halfArr, backgroundColor: 'rgba(56, 189, 248, 0.85)', borderRadius: 4 }
+                { label: 'Vacation Days', data: vacArr, backgroundColor: 'rgba(16, 185, 129, 0.85)', borderRadius: 4, maxBarThickness: 54 },
+                { label: 'Sick / Personal', data: sickArr, backgroundColor: 'rgba(245, 158, 11, 0.85)', borderRadius: 4, maxBarThickness: 54 },
+                { label: 'CE / Events', data: evtArr, backgroundColor: 'rgba(168, 85, 247, 0.85)', borderRadius: 4, maxBarThickness: 54 },
+                { label: '4-Hr Half Days', data: halfArr, backgroundColor: 'rgba(56, 189, 248, 0.85)', borderRadius: 4, maxBarThickness: 54 }
               ]
             },
             options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true, grid: { display: false }, ticks: { color: '#94a3b8' } }, y: { stacked: true, grid: { display: false }, ticks: { color: '#94a3b8' } } } }
           });
         } else {
+          applyMultiYearScrollWidth(canvasId, 12);
           const mNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
           const vacM = [], sickM = [], evtM = [], halfM = [];
-          const yrCount = Math.max(1, sortedYears.length);
+          const yrCount = Math.max(1, activeYears.length);
           for (let m = 0; m < 12; m++) {
             let v = 0, s = 0, e = 0, h = 0;
-            sortedYears.forEach(yr => {
+            activeYears.forEach(yr => {
               const st = getCalendarMonthStats(yr, m);
               v += st.vacationCount; s += st.sickCount; e += st.eventCount; h += st.halfTotalCount;
             });
@@ -3687,25 +4597,21 @@
           });
         }
       } else if (chartKey === 'daysWorkedTrend') {
-        // Task 5: Annual Days Worked & Shift Pacing Historical Trend Chart
-        const sortedYears = Object.keys(state.years || {}).sort();
-        const workedArr = [], schedArr = [], avgDaysMthArr = [];
-        sortedYears.forEach(yr => {
+        const activeYears = getWorkedYearsList();
+        applyMultiYearScrollWidth(canvasId, activeYears.length);
+        const workedArr = [], avgDaysMthArr = [];
+        activeYears.forEach(yr => {
           const ym = getYearMetrics(yr, 11);
-          const monthsArr = state.years[yr] || [];
-          const totSched = monthsArr.reduce((acc, m) => acc + (Number(m.mtDays) || 0) + (Number(m.fDays) || 0), 0);
           workedArr.push(Number(ym.ytdDaysWorked.toFixed(2)));
-          schedArr.push(Number(totSched.toFixed(2)));
           avgDaysMthArr.push(Number(ym.avgDaysPerMth.toFixed(2)));
         });
 
         chartsObj[canvasId] = new Chart(canvasEl, {
           type: 'bar',
           data: {
-            labels: sortedYears,
+            labels: activeYears,
             datasets: [
-              { label: 'Total Days Worked', data: workedArr, backgroundColor: 'rgba(99, 102, 241, 0.85)', borderRadius: 6, yAxisID: 'y' },
-              { label: 'Scheduled Shifts (M–T + Fri)', data: schedArr, backgroundColor: 'rgba(148, 163, 184, 0.35)', borderRadius: 6, yAxisID: 'y' },
+              { label: 'Total Days Worked', data: workedArr, backgroundColor: 'rgba(99, 102, 241, 0.85)', borderRadius: 6, maxBarThickness: 56, yAxisID: 'y' },
               { label: 'Avg Days Worked / Active Month', data: avgDaysMthArr, type: 'line', borderColor: '#f59e0b', backgroundColor: '#f59e0b', borderWidth: 2.5, pointRadius: 4, yAxisID: 'y1' }
             ]
           },
@@ -3716,6 +4622,67 @@
               x: { grid: { display: false }, ticks: { color: '#94a3b8' } },
               y: { position: 'left', grid: { display: false }, ticks: { color: '#94a3b8' } },
               y1: { position: 'right', grid: { display: false, drawOnChartArea: false }, ticks: { color: '#94a3b8' } }
+            }
+          }
+        });
+      } else if (chartKey === 'taxesPaidHistory') {
+        const activeYears = getWorkedYearsList();
+        applyMultiYearScrollWidth(canvasId, activeYears.length);
+        const fedArr = [], provArr = [], corpArr = [], effRateArr = [];
+        activeYears.forEach(yr => {
+          const tx = calculateYearTaxAndSalarySummary(yr, 11);
+          fedArr.push(Number(tx.finalFederalTax.toFixed(2)));
+          provArr.push(Number(tx.finalProvincialTax.toFixed(2)));
+          corpArr.push(Number(tx.finalCorporateTax.toFixed(2)));
+          effRateArr.push(Number(tx.effectiveTaxRatePct.toFixed(1)));
+        });
+
+        chartsObj[canvasId] = new Chart(canvasEl, {
+          type: 'bar',
+          data: {
+            labels: activeYears,
+            datasets: [
+              { label: 'Federal Tax', data: fedArr, backgroundColor: 'rgba(244, 63, 94, 0.85)', borderRadius: 4, maxBarThickness: 56, stack: 'taxStack', yAxisID: 'y' },
+              { label: 'Ontario Provincial + CPP', data: provArr, backgroundColor: 'rgba(245, 158, 11, 0.85)', borderRadius: 4, maxBarThickness: 56, stack: 'taxStack', yAxisID: 'y' },
+              { label: 'Corporate Tax', data: corpArr, backgroundColor: 'rgba(168, 85, 247, 0.85)', borderRadius: 4, maxBarThickness: 56, stack: 'taxStack', yAxisID: 'y' },
+              { label: 'Effective Tax Rate (%)', data: effRateArr, type: 'line', borderColor: '#38bdf8', backgroundColor: '#38bdf8', borderWidth: 2.5, pointRadius: 4, yAxisID: 'y1' }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { stacked: true, grid: { display: false }, ticks: { color: '#94a3b8' } },
+              y: { stacked: true, position: 'left', grid: { display: false }, ticks: { color: '#94a3b8', callback: v => '$' + (v / 1000).toFixed(0) + 'k' } },
+              y1: { position: 'right', grid: { display: false, drawOnChartArea: false }, ticks: { color: '#94a3b8', callback: v => v + '%' } }
+            }
+          }
+        });
+      } else if (chartKey === 'netTakeHomeHistory') {
+        const activeYears = getWorkedYearsList();
+        applyMultiYearScrollWidth(canvasId, activeYears.length);
+        const takeHomeArr = [], grossArr = [];
+        activeYears.forEach(yr => {
+          const tx = calculateYearTaxAndSalarySummary(yr, 11);
+          takeHomeArr.push(Number(tx.finalNetTakeHome.toFixed(2)));
+          grossArr.push(Number(tx.grossPracticeIncome.toFixed(2)));
+        });
+
+        chartsObj[canvasId] = new Chart(canvasEl, {
+          type: 'bar',
+          data: {
+            labels: activeYears,
+            datasets: [
+              { label: 'Net Take-Home Pay (After Tax)', data: takeHomeArr, backgroundColor: 'rgba(16, 185, 129, 0.85)', borderRadius: 6, maxBarThickness: 56 },
+              { label: 'Pre-Tax Gross Salary', data: grossArr, type: 'line', borderColor: '#6366f1', backgroundColor: '#6366f1', borderWidth: 2.5, pointRadius: 4, tension: 0.2 }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { grid: { display: false }, ticks: { color: '#94a3b8' } },
+              y: { grid: { display: false }, ticks: { color: '#94a3b8', callback: v => '$' + (v / 1000).toFixed(0) + 'k' } }
             }
           }
         });
@@ -3753,6 +4720,8 @@
       renderSingleChartCanvas('quarterSeasonality', 'chartPageQuarterSeasonality');
       renderSingleChartCanvas('timeOffBreakdown', 'chartPageTimeOffBreakdown');
       renderSingleChartCanvas('daysWorkedTrend', 'chartPageDaysWorkedTrend');
+      renderSingleChartCanvas('taxesPaidHistory', 'chartPageTaxesPaidHistory');
+      renderSingleChartCanvas('netTakeHomeHistory', 'chartPageNetTakeHomeHistory');
     }
 
     function updateDriveSettingsLabels() {
@@ -3808,6 +4777,7 @@
           Q4: { confirmed: false, actualNet: null, actualBonus: null }
         };
         state.yearPaidExtras[newYr] = { health: 0, bonusPaid: 0 };
+        state.taxProfiles[newYr] = makeDefaultTaxYearObj();
       }
       state.currentYear = newYr;
       showAllYearLogs = false;
@@ -4183,20 +5153,40 @@
     };
 
     window.openSettingsModal = () => {
+      ensureLayoutsValid();
       document.getElementById('setNetPct').value = state.settings.netPct ?? 24;
       document.getElementById('setMtRate').value = state.settings.mtRate ?? 780;
       document.getElementById('setFRate').value = state.settings.fRate ?? 630;
       document.getElementById('setHalfRate').value = state.settings.halfRate ?? 480;
+      document.getElementById('setClinicAddress').value = state.settings.clinicAddress || 'Brockville Optometric Centre, Brockville, ON';
+      const st = state.settings.shiftTimes || {};
+      document.getElementById('setStart8h').value = st.start8h || '08:30';
+      document.getElementById('setEnd8h').value = st.end8h || '17:00';
+      document.getElementById('setStart6h').value = st.start6h || '08:30';
+      document.getElementById('setEnd6h').value = st.end6h || '15:00';
+      document.getElementById('setStart4h').value = st.start4h || '08:30';
+      document.getElementById('setEnd4h').value = st.end4h || '12:30';
+
       renderSettingsNavCustomizer();
       updateDriveSettingsLabels();
       document.getElementById('settingsModal').classList.remove('hidden');
     };
     window.closeSettingsModal = () => document.getElementById('settingsModal').classList.add('hidden');
     window.saveSettingsModal = () => {
+      ensureLayoutsValid();
       state.settings.netPct = Number(document.getElementById('setNetPct').value) || 24;
       state.settings.mtRate = Number(document.getElementById('setMtRate').value) || 780;
       state.settings.fRate = Number(document.getElementById('setFRate').value) || 630;
       state.settings.halfRate = Number(document.getElementById('setHalfRate').value) || 480;
+      state.settings.clinicAddress = (document.getElementById('setClinicAddress').value || '').trim() || 'Brockville Optometric Centre, Brockville, ON';
+      state.settings.shiftTimes = {
+        start8h: document.getElementById('setStart8h').value || '08:30',
+        end8h: document.getElementById('setEnd8h').value || '17:00',
+        start6h: document.getElementById('setStart6h').value || '08:30',
+        end6h: document.getElementById('setEnd6h').value || '15:00',
+        start4h: document.getElementById('setStart4h').value || '08:30',
+        end4h: document.getElementById('setEnd4h').value || '12:30'
+      };
       window.closeSettingsModal();
       saveAndRender();
     };
