@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="OptoTrack" />
-  <link id="faviconLink" rel="icon" type="image/png" href="" />
+  <link id="faviconLink" rel="icon" type="image/svg+xml" href="" />
   <link id="appleTouchIconLink" rel="apple-touch-icon" href="" />
   <link id="manifestLink" rel="manifest" href="" />
   <script src="https://cdn.tailwindcss.com"></script>
@@ -23,20 +23,47 @@
       darkMode: 'class',
       theme: {
         extend: {
-          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
-          colors: { brand: { 50: '#eef2ff', 100: '#e0e7ff', 400: '#818cf8', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' } }
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              400: '#818cf8',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca'
+            }
+          }
         }
       }
     };
   </script>
   <style>
-    body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-    body.modal-open { overflow: hidden; }
-    .mono { font-family: 'JetBrains Mono', monospace; }
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.3); border-radius: 3px; }
-    /* Smooth modal scrolling on Windows */
+    body {
+      font-family: 'Inter', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body.modal-open {
+      overflow: hidden;
+    }
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.3);
+      border-radius: 3px;
+    }
+    /* Smooth modal scrolling on Windows & macOS */
     .modal-scroll-pane {
       overscroll-behavior: contain;
       -webkit-overflow-scrolling: touch;
@@ -44,17 +71,45 @@
       will-change: scroll-position;
       scrollbar-gutter: stable;
     }
-    .bm-pill { position: relative; cursor: help; white-space: nowrap; flex-shrink: 0; }
-    .bm-pill .bm-tooltip {
-      visibility: hidden; opacity: 0; position: absolute; bottom: 130%; right: 0;
-      background-color: #0f172a; color: #f8fafc; text-align: center;
-      padding: 6px 10px; border-radius: 8px; font-size: 11px; font-weight: 600; white-space: nowrap;
-      z-index: 70; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.6); border: 1px solid rgba(148,163,184,0.3);
-      transition: opacity 0.15s ease; pointer-events: none;
+    .bm-pill {
+      position: relative;
+      cursor: help;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
-    .bm-pill:hover .bm-tooltip, .bm-pill:focus .bm-tooltip, .bm-pill:active .bm-tooltip { visibility: visible; opacity: 1; }
-    @keyframes spinOnce { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    .spin-sync { animation: spinOnce 0.6s ease-in-out; }
+    .bm-pill .bm-tooltip {
+      visibility: hidden;
+      opacity: 0;
+      position: absolute;
+      bottom: 130%;
+      right: 0;
+      background-color: #0f172a;
+      color: #f8fafc;
+      text-align: center;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+      z-index: 70;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      transition: opacity 0.15s ease;
+      pointer-events: none;
+    }
+    .bm-pill:hover .bm-tooltip,
+    .bm-pill:focus .bm-tooltip,
+    .bm-pill:active .bm-tooltip {
+      visibility: visible;
+      opacity: 1;
+    }
+    @keyframes spinOnce {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .spin-sync {
+      animation: spinOnce 0.6s ease-in-out;
+    }
     .layout-edit-active .customizable-block {
       outline: 2px dashed rgba(99, 102, 241, 0.65);
       outline-offset: 2px;
@@ -62,8 +117,13 @@
       cursor: grab;
       transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
     }
-    .layout-edit-active .customizable-block:active { cursor: grabbing; }
-    .dragging-block { opacity: 0.45 !important; transform: scale(0.98); }
+    .layout-edit-active .customizable-block:active {
+      cursor: grabbing;
+    }
+    .dragging-block {
+      opacity: 0.45 !important;
+      transform: scale(0.98);
+    }
     .drag-over-target {
       outline: 3px solid #10b981 !important;
       outline-offset: 4px !important;
@@ -97,11 +157,14 @@
       box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
       transition: transform 0.15s ease, background 0.15s ease;
     }
-    .side-resize-handle:hover::after, .side-resize-active .side-resize-handle::after {
+    .side-resize-handle:hover::after,
+    .side-resize-active .side-resize-handle::after {
       background: #10b981;
       transform: scaleY(1.2) scaleX(1.15);
     }
-    #desktopSidebar { transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1); }
+    #desktopSidebar {
+      transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    }
   </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen overflow-x-hidden">
@@ -121,15 +184,19 @@
   <div id="authGateScreen" class="fixed inset-0 z-[100] bg-slate-950 flex flex-col items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 sm:p-8 shadow-2xl space-y-6">
       <div class="flex flex-col items-center text-center space-y-3">
-        <img class="clinic-logo-img w-16 h-16 rounded-2xl object-contain bg-[#e6e6e6] p-1 shadow-lg border border-slate-700" alt="Brockville Optometric Centre" />
+        <img class="clinic-logo-img w-16 h-16 rounded-2xl object-contain bg-[#e6e6e6] p-1.5 shadow-lg border border-slate-700" alt="Brockville Optometric Centre" />
         <div>
           <h1 class="text-xl font-extrabold text-white tracking-tight">OptoTrack Private Suite</h1>
           <p class="text-xs text-slate-400 mt-0.5">Brockville Optometric Centre • Authorized Access Only</p>
         </div>
       </div>
 
-      <div id="gateLoadingSpinner" class="py-6 text-center text-xs text-slate-400">
-        Verifying security session...
+      <div id="gateLoadingSpinner" class="py-6 text-center text-xs text-slate-400 space-y-3">
+        <div class="inline-block w-6 h-6 border-2 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+        <div>Verifying security session...</div>
+        <button type="button" onclick="window.forceShowLoginGate()" class="text-[11px] text-brand-400 hover:underline font-semibold pt-1 block mx-auto">
+          Click here if sign-in prompt doesn't appear automatically →
+        </button>
       </div>
 
       <div id="gateLoginForm" class="hidden space-y-3.5 text-xs">
@@ -173,7 +240,7 @@
     <aside id="desktopSidebar" class="hidden md:flex flex-col shrink-0 w-[68px] bg-slate-900 text-slate-300 border-r border-slate-800/90 select-none z-40 sticky top-0 h-screen">
       <div class="h-16 px-3 flex items-center justify-between border-b border-slate-800/80">
         <div class="flex items-center gap-2.5 min-w-0">
-          <img class="clinic-logo-img w-9 h-9 rounded-xl object-contain bg-[#e6e6e6] p-0.5 border border-slate-700 shrink-0" alt="Logo" />
+          <img class="clinic-logo-img w-9 h-9 rounded-xl object-contain bg-[#e6e6e6] p-1 border border-slate-700 shrink-0" alt="Logo" />
           <div class="sidebar-label hidden min-w-0">
             <span class="font-bold text-sm text-white block leading-tight truncate">OptoTrack</span>
             <span class="text-[10px] text-slate-400 block truncate">Brockville Optometric</span>
@@ -200,7 +267,9 @@
         </button>
 
         <button onclick="window.signOutUser()" title="Sign Out & Lock" class="w-full flex items-center gap-3.5 p-2.5 rounded-xl text-xs font-semibold text-rose-400 hover:bg-rose-500/15 transition">
-          <svg class="w-5 h-5 shrink-0 mx-auto md:mx-0" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1"/></svg>
+          <svg class="w-5 h-5 shrink-0 mx-auto md:mx-0" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1"/>
+          </svg>
           <span class="sidebar-label hidden truncate">Lock OptoTrack</span>
         </button>
       </div>
@@ -219,7 +288,7 @@
                 <line x1="9" y1="4" x2="9" y2="20" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </button>
-            <img class="clinic-logo-img md:hidden w-8 h-8 rounded-xl object-contain bg-[#e6e6e6] p-0.5 shadow-sm border border-slate-300 dark:border-slate-700 shrink-0" alt="Brockville Optometric Centre" />
+            <img class="clinic-logo-img md:hidden w-8 h-8 rounded-xl object-contain bg-[#e6e6e6] p-1 shadow-sm border border-slate-300 dark:border-slate-700 shrink-0" alt="Brockville Optometric Centre" />
             <div class="min-w-0">
               <h1 class="font-bold text-sm sm:text-lg truncate leading-tight">OptoTrack</h1>
               <p id="headerSubtitle" class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 truncate leading-tight">Dashboard</p>
@@ -241,7 +310,9 @@
                 <span>☁️</span>
               </button>
               <button onclick="window.quickSyncNow()" id="quickSyncBtn" class="p-1.5 rounded-md text-slate-500 hover:text-brand-500 hover:bg-slate-200/70 dark:hover:bg-slate-700/70 transition border-l border-slate-200 dark:border-slate-700" title="Sync Now with Cloud">
-                <svg id="quickSyncIcon" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                <svg id="quickSyncIcon" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
               </button>
             </div>
 
@@ -531,10 +602,23 @@
             <table class="w-full text-left border-collapse text-xs sm:text-sm whitespace-nowrap">
               <thead>
                 <tr class="bg-slate-100/80 dark:bg-slate-800/70 text-[11px] font-bold uppercase text-slate-500 border-b border-slate-200 dark:border-slate-800">
-                  <th class="py-3 px-3">Month</th><th class="py-3 px-2 text-center"># M-T</th><th class="py-3 px-2 text-center"># F</th><th class="py-3 px-2 text-center">Days</th>
-                  <th class="py-3 px-3 text-right">Gross</th><th class="py-3 px-3 text-right">Acct Rec'd</th><th class="py-3 px-3 text-right">OHIP Recon</th><th class="py-3 px-3 text-right">Total OHIP</th>
-                  <th class="py-3 px-3 text-right">Received</th><th class="py-3 px-3 text-right">24% Net</th><th class="py-3 px-3 text-right">Paid</th><th class="py-3 px-3 text-right">Target</th>
-                  <th class="py-3 px-3 text-right">Diff</th><th class="py-3 px-3 text-right">Daily Avg</th><th class="py-3 px-3 text-right">Rev/Pt</th><th class="py-3 px-2 text-right">Total Pts</th><th class="py-3 px-3 text-right">Pts/Day</th>
+                  <th class="py-3 px-3">Month</th>
+                  <th class="py-3 px-2 text-center"># M-T</th>
+                  <th class="py-3 px-2 text-center"># F</th>
+                  <th class="py-3 px-2 text-center">Days</th>
+                  <th class="py-3 px-3 text-right">Gross</th>
+                  <th class="py-3 px-3 text-right">Acct Rec'd</th>
+                  <th class="py-3 px-3 text-right">OHIP Recon</th>
+                  <th class="py-3 px-3 text-right">Total OHIP</th>
+                  <th class="py-3 px-3 text-right">Received</th>
+                  <th class="py-3 px-3 text-right">24% Net</th>
+                  <th class="py-3 px-3 text-right">Paid</th>
+                  <th class="py-3 px-3 text-right">Target</th>
+                  <th class="py-3 px-3 text-right">Diff</th>
+                  <th class="py-3 px-3 text-right">Daily Avg</th>
+                  <th class="py-3 px-3 text-right">Rev/Pt</th>
+                  <th class="py-3 px-2 text-right">Total Pts</th>
+                  <th class="py-3 px-3 text-right">Pts/Day</th>
                 </tr>
               </thead>
               <tbody id="ledgerTableBody" class="divide-y divide-slate-200/70 dark:divide-slate-800/70"></tbody>
@@ -809,24 +893,24 @@
 
   </div><!-- END PROTECTED APP SHELL -->
 
-  <!-- Task 4 & Task 5: ADVANCED OPTOMETRY PRACTICE CRA TAX ESTIMATOR MODAL (ALIGNED GRID & 2026 CONSTANTS) -->
+  <!-- ADVANCED OPTOMETRY PRACTICE CRA TAX ESTIMATOR MODAL (WITH ANCHORED TOP-RIGHT X BUTTON) -->
   <div id="taxEstimatorModal" onclick="if(event.target===this) window.closeTaxEstimatorModal()" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center p-3 sm:p-4">
-    <div class="modal-scroll-pane bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-4xl w-full p-4 sm:p-6 space-y-5 max-h-[92vh] overflow-y-auto shadow-2xl">
-      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
-        <div>
-          <div class="flex items-center gap-2">
-            <span class="text-xl">🧮</span>
-            <h3 class="font-extrabold text-lg sm:text-xl">Optometry CRA & Ontario Tax Estimator (<span id="taxModalYearLbl">2026</span>)</h3>
+    <div class="modal-scroll-pane bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-4xl w-full p-4 sm:p-6 space-y-5 max-h-[92vh] overflow-y-auto shadow-2xl relative">
+      <div class="flex items-start justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-3.5">
+        <div class="min-w-0 flex-1">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-xl">🧮</span>
+              <h3 class="font-extrabold text-lg sm:text-xl">Optometry CRA & Ontario Tax Estimator (<span id="taxModalYearLbl">2026</span>)</h3>
+            </div>
+            <div class="inline-flex rounded-xl p-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold">
+              <button type="button" id="taxModeSolePropBtn" onclick="window.setTaxFilingMode('sole_prop')" class="px-3 py-1.5 rounded-lg transition">Sole Proprietor</button>
+              <button type="button" id="taxModeCorpBtn" onclick="window.setTaxFilingMode('corp')" class="px-3 py-1.5 rounded-lg transition">Prof. Corporation (MPC)</button>
+            </div>
           </div>
-          <p class="text-xs text-slate-500">2026 CRA Federal + Ontario brackets, Surtax, OHP, CPP1 & CPP2 ($9,292.90 max), 14.5% Tuition Credit & Corp SBD (12.2%).</p>
+          <p class="text-xs text-slate-500 mt-1">2026 CRA Federal + Ontario brackets, Surtax, OHP, CPP1 & CPP2 ($9,292.90 max), 14.5% Tuition Credit & Corp SBD (12.2%).</p>
         </div>
-        <div class="flex items-center gap-2">
-          <div class="inline-flex rounded-xl p-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold">
-            <button type="button" id="taxModeSolePropBtn" onclick="window.setTaxFilingMode('sole_prop')" class="px-3 py-1.5 rounded-lg transition">Sole Proprietor</button>
-            <button type="button" id="taxModeCorpBtn" onclick="window.setTaxFilingMode('corp')" class="px-3 py-1.5 rounded-lg transition">Prof. Corporation (MPC)</button>
-          </div>
-          <button onclick="window.closeTaxEstimatorModal()" class="p-1.5 text-slate-400 hover:text-white">✕</button>
-        </div>
+        <button type="button" onclick="window.closeTaxEstimatorModal()" title="Close Tax Estimator" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-rose-500/20 text-slate-500 hover:text-rose-500 dark:text-slate-300 dark:hover:text-white flex items-center justify-center font-bold text-sm shrink-0 transition">✕</button>
       </div>
 
       <!-- Live Top 3 Summary Preview inside Tax Modal -->
@@ -948,7 +1032,7 @@
     </div>
   </div>
 
-  <!-- Task 2: CALENDAR DAY MODAL WITH SPLIT-DAY EVENT CLASSIFICATION & DIAGONAL SPLIT CELL SUPPORT -->
+  <!-- CALENDAR DAY MODAL WITH SPLIT-DAY EVENT CLASSIFICATION & DIAGONAL SPLIT CELL SUPPORT -->
   <div id="calendarDayModal" onclick="if(event.target===this) window.closeCalendarDayModal()" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center p-4">
     <div class="modal-scroll-pane bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-xl w-full p-5 space-y-4 max-h-[90vh] overflow-y-auto shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
@@ -956,7 +1040,7 @@
           <h3 id="calDayModalTitle" class="font-bold text-lg">Edit Clinic Day</h3>
           <p id="calDayModalSub" class="text-xs text-slate-500">Select primary shift (8hr/6hr/4hr), day off, or add a categorized split-day event</p>
         </div>
-        <button onclick="window.closeCalendarDayModal()" class="p-1 text-slate-400 hover:text-white">✕</button>
+        <button onclick="window.closeCalendarDayModal()" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center font-bold">✕</button>
       </div>
 
       <div id="calDayStatHolidayBanner" class="hidden p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-semibold flex items-center gap-2">
@@ -1024,7 +1108,7 @@
             <input type="time" id="calDayEndTime" class="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono font-semibold" />
           </div>
         </div>
-        <p class="text-[10px] text-slate-400">Work days sync to Google Calendar as <b>"Work"</b> with your clinic location. Days off (Vacation, Sick, Clinic Closed) sync from <b>08:00–08:01 AM</b> so they never clash with personal plans.</p>
+        <p class="text-[10px] text-slate-400">Work days sync to Google Calendar as <b>"Work"</b> with your clinic location. Full Vacation & Sick days sync as <b>All-Day Events</b>, and Clinic Closed days sync across your default clinic hours for that day.</p>
       </div>
 
       <div class="text-xs">
@@ -1032,7 +1116,7 @@
         <input type="text" id="calDayNoteInput" placeholder="e.g. Morning clinic, leaving at 12:30 PM..." class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700" />
       </div>
 
-      <!-- Task 2: Split-Day / Additional Events with Category Classification & Diagonal Split Preview -->
+      <!-- Split-Day / Additional Events with Category Classification & Diagonal Split Preview -->
       <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2.5 text-xs">
         <div class="flex items-center justify-between">
           <div>
@@ -1051,7 +1135,7 @@
             <option value="half">🔵 4-Hr Work Shift ($480)</option>
             <option value="custom">⚪ Custom Note / Other</option>
           </select>
-          <input type="text" id="calNewEventTitle" placeholder="Label (optional, e.g. Afternoon Vacay)" class="sm:col-span-4 px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700" />
+          <input type="text" id="calNewEventTitle" placeholder="Note (optional, e.g. Afternoon off)" class="sm:col-span-4 px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700" />
           <input type="time" id="calNewEventStart" value="13:00" class="sm:col-span-2 px-1.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono" />
           <input type="time" id="calNewEventEnd" value="17:00" class="sm:col-span-2 px-1.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono" />
           <button type="button" onclick="window.addExtraEventToCalModal()" class="sm:col-span-12 py-1.5 px-3 rounded-lg font-bold bg-brand-600 hover:bg-brand-500 text-white transition">+ Add Split-Day / Additional Event</button>
@@ -1144,7 +1228,10 @@
   <!-- MONTH EDIT MODAL -->
   <div id="monthModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center p-4">
     <div class="modal-scroll-pane bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-lg w-full p-5 space-y-4 max-h-[90vh] overflow-y-auto">
-      <div class="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-3"><h3 id="monthModalTitle" class="font-bold text-lg">Edit Month</h3><button onclick="window.closeMonthModal()">✕</button></div>
+      <div class="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+        <h3 id="monthModalTitle" class="font-bold text-lg">Edit Month</h3>
+        <button onclick="window.closeMonthModal()">✕</button>
+      </div>
       <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
         <div><label class="block font-semibold mb-1 text-slate-500"># M–T (8hr) Shifts</label><input type="number" step="0.5" id="editMtDays" oninput="window.updateMonthModalFormulaPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
         <div><label class="block font-semibold mb-1 text-slate-500"># Fri (6hr) Shifts</label><input type="number" step="0.5" id="editFDays" oninput="window.updateMonthModalFormulaPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
@@ -1170,7 +1257,10 @@
   <!-- QUARTER MODAL -->
   <div id="quarterModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-5 space-y-4">
-      <div class="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-3"><h3 id="quarterModalTitle" class="font-bold text-lg">Reconcile Quarter</h3><button onclick="window.closeQuarterModal()">✕</button></div>
+      <div class="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+        <h3 id="quarterModalTitle" class="font-bold text-lg">Reconcile Quarter</h3>
+        <button onclick="window.closeQuarterModal()">✕</button>
+      </div>
       <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs space-y-1">
         <div class="flex justify-between"><span>Ledger Est. 24% Net:</span><span id="qModalEstNet" class="mono font-bold">$0.00</span></div>
         <div class="flex justify-between"><span>Quarter Target Baseline:</span><span id="qModalTarget" class="mono font-bold">$0.00</span></div>
@@ -1188,21 +1278,24 @@
     </div>
   </div>
 
-  <!-- Task 7: STREAMLINED DAILY LOG MODAL (RENAMED TITLE & AUTO-DERIVED MONTH FROM DATE) -->
+  <!-- STREAMLINED DAILY LOG MODAL WITH ALIGNED 3-COLUMN MTD INPUT GRID & AUTO PREV WORKDAY -->
   <div id="dailyLogModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center p-4">
     <div class="modal-scroll-pane bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-lg w-full p-5 space-y-4 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
         <div>
           <h3 class="font-bold text-lg">Log Clinic Day</h3>
-          <p id="logModalTargetMonthSub" class="text-[11px] text-slate-500">Updates Ledger Month: Oct 2026</p>
+          <p id="logModalTargetMonthSub" class="text-[11px] text-slate-500">Updates Ledger Month: October 2026</p>
         </div>
-        <button onclick="window.closeDailyLogModal()">✕</button>
+        <button onclick="window.closeDailyLogModal()" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center font-bold">✕</button>
       </div>
       <input type="hidden" id="logMonthIdx" value="0" />
-      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
-        <div class="col-span-2 sm:col-span-1"><label class="block font-semibold mb-1 text-slate-500">Date</label><input type="date" id="logDate" onchange="window.onLogDateChange()" class="w-full px-2.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 font-semibold" /></div>
-        <div class="col-span-2">
-          <label class="block font-semibold mb-1 text-slate-500">Shift Worked</label>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs items-end">
+        <div class="col-span-2 sm:col-span-1 flex flex-col justify-end">
+          <label class="block font-semibold mb-1.5 text-slate-500">Date</label>
+          <input type="date" id="logDate" onchange="window.onLogDateChange()" class="w-full px-2.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 font-semibold" />
+        </div>
+        <div class="col-span-2 flex flex-col justify-end">
+          <label class="block font-semibold mb-1.5 text-slate-500">Shift Worked</label>
           <select id="logShiftHours" onchange="window.updateDailyDeltaPreview()" class="w-full px-2.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 font-semibold">
             <option value="8">8 hr (Full Day)</option>
             <option value="6">6 hr (Fri Shift)</option>
@@ -1210,10 +1303,10 @@
             <option value="0">0 hr (MTD Update Only)</option>
           </select>
         </div>
-        <div class="col-span-2 sm:col-span-3">
-          <div class="flex items-center justify-between mb-1">
-            <label class="font-semibold text-slate-500">Originally Scheduled Day Slot (For Dynamic Target Adjustment)</label>
-            <span id="logTargetDeltaBadge" class="mono font-bold text-[11px] text-emerald-500">Target Δ: $0</span>
+        <div class="col-span-2 sm:col-span-3 flex flex-col justify-end">
+          <div class="flex items-end justify-between gap-2 mb-1.5">
+            <label class="font-semibold text-slate-500 leading-tight">Originally Scheduled Day Slot (For Dynamic Target Adjustment)</label>
+            <span id="logTargetDeltaBadge" class="mono font-bold text-[11px] text-emerald-500 shrink-0">Target Δ: $0</span>
           </div>
           <select id="logScheduledHours" onchange="window.updateDailyDeltaPreview()" class="w-full px-2.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 font-semibold">
             <option value="8">Scheduled 8-hr Mon–Thu Day ($780 Target Baseline)</option>
@@ -1223,12 +1316,48 @@
           </select>
         </div>
 
-        <div><div class="flex justify-between mb-1"><label class="font-semibold text-slate-500">MTD Gross</label><span id="prevGrossLbl" class="text-[10px] text-slate-400 mono"></span></div><input type="number" step="0.01" id="logMtdGross" oninput="window.updateDailyDeltaPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
-        <div><div class="flex justify-between mb-1"><label class="font-semibold text-slate-500">MTD Acct Rec</label><span id="prevReciLbl" class="text-[10px] text-slate-400 mono"></span></div><input type="number" step="0.01" id="logMtdReci" oninput="window.updateDailyDeltaPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
-        <div><div class="flex justify-between mb-1"><label class="font-semibold text-slate-500">MTD OHIP Rec</label><span id="prevOhipLbl" class="text-[10px] text-slate-400 mono"></span></div><input type="number" step="0.01" id="logMtdOhip" oninput="window.updateDailyDeltaPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
-        <div><div class="flex justify-between mb-1"><label class="font-semibold text-slate-500">MTD Tot OHIP</label><span id="prevTotOhipLbl" class="text-[10px] text-slate-400 mono"></span></div><input type="number" step="0.01" id="logMtdTotalOhip" oninput="window.updateDailyDeltaPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
-        <div><div class="flex justify-between mb-1"><label class="font-semibold text-slate-500">MTD Paid</label><span id="prevPaidLbl" class="text-[10px] text-slate-400 mono"></span></div><input type="number" step="0.01" id="logMtdPaid" oninput="window.updateDailyDeltaPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
-        <div><div class="flex justify-between mb-1"><label class="font-semibold text-slate-500">MTD Pts</label><span id="prevPtsLbl" class="text-[10px] text-slate-400 mono"></span></div><input type="number" step="1" id="logMtdPatients" oninput="window.updateDailyDeltaPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
+        <div class="flex flex-col justify-end">
+          <div class="min-h-[2.25rem] flex items-end justify-between gap-1.5 mb-1.5">
+            <label class="font-semibold text-slate-500 leading-tight">MTD Gross</label>
+            <span id="prevGrossLbl" class="text-[10px] text-slate-400 mono text-right leading-tight shrink-0"></span>
+          </div>
+          <input type="number" step="0.01" id="logMtdGross" oninput="window.updateDailyDeltaPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
+        </div>
+        <div class="flex flex-col justify-end">
+          <div class="min-h-[2.25rem] flex items-end justify-between gap-1.5 mb-1.5">
+            <label class="font-semibold text-slate-500 leading-tight">MTD Acct Rec</label>
+            <span id="prevReciLbl" class="text-[10px] text-slate-400 mono text-right leading-tight shrink-0"></span>
+          </div>
+          <input type="number" step="0.01" id="logMtdReci" oninput="window.updateDailyDeltaPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
+        </div>
+        <div class="flex flex-col justify-end">
+          <div class="min-h-[2.25rem] flex items-end justify-between gap-1.5 mb-1.5">
+            <label class="font-semibold text-slate-500 leading-tight">MTD OHIP Rec</label>
+            <span id="prevOhipLbl" class="text-[10px] text-slate-400 mono text-right leading-tight shrink-0"></span>
+          </div>
+          <input type="number" step="0.01" id="logMtdOhip" oninput="window.updateDailyDeltaPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
+        </div>
+        <div class="flex flex-col justify-end">
+          <div class="min-h-[2.25rem] flex items-end justify-between gap-1.5 mb-1.5">
+            <label class="font-semibold text-slate-500 leading-tight">MTD Tot OHIP</label>
+            <span id="prevTotOhipLbl" class="text-[10px] text-slate-400 mono text-right leading-tight shrink-0"></span>
+          </div>
+          <input type="number" step="0.01" id="logMtdTotalOhip" oninput="window.updateDailyDeltaPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
+        </div>
+        <div class="flex flex-col justify-end">
+          <div class="min-h-[2.25rem] flex items-end justify-between gap-1.5 mb-1.5">
+            <label class="font-semibold text-slate-500 leading-tight">MTD Paid</label>
+            <span id="prevPaidLbl" class="text-[10px] text-slate-400 mono text-right leading-tight shrink-0"></span>
+          </div>
+          <input type="number" step="0.01" id="logMtdPaid" oninput="window.updateDailyDeltaPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
+        </div>
+        <div class="flex flex-col justify-end">
+          <div class="min-h-[2.25rem] flex items-end justify-between gap-1.5 mb-1.5">
+            <label class="font-semibold text-slate-500 leading-tight">MTD Pts</label>
+            <span id="prevPtsLbl" class="text-[10px] text-slate-400 mono text-right leading-tight shrink-0"></span>
+          </div>
+          <input type="number" step="1" id="logMtdPatients" oninput="window.updateDailyDeltaPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
+        </div>
       </div>
       <div class="p-3 rounded-xl bg-brand-500/10 border border-brand-500/20 text-xs">
         <div class="flex justify-between mb-1"><span class="font-bold text-brand-400 uppercase text-[11px]">Today's Clinic Delta</span><span id="deltaRecordAlert" class="hidden px-2 py-0.5 rounded-full bg-amber-500 text-white font-bold text-[10px]">★ New All-Time Gross Record!</span></div>
@@ -1247,47 +1376,130 @@
     </div>
   </div>
 
-  <!-- EDIT LOG MODAL -->
+  <!-- FULL-FEATURED EDIT LOGGED SHIFT MODAL (SAME OPTIONS AS INITIAL LOG + CASCADE RIPPLE) -->
   <div id="editLogModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-5 space-y-4">
-      <div class="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-3"><h3 class="font-bold text-lg">Edit Logged Shift</h3><button onclick="window.closeEditLogModal()">✕</button></div>
-      <div class="grid grid-cols-2 gap-3 text-xs">
-        <div><label class="block font-semibold mb-1 text-slate-500">Date</label><input type="date" id="editLogDate" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800" /></div>
-        <div><label class="block font-semibold mb-1 text-slate-500">Day Gross ($)</label><input type="number" step="0.01" id="editLogGross" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
-        <div><label class="block font-semibold mb-1 text-slate-500">Day 24% Net ($)</label><input type="number" step="0.01" id="editLogNet" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
-        <div><label class="block font-semibold mb-1 text-slate-500">Day Patients</label><input type="number" step="1" id="editLogPts" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
+    <div class="modal-scroll-pane bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-lg w-full p-5 space-y-4 max-h-[92vh] overflow-y-auto shadow-2xl">
+      <div class="flex justify-between items-start border-b border-slate-200 dark:border-slate-800 pb-3">
         <div>
-          <label class="block font-semibold mb-1 text-slate-500">Shift Worked</label>
-          <select id="editLogShiftHours" class="w-full px-2.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 font-semibold">
+          <h3 class="font-bold text-lg">Edit Logged Shift</h3>
+          <p id="editLogTargetMonthSub" class="text-[11px] text-slate-500">Changes automatically ripple forward to subsequent logs & monthly ledger</p>
+        </div>
+        <button onclick="window.closeEditLogModal()" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center font-bold shrink-0">✕</button>
+      </div>
+
+      <!-- Toggle between editing Cumulative MTD Snapshot vs. Single-Day Shift Delta -->
+      <div class="flex items-center justify-between gap-2 bg-slate-100 dark:bg-slate-800/80 p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs">
+        <span class="font-semibold text-slate-500 pl-1">Edit Input Mode:</span>
+        <div class="inline-flex rounded-lg p-0.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 font-bold text-[11px]">
+          <button type="button" id="editLogModeMtdBtn" onclick="window.setEditLogInputMode('mtd')" class="px-2.5 py-1 rounded-md transition">Cumulative MTD</button>
+          <button type="button" id="editLogModeDeltaBtn" onclick="window.setEditLogInputMode('delta')" class="px-2.5 py-1 rounded-md transition">Single-Day Delta</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs items-end">
+        <div class="col-span-2 sm:col-span-1 flex flex-col justify-end">
+          <label class="block font-semibold mb-1.5 text-slate-500">Date</label>
+          <input type="date" id="editLogDate" class="w-full px-2.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 font-semibold" />
+        </div>
+        <div class="col-span-2 flex flex-col justify-end">
+          <label class="block font-semibold mb-1.5 text-slate-500">Shift Worked</label>
+          <select id="editLogShiftHours" onchange="window.updateEditLogDeltaPreview()" class="w-full px-2.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 font-semibold">
             <option value="8">8 hr (Full Day)</option>
             <option value="6">6 hr (Fri Shift)</option>
             <option value="4">4 hr (Half Day)</option>
-            <option value="0">0 hr (MTD Update)</option>
+            <option value="0">0 hr (MTD Update Only)</option>
           </select>
         </div>
-        <div>
-          <label class="block font-semibold mb-1 text-slate-500">Scheduled Slot</label>
-          <select id="editLogScheduledHours" class="w-full px-2.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 font-semibold">
-            <option value="8">8 hr Mon–Thu</option>
-            <option value="6">6 hr Friday</option>
-            <option value="4">4 hr Half Day</option>
-            <option value="0">Unscheduled Extra</option>
+        <div class="col-span-2 sm:col-span-3 flex flex-col justify-end">
+          <div class="flex items-end justify-between gap-2 mb-1.5">
+            <label class="font-semibold text-slate-500 leading-tight">Originally Scheduled Day Slot (For Dynamic Target Adjustment)</label>
+            <span id="editLogTargetDeltaBadge" class="mono font-bold text-[11px] text-emerald-500 shrink-0">Target Δ: $0</span>
+          </div>
+          <select id="editLogScheduledHours" onchange="window.updateEditLogDeltaPreview()" class="w-full px-2.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 font-semibold">
+            <option value="8">Scheduled 8-hr Mon–Thu Day ($780 Target Baseline)</option>
+            <option value="6">Scheduled 6-hr Friday ($630 Target Baseline)</option>
+            <option value="4">Scheduled 4-hr Half Day ($480 Target Baseline)</option>
+            <option value="0">Unscheduled Extra Shift (+Adds Shift Target to Month)</option>
           </select>
         </div>
-        <div class="col-span-2"><label class="block font-semibold mb-1 text-slate-500">Note</label><input type="text" id="editLogNote" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800" /></div>
+
+        <div class="flex flex-col justify-end">
+          <div class="min-h-[2.25rem] flex items-end justify-between gap-1.5 mb-1.5">
+            <label id="editLblGross" class="font-semibold text-slate-500 leading-tight">MTD Gross</label>
+            <span id="editPrevGrossLbl" class="text-[10px] text-slate-400 mono text-right leading-tight shrink-0"></span>
+          </div>
+          <input type="number" step="0.01" id="editLogInputGross" oninput="window.updateEditLogDeltaPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
+        </div>
+        <div class="flex flex-col justify-end">
+          <div class="min-h-[2.25rem] flex items-end justify-between gap-1.5 mb-1.5">
+            <label id="editLblReci" class="font-semibold text-slate-500 leading-tight">MTD Acct Rec</label>
+            <span id="editPrevReciLbl" class="text-[10px] text-slate-400 mono text-right leading-tight shrink-0"></span>
+          </div>
+          <input type="number" step="0.01" id="editLogInputReci" oninput="window.updateEditLogDeltaPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
+        </div>
+        <div class="flex flex-col justify-end">
+          <div class="min-h-[2.25rem] flex items-end justify-between gap-1.5 mb-1.5">
+            <label id="editLblOhip" class="font-semibold text-slate-500 leading-tight">MTD OHIP Rec</label>
+            <span id="editPrevOhipLbl" class="text-[10px] text-slate-400 mono text-right leading-tight shrink-0"></span>
+          </div>
+          <input type="number" step="0.01" id="editLogInputOhip" oninput="window.updateEditLogDeltaPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
+        </div>
+        <div class="flex flex-col justify-end">
+          <div class="min-h-[2.25rem] flex items-end justify-between gap-1.5 mb-1.5">
+            <label id="editLblTotOhip" class="font-semibold text-slate-500 leading-tight">MTD Tot OHIP</label>
+            <span id="editPrevTotOhipLbl" class="text-[10px] text-slate-400 mono text-right leading-tight shrink-0"></span>
+          </div>
+          <input type="number" step="0.01" id="editLogInputTotOhip" oninput="window.updateEditLogDeltaPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
+        </div>
+        <div class="flex flex-col justify-end">
+          <div class="min-h-[2.25rem] flex items-end justify-between gap-1.5 mb-1.5">
+            <label id="editLblPaid" class="font-semibold text-slate-500 leading-tight">MTD Paid</label>
+            <span id="editPrevPaidLbl" class="text-[10px] text-slate-400 mono text-right leading-tight shrink-0"></span>
+          </div>
+          <input type="number" step="0.01" id="editLogInputPaid" oninput="window.updateEditLogDeltaPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
+        </div>
+        <div class="flex flex-col justify-end">
+          <div class="min-h-[2.25rem] flex items-end justify-between gap-1.5 mb-1.5">
+            <label id="editLblPts" class="font-semibold text-slate-500 leading-tight">MTD Pts</label>
+            <span id="editPrevPtsLbl" class="text-[10px] text-slate-400 mono text-right leading-tight shrink-0"></span>
+          </div>
+          <input type="number" step="1" id="editLogInputPts" oninput="window.updateEditLogDeltaPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
+        </div>
       </div>
-      <p class="text-[11px] text-slate-400">Editing or deleting this shift automatically updates the monthly ledger row, reverses any 4hr/6hr/8hr target adjustment, and recalculates records.</p>
+
+      <div class="p-3 rounded-xl bg-brand-500/10 border border-brand-500/20 text-xs">
+        <div class="flex justify-between mb-1">
+          <span class="font-bold text-brand-400 uppercase text-[11px]">Updated Shift Delta & Ripple Preview</span>
+          <span id="editLogCascadeNotice" class="text-[10px] font-semibold text-emerald-400 mono"></span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+          <div><span class="text-slate-500 block">Day Gross</span><span id="editDeltaGrossVal" class="font-bold mono">$0.00</span></div>
+          <div><span class="text-slate-500 block">Day 24% Net</span><span id="editDeltaNetVal" class="font-bold mono text-brand-500">$0.00</span></div>
+          <div><span class="text-slate-500 block">Day Paid Δ</span><span id="editDeltaPaidVal" class="font-bold mono text-purple-400">$0.00</span></div>
+          <div><span class="text-slate-500 block">Day Pts</span><span id="editDeltaPtsVal" class="font-bold mono">0</span></div>
+          <div><span class="text-slate-500 block">Tot OHIP Δ</span><span id="editDeltaOhipVal" class="font-bold mono">$0.00</span></div>
+        </div>
+      </div>
+
+      <input type="text" id="editLogNote" placeholder="Shift note (optional)" class="w-full px-3 py-2 rounded-lg text-xs bg-slate-100 dark:bg-slate-800" />
+      <p class="text-[11px] text-slate-400">Any edits to Gross, Acct Rec'd, OHIP, Paid draws, or Patients on this shift automatically cascade forward to all subsequent logs in the month and update your Monthly Ledger row.</p>
+
       <div class="flex justify-between pt-3 border-t border-slate-200 dark:border-slate-800">
         <button onclick="window.deleteCurrentEditingLog()" class="px-3 py-2 rounded-xl text-xs font-semibold bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition">Delete Log & Revert</button>
-        <div class="flex gap-2"><button onclick="window.closeEditLogModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800">Cancel</button><button onclick="window.saveEditedDailyLog()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-600 text-white">Save</button></div>
+        <div class="flex gap-2">
+          <button onclick="window.closeEditLogModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800">Cancel</button>
+          <button onclick="window.saveEditedDailyLog()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-600 text-white">Save Changes</button>
+        </div>
       </div>
     </div>
   </div>
-
-  <!-- RECORD BASELINE MODAL -->
+<!-- RECORD BASELINE MODAL -->
   <div id="recordModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-sm w-full p-5 space-y-4">
-      <div class="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-3"><h3 class="font-bold text-lg">Manual Baseline Daily Gross Record</h3><button onclick="window.closeRecordModal()">✕</button></div>
+      <div class="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+        <h3 class="font-bold text-lg">Manual Baseline Daily Gross Record</h3>
+        <button onclick="window.closeRecordModal()">✕</button>
+      </div>
       <p class="text-[11px] text-slate-400">Sets your historical baseline record. If a future logged shift breaks this record and is later deleted, OptoTrack automatically reverts back to this baseline.</p>
       <div class="space-y-3 text-xs">
         <div><label class="block font-semibold mb-1 text-slate-500">Baseline Peak Daily Gross ($)</label><input type="number" step="0.01" id="inputRecordAmount" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-bold" /></div>
@@ -1304,7 +1516,10 @@
   <!-- EXTRAS MODAL -->
   <div id="extrasModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-sm w-full p-5 space-y-4">
-      <div class="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-3"><h3 class="font-bold text-lg">Health Spending & Paid Bonus</h3><button onclick="window.closeExtrasModal()">✕</button></div>
+      <div class="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+        <h3 class="font-bold text-lg">Health Spending & Paid Bonus</h3>
+        <button onclick="window.closeExtrasModal()">✕</button>
+      </div>
       <div class="space-y-3 text-xs">
         <div><label class="block font-semibold mb-1 text-slate-500">Health Reimbursement Claimed ($ / $1,000)</label><input type="number" step="0.01" id="inputHealthPaid" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-bold" /></div>
         <div><div class="flex justify-between mb-1"><label class="font-semibold text-slate-500">Confirmed Bonus Paid YTD ($)</label><button type="button" onclick="window.syncBonusRowFromQuarters()" class="text-brand-500 font-semibold">Sum Q1-Q4</button></div><input type="number" step="0.01" id="inputBonusPaid" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-bold" /></div>
@@ -1355,7 +1570,7 @@
         <p class="text-[11px] text-slate-500">Used as defaults on your Calendar & Google Calendar sync (clock duration does not alter 8hr/6hr/4hr pay targets).</p>
         <div>
           <label class="block font-semibold mb-1 text-slate-500">Clinic Name & Address (Location)</label>
-          <input type="text" id="setClinicAddress" placeholder="Brockville Optometric Centre, Brockville, ON" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 font-medium" />
+          <input type="text" id="setClinicAddress" placeholder="Brockville Optometric Centre, 2123 Parkedale Ave, Brockville, ON K6V 0B4, Canada" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 font-medium" />
         </div>
         <div class="grid grid-cols-2 gap-2.5">
           <div>
@@ -1489,12 +1704,18 @@
   <div id="cloudModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-5 space-y-4">
       <div class="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
-        <div><h3 class="font-bold text-lg">Cloud Sync & Account</h3><p class="text-xs text-slate-500">Project: <span class="mono font-semibold text-brand-500">optotrack-tracker</span></p></div>
+        <div>
+          <h3 class="font-bold text-lg">Cloud Sync & Account</h3>
+          <p class="text-xs text-slate-500">Project: <span class="mono font-semibold text-brand-500">optotrack-tracker</span></p>
+        </div>
         <button onclick="window.closeCloudModal()">✕</button>
       </div>
       <div id="authSignedInBox" class="space-y-3 text-xs">
         <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between gap-2">
-          <div class="min-w-0"><span class="text-[10px] uppercase font-bold text-emerald-500 block">Live Cloud Sync Active (10m Auto-Lock)</span><span id="authUserLabel" class="font-semibold mono text-sm truncate block">Signed In</span></div>
+          <div class="min-w-0">
+            <span class="text-[10px] uppercase font-bold text-emerald-500 block">Live Cloud Sync Active (10m Auto-Lock)</span>
+            <span id="authUserLabel" class="font-semibold mono text-sm truncate block">Signed In</span>
+          </div>
           <button onclick="window.signOutUser()" class="px-3 py-1.5 rounded-lg bg-rose-500/10 text-rose-500 font-semibold shrink-0">Sign Out & Lock</button>
         </div>
         <button onclick="window.forcePushToCloud()" class="w-full py-2 rounded-xl font-semibold bg-brand-600/15 text-brand-400 border border-brand-500/30">Force Push Local State to Cloud Now</button>
@@ -1502,12 +1723,15 @@
       <div id="authErrorMsg" class="hidden p-2.5 rounded-lg bg-rose-500/10 text-rose-400 text-xs"></div>
     </div>
   </div>
-<script type="module">
+
+  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
     import { getAuth, setPersistence, browserSessionPersistence, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
-    const CLINIC_LOGO_B64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAMAAADVRocKAAAAflBMVEXm5uYYGBjO1tm1xsvz8/MLCwvGycqwuLpGRkaovMKHh4eXl5c3NzdYWFgnJyd2dndnZ2enqKjb4+XW3eGboaMgHh59foFBP0B/g4eft7y/0NbAv7/AwL/g39/g4N8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABj/CkLAAAAIHRSTlP/////////////////////////////////////////AFxcG+0AAAXZSURBVHja7ViJcuM2DKUoCqQInnZ2e/f/P7MAqNuy4xwz7XSM7CReWsIjwIeLSr3kJS95yUte8l8TQ7L9bL5Vt9K2+hKdCyTOxeLRavU9KEYBFpe6QaRjaZ9SiN7qL2KQdu+6WfFRGCUiqE9jGI2svXsk9LXz8Ck7DOT0jvYFI9YPm2GgdMOiYZV7GMFr8yHnZFKfRHeXXMzeI6LPxYV7PhtSfh7C1MBa+AxzBd14z29fLvoPLKEbvgahi2h3Wbg+rUFvWcZeX7Qt6QsQBkKjhlq5oXtWLTJa22ul/T0IfN899FSxO1bAOGmfxFKAySmdQTj70Ajjh4AHO3vbH8WSfeCGA1vb3y4/4iyGG0qv2weA31cEpfJGvV+Dcgj3jdC3EdOPk3I9yXQWWty5AGROK1Fy1kMjbtZh0q9XgWYDI9i0uF5e1hZzDCmREafq+aWDSc3/ei/NCKHcjBCWUsGcBnsKYMrNcnOQaL1QnFGsLTbIbhaEBELnXi815EwCHtb1qp+4TxXnp14Qxn6idRPLdBvHyQmm1hMI3ZXDKtjZ/+qNcmv6WYhlM0LTRcSWQ6hGk36S9mLQJwZAl/SJh0Q/b/SHNaRuvMwA0DYbJXGh6QWgwaZoTgEGb049dNWBD5KAYHCXazvn5iN6KkkgGGgWMIAbDqGgQQtAt7dsAVBv4gdKNJQI7WUm0nSgOAhAcxEvRmHtlot2tL0A7E0QkoqHcgvS6PgRNRNpfo6SBr+oJ/1lGPZs6Rn5N2i2wvGMtwCcDIZfZ4Dxr8kEO+9MX0V/dzBAXMfYYQrJWwv8mtiGtxsLyCer6aS/q+YUQPjAWWUfxxxk/ZrXkj6cQcvxs1PikIYjhfqJXiZPhJu/uCxxJvua8qbSexZJiM604Rx+JLu6jnT+wBtpWlaKSRxwoF2ucTqFsgbaely0NZBmgYv5ZocwF13e48zoLQIsgXC5eAkFVNc53W1SI7UJcthcSIdNOsDkMvd+S2qai9SMsMlFV2HzZdW/9ZCCzPHQys2hANOuqIttlpg8e3qmwSabkhVKgnii0Kh3kWqmY0pwbCGE3aFU6pSZ0JNMrGsmnNWDnQHsnnA8wIXCUwilQvUyLGSJrfRPFee2ou0MMHN9HtDc9hHbDnNhIzUvzU1LT7GrZv2u+E2t4Kn++eznnmMrRYw46Vr2+zcQu+6+fmZvvNfQ+r+NFKqj+o1+avOXfeHdXgLTHQhuy422O4jRzpWXR6C1ze+qedCQxnutf8rEYWlOx7b5cS3sMgIte4HHje89I7jP9n9Sgmu776U0cWgCxs0IRKx7d+go3d0BhuLE06Sg56iyWH7ZjiJD55+ZO6wbHkxiPLk6ljCNPtuWGp4aPYyq4Zmx74j945ntzxAYho9hDF2BD81/asOMZ9RH++EJVvEMNjyr/jODvjHtBuG9ATxk+PRdxeNbCrmm4AT/bfcsO7rybJ6/fNGy3hTRzELUl2qdKBJixs38/G1XXVRmACSUv/ey6yX/i8vQrz1h3nksOy8PSVdnigS+AfS1Ut8li9VFkLcpY8q3pv0m3vKCbxFh0FFBa18okD8N0dlkAQFQk1pwFipNeR4L+mIsEukh1ex0RVWTVbUqqNVWKq/VuKJtxaI1Urqrib7T1OXSSzZVCk5+mAFi0CliKM6GgjFHHzWFakafgRa18TRKuBJi9B0hORrFkwtIn+gfJOeDDTHT4OKpAQgl+BRd7dB3nh8hG2KN3inabkz0iKO+yUWsJVfvc8jUJmQB8CZgNDTEktZcawwl5lJpwcRS2B0MgCk7+p+zzvhsUik85jhwtE90QHsEoA1pPygsOfviHd9nQAI6p2hDDdohGWALYnTUjcesaeQNPoDltgoqWWPRqWCTzsWE3G6UyJOZRkiHqjifNaL2piJE+im0SK8G2kByaGK0tH8PSJ4HJ9vhN7V3mRWFSJ+89bRCjkbqH6JdeWaUua1LZv5tcjHqwQWTOWj4eC7U8MoYL3nJS17yL8o/7rk/6EkXZn0AAAAASUVORK5CYII=";
+    // Crisp self-contained vector SVG emblem so the clinic icon never breaks or corrupts
+    const CLINIC_LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120"><rect width="120" height="120" rx="24" fill="#e6e6e6"/><path d="M16 60 C34 32, 86 32, 104 60 C86 88, 34 88, 16 60 Z" fill="none" stroke="#1e293b" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="60" cy="60" r="19" fill="#4f46e5"/><circle cx="60" cy="60" r="8" fill="#0f172a"/><circle cx="66" cy="53" r="4" fill="#ffffff"/></svg>`;
+    const CLINIC_LOGO_B64 = "data:image/svg+xml;utf8," + encodeURIComponent(CLINIC_LOGO_SVG);
     document.getElementById('faviconLink').href = CLINIC_LOGO_B64;
     document.getElementById('appleTouchIconLink').href = CLINIC_LOGO_B64;
     document.querySelectorAll('.clinic-logo-img').forEach(img => { img.src = CLINIC_LOGO_B64; });
@@ -1530,7 +1754,12 @@
     let skipNextRemoteRender = false;
 
     function syncBodyModalLock() {
-      const modalIds = ['taxEstimatorModal', 'calendarDayModal', 'mobileMoreSheet', 'benchmarkModal', 'yearPickerModal', 'monthModal', 'quarterModal', 'dailyLogModal', 'editLogModal', 'recordModal', 'extrasModal', 'settingsModal', 'addYearModal', 'cloudModal'];
+      const modalIds = [
+        'taxEstimatorModal', 'calendarDayModal', 'mobileMoreSheet', 'benchmarkModal',
+        'yearPickerModal', 'monthModal', 'quarterModal', 'dailyLogModal',
+        'editLogModal', 'recordModal', 'extrasModal', 'settingsModal',
+        'addYearModal', 'cloudModal'
+      ];
       const anyOpen = modalIds.some(id => {
         const el = document.getElementById(id);
         return el && !el.classList.contains('hidden');
@@ -1571,12 +1800,27 @@
       const savedEmail = localStorage.getItem(REMEMBER_EMAIL_KEY);
       const emailInput = document.getElementById('gateEmail');
       const rememberBox = document.getElementById('rememberEmailCheckbox');
-      if (savedEmail) {
+      if (savedEmail && emailInput) {
         emailInput.value = savedEmail;
-        rememberBox.checked = true;
+        if (rememberBox) rememberBox.checked = true;
       }
     }
     initRememberedEmail();
+
+    window.forceShowLoginGate = () => {
+      const spinner = document.getElementById('gateLoadingSpinner');
+      const loginForm = document.getElementById('gateLoginForm');
+      if (spinner) spinner.classList.add('hidden');
+      if (loginForm) loginForm.classList.remove('hidden');
+      initRememberedEmail();
+    };
+
+    // Automatic 2.5s failsafe watchdog so the app can never get stuck on "Verifying security session..."
+    setTimeout(() => {
+      if (!currentUser) {
+        window.forceShowLoginGate();
+      }
+    }, 2500);
 
     let sidebarExpanded = false;
     window.toggleSidebarPane = () => {
@@ -1594,8 +1838,14 @@
       }
     };
 
-    window.openMobileMoreSheet = () => { document.getElementById('mobileMoreSheet')?.classList.remove('hidden'); syncBodyModalLock(); };
-    window.closeMobileMoreSheet = () => { document.getElementById('mobileMoreSheet')?.classList.add('hidden'); syncBodyModalLock(); };
+    window.openMobileMoreSheet = () => {
+      document.getElementById('mobileMoreSheet')?.classList.remove('hidden');
+      syncBodyModalLock();
+    };
+    window.closeMobileMoreSheet = () => {
+      document.getElementById('mobileMoreSheet')?.classList.add('hidden');
+      syncBodyModalLock();
+    };
 
     let celebrationTimeout = null;
     window.triggerRecordCelebration = (brokenRecordsList = []) => {
@@ -1630,7 +1880,8 @@
       img.onload = () => {
         const makeSizedIcon = (size) => {
           const c = document.createElement('canvas');
-          c.width = size; c.height = size;
+          c.width = size;
+          c.height = size;
           const ctx = c.getContext('2d');
           ctx.fillStyle = '#e6e6e6';
           ctx.fillRect(0, 0, size, size);
@@ -1692,10 +1943,20 @@
     };
 
     const makeBlankYear = () => ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map(m => ({
-      month: m, mtDays: 16, fDays: 4, daysWorked: 0, gross: 0, reci: 0, ohip: 0, totalOhip: 0, paid: 0, patients: 0, customTarget: null, shiftTargetAdj: 0
+      month: m,
+      mtDays: 16,
+      fDays: 4,
+      daysWorked: 0,
+      gross: 0,
+      reci: 0,
+      ohip: 0,
+      totalOhip: 0,
+      paid: 0,
+      patients: 0,
+      customTarget: null,
+      shiftTargetAdj: 0
     }));
 
-    // Task 5: Updated default education credit rate to 14.5% for 2026 rules
     function makeDefaultTaxYearObj() {
       return {
         mode: 'sole_prop',
@@ -1768,7 +2029,11 @@
 
     function getEmptyState() {
       return {
-        currentYear: '2026', includeCurrentMonthInAverages: true, benchmarkMode: 'prev_year', quarterOhipMode: 'recon', coneQuarter: 'Q4',
+        currentYear: '2026',
+        includeCurrentMonthInAverages: true,
+        benchmarkMode: 'prev_year',
+        quarterOhipMode: 'recon',
+        coneQuarter: 'Q4',
         timeOffChartMode: 'yearly',
         themeMode: localStorage.getItem(THEME_MODE_KEY) || 'auto',
         lastDriveSyncMonth: null,
@@ -1780,7 +2045,7 @@
           mtRate: 780,
           fRate: 630,
           halfRate: 480,
-          clinicAddress: 'Brockville Optometric Centre, Brockville, ON',
+          clinicAddress: 'Brockville Optometric Centre, 2123 Parkedale Ave, Brockville, ON K6V 0B4, Canada',
           shiftTimes: {
             start8h: '08:30', end8h: '17:00',
             start6h: '08:30', end6h: '15:00',
@@ -1795,8 +2060,16 @@
           '2026': { Q1: { confirmed: false, actualNet: null, actualBonus: null }, Q2: { confirmed: false, actualNet: null, actualBonus: null }, Q3: { confirmed: false, actualNet: null, actualBonus: null }, Q4: { confirmed: false, actualNet: null, actualBonus: null } },
           '2027': { Q1: { confirmed: false, actualNet: null, actualBonus: null }, Q2: { confirmed: false, actualNet: null, actualBonus: null }, Q3: { confirmed: false, actualNet: null, actualBonus: null }, Q4: { confirmed: false, actualNet: null, actualBonus: null } }
         },
-        yearPaidExtras: { '2025': { health: 0, bonusPaid: 0 }, '2026': { health: 0, bonusPaid: 0 }, '2027': { health: 0, bonusPaid: 0 } },
-        taxProfiles: { '2025': makeDefaultTaxYearObj(), '2026': makeDefaultTaxYearObj(), '2027': makeDefaultTaxYearObj() },
+        yearPaidExtras: {
+          '2025': { health: 0, bonusPaid: 0 },
+          '2026': { health: 0, bonusPaid: 0 },
+          '2027': { health: 0, bonusPaid: 0 }
+        },
+        taxProfiles: {
+          '2025': makeDefaultTaxYearObj(),
+          '2026': makeDefaultTaxYearObj(),
+          '2027': makeDefaultTaxYearObj()
+        },
         dailyLogs: [],
         calendarDays: {},
         gcalSyncedEvents: {}
@@ -1869,7 +2142,7 @@
       const def = getDefaultLayouts();
       if (!state.settings) state.settings = getEmptyState().settings;
       if (!state.settings.halfRate) state.settings.halfRate = 480;
-      if (!state.settings.clinicAddress) state.settings.clinicAddress = 'Brockville Optometric Centre, Brockville, ON';
+      if (!state.settings.clinicAddress) state.settings.clinicAddress = 'Brockville Optometric Centre, 2123 Parkedale Ave, Brockville, ON K6V 0B4, Canada';
       if (!state.settings.shiftTimes) {
         state.settings.shiftTimes = { start8h: '08:30', end8h: '17:00', start6h: '08:30', end6h: '15:00', start4h: '08:30', end4h: '12:30' };
       }
@@ -1881,7 +2154,6 @@
           state.taxProfiles[yr] = makeDefaultTaxYearObj();
         } else {
           state.taxProfiles[yr] = { ...makeDefaultTaxYearObj(), ...state.taxProfiles[yr] };
-          // Migrate untouched default 15% education credit rate to 2026 14.5% standard
           if (state.taxProfiles[yr].eduCreditPct === 15 && !state.taxProfiles[yr]._eduRateMigrated2026) {
             state.taxProfiles[yr].eduCreditPct = 14.5;
             state.taxProfiles[yr]._eduRateMigrated2026 = true;
@@ -2087,7 +2359,6 @@
       const endTime = customEntry?.endTime || defClock.endTime;
       const extraEvents = Array.isArray(customEntry?.extraEvents) ? customEntry.extraEvents : [];
 
-      // Task 2: Detect categorized second-half event for diagonal split-cell rendering & fractional accounting
       const categorizedSecondary = extraEvents.find(ev => ev && ev.category && SPLITTABLE_CATEGORIES.includes(ev.category)) || null;
       const isSplitDay = !!categorizedSecondary;
 
@@ -2109,6 +2380,24 @@
         hasCustomOverride: !!(customEntry && customEntry.type),
         loggedShift
       };
+    }
+
+    // Finds the most recent scheduled work day strictly prior to today (or today if none found in past 14 days)
+    function getMostRecentScheduledWorkDateStr() {
+      const today = new Date();
+      for (let offset = 1; offset <= 14; offset++) {
+        const dt = new Date(today.getFullYear(), today.getMonth(), today.getDate() - offset);
+        const yStr = String(dt.getFullYear());
+        const mIdx = dt.getMonth();
+        const dNum = dt.getDate();
+        const info = getEffectiveCalendarDayInfo(yStr, mIdx, dNum);
+        const hasExtraHalfShift = (info.extraEvents || []).some(ev => ev && ev.category === 'half');
+        if (info.payHours > 0 || info.type === 'work_full' || info.type === 'half' || hasExtraHalfShift) {
+          return info.dateStr;
+        }
+      }
+      const fallback = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+      return formatDateStr(fallback.getFullYear(), fallback.getMonth(), fallback.getDate());
     }
 
     function isFutureUnworkedMonth(yearStr, monthIdx) {
@@ -2136,7 +2425,6 @@
       return (yNum > latestWorkedYear) || (yNum === latestWorkedYear && monthIdx > latestWorkedMonth);
     }
 
-    // Task 2 & Task 3: Fractional split-day accounting (0.5d per half-day event)
     function getCalendarMonthStats(yearStr, monthIdx) {
       const y = Number(yearStr);
       const daysInMonth = new Date(y, monthIdx + 1, 0).getDate();
@@ -2165,7 +2453,6 @@
           full6hCount++;
         }
 
-        // Add fractional categorized extra events (e.g., afternoon vacation/sick/CE/closed or afternoon 4-hr shift)
         (info.extraEvents || []).forEach(ev => {
           const cat = ev?.category;
           if (!cat || cat === 'custom') return;
@@ -2237,7 +2524,7 @@
       });
     }
 
-    // ================= TASK 5: 2026 CRA & ONTARIO TAX ENGINE (CPP $9,292.90 & 14.5% EDUCATION CREDIT) =================
+    // ================= 2026 CRA & ONTARIO TAX ENGINE (CPP $9,292.90 & 14.5% EDUCATION CREDIT) =================
     function computeGraduatedTax(taxableIncome, brackets) {
       if (taxableIncome <= 0) return 0;
       let tax = 0;
@@ -2302,7 +2589,6 @@
       const eduCreditPct = Number(tp.eduCreditPct) || 14.5;
       const mode = tp.mode || 'sole_prop';
 
-      // 2026 Federal & Ontario Personal Income Tax Brackets (14.5% lowest federal rate & BPA credit rate)
       const FED_LOWEST_RATE = 0.145;
       const FED_BRACKETS = [
         { upTo: 58523, rate: FED_LOWEST_RATE },
@@ -2321,7 +2607,6 @@
       const FED_BPA = 16452;
       const ON_BPA = 12989;
 
-      // Task 5: Official 2026 CPP1 ($74,600 YMPE -> $8,460.90 max) & CPP2 ($85,000 YAMPE -> $832.00 max) = $9,292.90 max self-employed
       const CPP_YMPE = 74600;
       const CPP_YAMPE = 85000;
       const CPP_BASIC_EXEMPTION = 3500;
@@ -2591,7 +2876,11 @@
         auth = getAuth(fbApp);
         db = getFirestore(fbApp);
 
-        await setPersistence(auth, browserSessionPersistence);
+        try {
+          await setPersistence(auth, browserSessionPersistence);
+        } catch (persistErr) {
+          console.warn("Session persistence fallback:", persistErr);
+        }
 
         onAuthStateChanged(auth, (user) => {
           currentUser = user;
@@ -2625,6 +2914,10 @@
                 ensureRecordBaselineInitialized();
                 renderAll();
               }
+            }, (err) => {
+              console.warn("Firestore snapshot error:", err);
+              ensureLayoutsValid();
+              renderAll();
             });
           } else {
             if (inactivityTimer) clearTimeout(inactivityTimer);
@@ -2641,12 +2934,17 @@
             updateAuthUI();
           }
         });
-      } catch (err) { console.warn(err); }
+      } catch (err) {
+        console.warn("Firebase init error:", err);
+        window.forceShowLoginGate();
+      }
     }
 
     async function pushStateToCloud() {
       if (!currentUser || !db || isApplyingRemote) return;
-      try { await setDoc(doc(db, 'artifacts', 'optotrack-tracker', 'users', currentUser.uid, 'state', 'main'), JSON.parse(JSON.stringify(state)), { merge: true }); } catch (e) {}
+      try {
+        await setDoc(doc(db, 'artifacts', 'optotrack-tracker', 'users', currentUser.uid, 'state', 'main'), JSON.parse(JSON.stringify(state)), { merge: true });
+      } catch (e) {}
     }
 
     window.quickSyncNow = async () => {
@@ -2675,7 +2973,10 @@
       }
     };
 
-    function saveAndRender() { pushStateToCloud(); renderAll(); }
+    function saveAndRender() {
+      pushStateToCloud();
+      renderAll();
+    }
 
     function getWorkedYearsList() {
       const sortedYears = Object.keys(state.years || {}).sort();
@@ -2707,7 +3008,10 @@
       document.getElementById('benchmarkModal').classList.remove('hidden');
       syncBodyModalLock();
     };
-    window.closeBenchmarkModal = () => { document.getElementById('benchmarkModal').classList.add('hidden'); syncBodyModalLock(); };
+    window.closeBenchmarkModal = () => {
+      document.getElementById('benchmarkModal').classList.add('hidden');
+      syncBodyModalLock();
+    };
     window.selectBenchmarkFromModal = (val) => {
       state.benchmarkMode = val;
       window.closeBenchmarkModal();
@@ -2789,7 +3093,10 @@
       document.getElementById('yearPickerModal').classList.remove('hidden');
       syncBodyModalLock();
     };
-    window.closeYearPickerModal = () => { document.getElementById('yearPickerModal').classList.add('hidden'); syncBodyModalLock(); };
+    window.closeYearPickerModal = () => {
+      document.getElementById('yearPickerModal').classList.add('hidden');
+      syncBodyModalLock();
+    };
     window.selectYearFromPopup = (yr) => {
       state.currentYear = yr;
       showAllYearLogs = false;
@@ -2868,7 +3175,7 @@
       const dailyAvg = daysWorked > 0 ? net / daysWorked : 0;
       const revPerPt = patients > 0 ? net / patients : 0;
       const ptsPerDay = daysWorked > 0 ? patients / daysWorked : 0;
-      const isActive = gross > 0 || reci > 0 || ohip > 0 || totalOhip > 0 || patients > 0 || daysWorked > 0;
+      const isActive = gross > 0 || reci > 0 || ohip > 0 || totalOhip > 0 || patients > 0 || daysWorked > 0 || paid > 0;
       return { ...m, mtDays, fDays, daysWorked, gross, reci, ohip, totalOhip, totalRecd, net, paid, baseFormulaTarget, shiftTargetAdj, formulaTarget, hasCustomTarget, target, diff, dailyAvg, revPerPt, patients, ptsPerDay, isActive };
     }
 
@@ -2900,6 +3207,7 @@
       return lastIdx >= 0 ? lastIdx : 0;
     }
 
+    // Updated Ledger Averages: Every column in the Average row ignores blank or $0 items independently
     function getYearMetrics(yearStr, maxMonthIdxOverride = null, requestedOhipMode = state.quarterOhipMode) {
       const months = state.years[yearStr] || [];
       const isPeriodSliced = maxMonthIdxOverride !== null;
@@ -2908,24 +3216,55 @@
       const extras = (state.yearPaidExtras && state.yearPaidExtras[yearStr]) || { health: 0, bonusPaid: 0 };
 
       let ytdGross = 0, ytdReci = 0, ytdOhip = 0, ytdTotalOhip = 0, ytdRecd = 0, ytdNet = 0, ytdBasePaid = 0, ytdTarget = 0, ytdDiff = 0, ytdDaysWorked = 0, ytdPatients = 0;
-      let avgScopeMonths = 0, sumDailyAvgs = 0, sumRevPerPts = 0, sumPtsPerDay = 0, scopeDaysWorked = 0, scopePatients = 0, scopeGross = 0, scopeReci = 0, scopeOhip = 0, scopeTotalOhip = 0, scopeRecd = 0, scopeNet = 0, scopeBasePaid = 0, scopeTarget = 0, scopeDiff = 0, ohipActiveCount = 0, totalOhipActiveCount = 0;
+
+      // Per-column sums and non-zero counts so $0 or blank cells never drag down any column's average
+      let sumDaysWorked = 0, cntDaysWorked = 0;
+      let sumGross = 0, cntGross = 0;
+      let sumReci = 0, cntReci = 0;
+      let sumOhip = 0, cntOhip = 0;
+      let sumTotalOhip = 0, cntTotalOhip = 0;
+      let sumRecd = 0, cntRecd = 0;
+      let sumNet = 0, cntNet = 0;
+      let sumPaid = 0, cntPaid = 0;
+      let sumTarget = 0, cntTarget = 0;
+      let sumDiff = 0, cntDiff = 0;
+      let sumDailyAvgs = 0, cntDailyAvgs = 0;
+      let sumRevPerPts = 0, cntRevPerPts = 0;
+      let sumPatients = 0, cntPatients = 0;
+      let sumPtsPerDay = 0, cntPtsPerDay = 0;
 
       months.forEach((m, idx) => {
         const effMode = getEffectiveMonthOhipMode(yearStr, idx, requestedOhipMode);
         const c = calculateMonth(m, state.settings, effMode);
         if (c.isActive) {
           if (idx <= ytdCutoffIdx) {
-            ytdGross += c.gross; ytdReci += c.reci; ytdOhip += c.ohip; ytdTotalOhip += c.totalOhip;
-            ytdRecd += c.totalRecd; ytdNet += c.net; ytdBasePaid += c.paid; ytdTarget += c.target;
-            ytdDiff += c.diff; ytdDaysWorked += c.daysWorked; ytdPatients += c.patients;
+            ytdGross += c.gross;
+            ytdReci += c.reci;
+            ytdOhip += c.ohip;
+            ytdTotalOhip += c.totalOhip;
+            ytdRecd += c.totalRecd;
+            ytdNet += c.net;
+            ytdBasePaid += c.paid;
+            ytdTarget += c.target;
+            ytdDiff += c.diff;
+            ytdDaysWorked += c.daysWorked;
+            ytdPatients += c.patients;
           }
           if (idx <= avgCutoffIdx) {
-            avgScopeMonths++; sumDailyAvgs += c.dailyAvg; sumRevPerPts += c.revPerPt; sumPtsPerDay += c.ptsPerDay;
-            scopeDaysWorked += c.daysWorked; scopePatients += c.patients; scopeGross += c.gross; scopeReci += c.reci;
-            scopeOhip += c.ohip; scopeTotalOhip += c.totalOhip; scopeRecd += c.totalRecd; scopeNet += c.net;
-            scopeBasePaid += c.paid; scopeTarget += c.target; scopeDiff += c.diff;
-            if (c.ohip > 0) ohipActiveCount++;
-            if (c.totalOhip > 0) totalOhipActiveCount++;
+            if (c.daysWorked > 0) { sumDaysWorked += c.daysWorked; cntDaysWorked++; }
+            if (c.gross > 0) { sumGross += c.gross; cntGross++; }
+            if (c.reci > 0) { sumReci += c.reci; cntReci++; }
+            if (c.ohip > 0) { sumOhip += c.ohip; cntOhip++; }
+            if (c.totalOhip > 0) { sumTotalOhip += c.totalOhip; cntTotalOhip++; }
+            if (c.totalRecd > 0) { sumRecd += c.totalRecd; cntRecd++; }
+            if (c.net > 0) { sumNet += c.net; cntNet++; }
+            if (c.paid > 0) { sumPaid += c.paid; cntPaid++; }
+            if (c.target > 0 && (c.net > 0 || c.gross > 0 || c.daysWorked > 0)) { sumTarget += c.target; cntTarget++; }
+            if (c.net > 0 && c.diff !== 0) { sumDiff += c.diff; cntDiff++; }
+            if (c.dailyAvg > 0) { sumDailyAvgs += c.dailyAvg; cntDailyAvgs++; }
+            if (c.revPerPt > 0) { sumRevPerPts += c.revPerPt; cntRevPerPts++; }
+            if (c.patients > 0) { sumPatients += c.patients; cntPatients++; }
+            if (c.ptsPerDay > 0) { sumPtsPerDay += c.ptsPerDay; cntPtsPerDay++; }
           }
         }
       });
@@ -2937,7 +3276,10 @@
         ['Q1', 'Q2', 'Q3', 'Q4'].forEach(qk => {
           if (qEndMonth[qk] <= ytdCutoffIdx || (qk === 'Q3' && ytdCutoffIdx >= 8)) {
             const qc = qConfYear[qk];
-            if (qc && qc.actualBonus !== null && qc.actualBonus !== undefined && qc.actualBonus !== '') { slicedBonus += Number(qc.actualBonus) || 0; anyFound = true; }
+            if (qc && qc.actualBonus !== null && qc.actualBonus !== undefined && qc.actualBonus !== '') {
+              slicedBonus += Number(qc.actualBonus) || 0;
+              anyFound = true;
+            }
           }
         });
         if (anyFound) effectiveBonusPaid = slicedBonus;
@@ -2945,22 +3287,34 @@
 
       const healthPaid = Number(extras.health) || 0;
       return {
-        ytdGross, ytdReci, ytdOhip, ytdTotalOhip, ytdRecd, ytdNet, ytdBasePaid, ytdTotalPaid: ytdBasePaid + healthPaid + effectiveBonusPaid,
-        healthPaid, bonusPaid: effectiveBonusPaid, ytdTarget, ytdDiff, ytdDaysWorked, ytdPatients,
-        avgDailyNet: avgScopeMonths > 0 ? sumDailyAvgs / avgScopeMonths : 0,
-        avgRevPerPt: avgScopeMonths > 0 ? sumRevPerPts / avgScopeMonths : 0,
-        avgPtsPerDay: avgScopeMonths > 0 ? sumPtsPerDay / avgScopeMonths : 0,
-        avgDaysPerMth: avgScopeMonths > 0 ? scopeDaysWorked / avgScopeMonths : 0,
-        avgPtsPerMth: avgScopeMonths > 0 ? scopePatients / avgScopeMonths : 0,
-        avgGross: avgScopeMonths > 0 ? scopeGross / avgScopeMonths : 0,
-        avgReci: avgScopeMonths > 0 ? scopeReci / avgScopeMonths : 0,
-        avgOhip: ohipActiveCount > 0 ? scopeOhip / ohipActiveCount : 0,
-        avgTotalOhip: totalOhipActiveCount > 0 ? scopeTotalOhip / totalOhipActiveCount : 0,
-        avgRecd: avgScopeMonths > 0 ? scopeRecd / avgScopeMonths : 0,
-        avgNet: avgScopeMonths > 0 ? scopeNet / avgScopeMonths : 0,
-        avgPaid: avgScopeMonths > 0 ? scopeBasePaid / avgScopeMonths : 0,
-        avgTarget: avgScopeMonths > 0 ? scopeTarget / avgScopeMonths : 0,
-        avgDiff: avgScopeMonths > 0 ? scopeDiff / avgScopeMonths : 0
+        ytdGross,
+        ytdReci,
+        ytdOhip,
+        ytdTotalOhip,
+        ytdRecd,
+        ytdNet,
+        ytdBasePaid,
+        ytdTotalPaid: ytdBasePaid + healthPaid + effectiveBonusPaid,
+        healthPaid,
+        bonusPaid: effectiveBonusPaid,
+        ytdTarget,
+        ytdDiff,
+        ytdDaysWorked,
+        ytdPatients,
+        avgDailyNet: cntDailyAvgs > 0 ? sumDailyAvgs / cntDailyAvgs : 0,
+        avgRevPerPt: cntRevPerPts > 0 ? sumRevPerPts / cntRevPerPts : 0,
+        avgPtsPerDay: cntPtsPerDay > 0 ? sumPtsPerDay / cntPtsPerDay : 0,
+        avgDaysPerMth: cntDaysWorked > 0 ? sumDaysWorked / cntDaysWorked : 0,
+        avgPtsPerMth: cntPatients > 0 ? sumPatients / cntPatients : 0,
+        avgGross: cntGross > 0 ? sumGross / cntGross : 0,
+        avgReci: cntReci > 0 ? sumReci / cntReci : 0,
+        avgOhip: cntOhip > 0 ? sumOhip / cntOhip : 0,
+        avgTotalOhip: cntTotalOhip > 0 ? sumTotalOhip / cntTotalOhip : 0,
+        avgRecd: cntRecd > 0 ? sumRecd / cntRecd : 0,
+        avgNet: cntNet > 0 ? sumNet / cntNet : 0,
+        avgPaid: cntPaid > 0 ? sumPaid / cntPaid : 0,
+        avgTarget: cntTarget > 0 ? sumTarget / cntTarget : 0,
+        avgDiff: cntDiff > 0 ? sumDiff / cntDiff : 0
       };
     }
 
@@ -2984,8 +3338,7 @@
       const displayBonus = hasActualBonus ? Number(qConf.actualBonus) : (hasActualNet ? (Number(qConf.actualNet) - target) : estBonus);
       return { qKey, estNet, target, paid, estBonus, displayNet, displayBonus, isConfirmed, activeMonthsCount, qConf };
     }
-
-    function snapshotAllRecords() {
+function snapshotAllRecords() {
       let maxDailyPts = { val: 0, label: '' }, maxDailyNet = { val: 0, label: '' };
       (state.dailyLogs || []).forEach(l => {
         if ((Number(l.pts) || 0) > maxDailyPts.val) maxDailyPts = { val: Number(l.pts) || 0, label: l.date };
@@ -3113,7 +3466,6 @@
       daily: 'KPI: Avg Daily Net',
       revpt: 'KPI: Rev / Patient'
     };
-    // Task 6: Updated CHART_META titles & descriptions
     const CHART_META = {
       netTarget: { title: 'Monthly 24% Net vs. Baseline Target', sub: 'Monthly associate cut compared to baseline target draw.' },
       dailyAvg: { title: 'Historical Monthly Daily Average', sub: 'One bar per month showing all-time average $/day across worked years.' },
@@ -3545,7 +3897,7 @@
           <td class="py-2.5 px-3 text-right mono">${c.totalOhip ? fmtCurr(c.totalOhip) : '—'}</td><td class="py-2.5 px-3 text-right mono">${c.totalRecd ? fmtCurr(c.totalRecd) : '—'}</td>
           <td class="py-2.5 px-3 text-right mono font-bold text-brand-500">${c.net ? fmtCurr(c.net) : '—'}</td><td class="py-2.5 px-3 text-right mono">${c.paid ? fmtCurr(c.paid) : '—'}</td>
           <td class="py-2.5 px-3 text-right mono">${fmtCurr(c.target)}${targetBadge}</td>
-          <td class="py-2.5 px-3 text-right mono ${c.diff >= 0 ? 'text-emerald-500' : 'text-rose-500'} font-semibold">${c.isActive ? fmtCurr(c.diff) : '—'}</td>
+          <td class="py-2.5 px-3 text-right mono ${c.diff >= 0 ? 'text-emerald-500' : 'text-rose-500'} font-semibold">${c.net > 0 ? fmtCurr(c.diff) : '—'}</td>
           <td class="py-2.5 px-3 text-right mono">${c.dailyAvg ? fmtCurr(c.dailyAvg) : '—'}</td><td class="py-2.5 px-3 text-right mono">${c.revPerPt ? fmtCurr(c.revPerPt) : '—'}</td>
           <td class="py-2.5 px-2 text-right mono font-semibold">${c.patients || '—'}</td><td class="py-2.5 px-3 text-right mono">${c.ptsPerDay ? fmtNum(c.ptsPerDay, 2) : '—'}</td></tr>`;
       }).join('');
@@ -3567,10 +3919,23 @@
           <td class="py-3 px-3 text-right mono">${fmtCurr(cur.ytdDiff)}</td><td class="py-3 px-3 text-right mono">—</td><td class="py-3 px-3 text-right mono">—</td><td class="py-3 px-2 text-right mono">${cur.ytdPatients.toLocaleString()}</td><td class="py-3 px-3 text-right mono">—</td>
         </tr>
         <tr class="bg-slate-50 dark:bg-slate-900 font-semibold text-slate-700 dark:text-slate-300 border-t border-slate-200 dark:border-slate-800">
-          <td class="py-3 px-3 uppercase text-xs">Average</td><td class="py-3 px-2 text-center mono">—</td><td class="py-3 px-2 text-center mono">—</td><td class="py-3 px-2 text-center mono">${fmtNum(cur.avgDaysPerMth, 1)}</td>
-          <td class="py-3 px-3 text-right mono">${fmtCurr(cur.avgGross)}</td><td class="py-3 px-3 text-right mono">${fmtCurr(cur.avgReci)}</td><td class="py-3 px-3 text-right mono">${fmtCurr(cur.avgOhip)}</td><td class="py-3 px-3 text-right mono">${fmtCurr(cur.avgTotalOhip)}</td>
-          <td class="py-3 px-3 text-right mono">${fmtCurr(cur.avgRecd)}</td><td class="py-3 px-3 text-right mono">${fmtCurr(cur.avgNet)}</td><td class="py-3 px-3 text-right mono">${fmtCurr(cur.avgPaid)}</td><td class="py-3 px-3 text-right mono">${fmtCurr(cur.avgTarget)}</td>
-          <td class="py-3 px-3 text-right mono">${fmtCurr(cur.avgDiff)}</td><td class="py-3 px-3 text-right mono">${fmtCurr(cur.avgDailyNet)}</td><td class="py-3 px-3 text-right mono">${fmtCurr(cur.avgRevPerPt)}</td><td class="py-3 px-2 text-right mono">${fmtNum(cur.avgPtsPerMth, 1)}</td><td class="py-3 px-3 text-right mono">${fmtNum(cur.avgPtsPerDay, 2)}</td>
+          <td class="py-3 px-3 uppercase text-xs" title="Averages ignore blank or $0 months per column">Average</td>
+          <td class="py-3 px-2 text-center mono">—</td>
+          <td class="py-3 px-2 text-center mono">—</td>
+          <td class="py-3 px-2 text-center mono">${cur.avgDaysPerMth ? fmtNum(cur.avgDaysPerMth, 1) : '—'}</td>
+          <td class="py-3 px-3 text-right mono">${cur.avgGross ? fmtCurr(cur.avgGross) : '—'}</td>
+          <td class="py-3 px-3 text-right mono">${cur.avgReci ? fmtCurr(cur.avgReci) : '—'}</td>
+          <td class="py-3 px-3 text-right mono">${cur.avgOhip ? fmtCurr(cur.avgOhip) : '—'}</td>
+          <td class="py-3 px-3 text-right mono">${cur.avgTotalOhip ? fmtCurr(cur.avgTotalOhip) : '—'}</td>
+          <td class="py-3 px-3 text-right mono">${cur.avgRecd ? fmtCurr(cur.avgRecd) : '—'}</td>
+          <td class="py-3 px-3 text-right mono">${cur.avgNet ? fmtCurr(cur.avgNet) : '—'}</td>
+          <td class="py-3 px-3 text-right mono">${cur.avgPaid ? fmtCurr(cur.avgPaid) : '—'}</td>
+          <td class="py-3 px-3 text-right mono">${cur.avgTarget ? fmtCurr(cur.avgTarget) : '—'}</td>
+          <td class="py-3 px-3 text-right mono">${cur.avgDiff ? fmtCurr(cur.avgDiff) : '—'}</td>
+          <td class="py-3 px-3 text-right mono">${cur.avgDailyNet ? fmtCurr(cur.avgDailyNet) : '—'}</td>
+          <td class="py-3 px-3 text-right mono">${cur.avgRevPerPt ? fmtCurr(cur.avgRevPerPt) : '—'}</td>
+          <td class="py-3 px-2 text-right mono">${cur.avgPtsPerMth ? fmtNum(cur.avgPtsPerMth, 1) : '—'}</td>
+          <td class="py-3 px-3 text-right mono">${cur.avgPtsPerDay ? fmtNum(cur.avgPtsPerDay, 2) : '—'}</td>
         </tr>`;
     }
 
@@ -3634,11 +3999,13 @@
       container.innerHTML = visible.map(({ log, realIdx }) => {
         const shiftHrs = log.shiftHours !== undefined ? Number(log.shiftHours) : Math.round((Number(log.dayInc) || 1) * 8);
         const tDelta = Number(log.targetDelta) || 0;
+        const paidDelta = Number(log.dPaid) || 0;
         const tBadge = tDelta !== 0 ? `<span class="px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-500 font-semibold mono text-[10px]">Target ${tDelta > 0 ? '+' : ''}${fmtCurr(tDelta)}</span>` : '';
+        const paidBadge = paidDelta > 0 ? `<span class="px-1.5 py-0.5 rounded bg-purple-500/15 text-purple-400 font-semibold mono text-[10px]">Paid +${fmtCurr(paidDelta)}</span>` : '';
         return `<div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/70 flex items-center justify-between text-xs">
-          <div><div class="flex items-center gap-1.5 flex-wrap"><span class="font-bold">${log.date}</span><span class="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700 font-bold mono text-[10px]">${shiftHrs}hr</span><span class="px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-500 font-semibold mono text-[10px]">Net: ${fmtCurr(log.net)}</span>${tBadge}<span class="text-slate-400 mono">${log.pts || 0} pts</span></div>
+          <div><div class="flex items-center gap-1.5 flex-wrap"><span class="font-bold">${log.date}</span><span class="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700 font-bold mono text-[10px]">${shiftHrs}hr</span><span class="px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-500 font-semibold mono text-[10px]">Net: ${fmtCurr(log.net)}</span>${paidBadge}${tBadge}<span class="text-slate-400 mono">${log.pts || 0} pts</span></div>
           <div class="text-[11px] text-slate-500 mt-0.5">Gross: <span class="mono font-semibold">${fmtCurr(log.gross)}</span> ${log.note ? '• ' + log.note : ''}</div></div>
-          <button onclick="window.openEditLogModal(${realIdx})" class="p-1.5 text-slate-400 hover:text-slate-900 dark:hover:text-white">✎</button></div>`;
+          <button onclick="window.openEditLogModal(${realIdx})" class="p-1.5 text-slate-400 hover:text-slate-900 dark:hover:text-white" title="Edit Shift & Ripple Changes">✎</button></div>`;
       }).join('');
 
       if (reversed.length > 5) {
@@ -3650,7 +4017,8 @@
         moreWrap.classList.add('hidden');
       }
     }
-// ================= TASK 2 & 3: CALENDAR RENDERING, DIAGONAL SPLIT-CELL VISUALS & GOOGLE CALENDAR SYNC =================
+
+    // ================= CALENDAR RENDERING, DIAGONAL SPLIT-CELL VISUALS & GOOGLE CALENDAR SYNC =================
     function getMonthHeatmapBadgeHtml(monthIdx) {
       const hist = computeHistoricalMonthlyDailyAverages();
       const h = hist[monthIdx];
@@ -3754,7 +4122,6 @@
         const timeRangeStr = info.payHours > 0 && info.startTime && info.endTime ? `${info.startTime}–${info.endTime}` : '';
         const extraEvtCount = info.extraEvents ? info.extraEvents.length : 0;
 
-        // Task 2: Diagonal Split Cell Rendering when two fractional categorized events exist on the same date
         if (info.isSplitDay && info.categorizedSecondary) {
           const secCat = info.categorizedSecondary.category;
           const secSt = typeStyles[secCat] || typeStyles.event;
@@ -3971,7 +4338,6 @@
         </div>
       `;
 
-      // Task 3: Exclude 4-Hr work shifts from Annual Time-Off Totals
       let yrVac = 0, yrSick = 0, yrEvt = 0, yrClosed = 0, yrStat = 0;
       for (let m = 0; m < 12; m++) {
         const ms = getCalendarMonthStats(yearStr, m);
@@ -4047,16 +4413,16 @@
       saveAndRender();
     };
 
-    // ================= TASK 2: CALENDAR DAY MODAL HANDLERS WITH SPLIT-DAY CATEGORIES =================
+    // ================= CALENDAR DAY MODAL HANDLERS WITH SPLIT-DAY CATEGORIES =================
     let editingCalDateStr = null;
     let selectedCalModalType = 'work_full';
     let modalExtraEventsTemp = [];
 
     const EXTRA_CAT_BADGES = {
-      vacation: { label: 'Vacation (0.5d)', cls: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30', defaultTitle: 'Afternoon Vacation' },
-      sick: { label: 'Sick (0.5d)', cls: 'bg-amber-500/20 text-amber-400 border-amber-500/30', defaultTitle: 'Sick (Half Day)' },
+      vacation: { label: 'Vacation (0.5d)', cls: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30', defaultTitle: 'Vacation Day (Off)' },
+      sick: { label: 'Sick (0.5d)', cls: 'bg-amber-500/20 text-amber-400 border-amber-500/30', defaultTitle: 'Sick / Personal Day (Off)' },
       event: { label: 'CE / Event (0.5d)', cls: 'bg-purple-500/20 text-purple-400 border-purple-500/30', defaultTitle: 'CE / Clinic Event' },
-      closed: { label: 'Clinic Closed (0.5d)', cls: 'bg-rose-500/20 text-rose-400 border-rose-500/30', defaultTitle: 'Clinic Closed (Half)' },
+      closed: { label: 'Clinic Closed (0.5d)', cls: 'bg-rose-500/20 text-rose-400 border-rose-500/30', defaultTitle: 'Clinic Closed / No Patients' },
       half: { label: '4-Hr Shift ($480)', cls: 'bg-sky-500/20 text-sky-400 border-sky-500/30', defaultTitle: '4-Hr Shift' },
       custom: { label: 'Custom Note', cls: 'bg-slate-500/20 text-slate-300 border-slate-500/30', defaultTitle: 'Clinic Event' }
     };
@@ -4065,13 +4431,8 @@
       const startEl = document.getElementById('calNewEventStart');
       const endEl = document.getElementById('calNewEventEnd');
       if (!startEl || !endEl) return;
-      if (cat === 'half') {
-        startEl.value = '13:00';
-        endEl.value = '17:00';
-      } else if (['vacation', 'sick', 'closed', 'event'].includes(cat)) {
-        startEl.value = '13:00';
-        endEl.value = '17:00';
-      }
+      startEl.value = '13:00';
+      endEl.value = '17:00';
     };
 
     function renderCalModalExtraEvents() {
@@ -4103,10 +4464,27 @@
       const cat = document.getElementById('calNewEventCategory')?.value || 'vacation';
       const titleInput = document.getElementById('calNewEventTitle');
       const meta = EXTRA_CAT_BADGES[cat] || EXTRA_CAT_BADGES.custom;
-      const title = (titleInput.value || '').trim() || meta.defaultTitle;
-      const startTime = document.getElementById('calNewEventStart').value || '';
-      const endTime = document.getElementById('calNewEventEnd').value || '';
-      modalExtraEventsTemp.push({ category: cat, title, startTime, endTime });
+      const rawNote = (titleInput.value || '').trim();
+      let title = meta.defaultTitle;
+      if (cat === 'sick') {
+        title = rawNote
+          ? (rawNote.toLowerCase().startsWith('sick') ? rawNote : `Sick / Personal Day (Off): ${rawNote}`)
+          : 'Sick / Personal Day (Off)';
+      } else if (cat === 'vacation') {
+        title = rawNote
+          ? (rawNote.toLowerCase().startsWith('vacation') ? rawNote : `Vacation Day (Off): ${rawNote}`)
+          : 'Vacation Day (Off)';
+      } else if (cat === 'closed') {
+        title = rawNote
+          ? (rawNote.toLowerCase().startsWith('clinic closed') ? rawNote : `Clinic Closed / No Patients: ${rawNote}`)
+          : 'Clinic Closed / No Patients';
+      } else if (rawNote) {
+        title = rawNote;
+      }
+
+      const startTime = document.getElementById('calNewEventStart').value || '13:00';
+      const endTime = document.getElementById('calNewEventEnd').value || '17:00';
+      modalExtraEventsTemp.push({ category: cat, title, note: rawNote, startTime, endTime });
       titleInput.value = '';
       renderCalModalExtraEvents();
     };
@@ -4125,12 +4503,26 @@
       });
     }
 
+    function getDefaultDayClinicHours(dateStr) {
+      const st = state.settings?.shiftTimes || { start8h: '08:30', end8h: '17:00', start6h: '08:30', end6h: '15:00', start4h: '08:30', end4h: '12:30' };
+      if (dateStr && dateStr.includes('-')) {
+        const [y, m, d] = dateStr.split('-').map(Number);
+        const dow = new Date(y, m - 1, d).getDay();
+        if (dow === 5) return { startTime: st.start6h || '08:30', endTime: st.end6h || '15:00' };
+      }
+      return { startTime: st.start8h || '08:30', endTime: st.end8h || '17:00' };
+    }
+
     window.onCalPayHoursSelectChange = (val) => {
       const hrs = Number(val) || 0;
       const defClock = getDefaultShiftClockTimes(hrs);
       if (hrs > 0) {
         document.getElementById('calDayStartTime').value = defClock.startTime;
         document.getElementById('calDayEndTime').value = defClock.endTime;
+      } else if (selectedCalModalType === 'closed') {
+        const defDay = getDefaultDayClinicHours(editingCalDateStr);
+        document.getElementById('calDayStartTime').value = defDay.startTime;
+        document.getElementById('calDayEndTime').value = defDay.endTime;
       } else {
         document.getElementById('calDayStartTime').value = '08:00';
         document.getElementById('calDayEndTime').value = '08:01';
@@ -4153,6 +4545,10 @@
         const defClock = getDefaultShiftClockTimes(hrs);
         document.getElementById('calDayStartTime').value = defClock.startTime;
         document.getElementById('calDayEndTime').value = defClock.endTime;
+      } else if (selectedCalModalType === 'closed') {
+        const defDay = getDefaultDayClinicHours(editingCalDateStr);
+        document.getElementById('calDayStartTime').value = defDay.startTime;
+        document.getElementById('calDayEndTime').value = defDay.endTime;
       } else {
         document.getElementById('calDayStartTime').value = '08:00';
         document.getElementById('calDayEndTime').value = '08:01';
@@ -4244,6 +4640,10 @@
         const defClock = getDefaultShiftClockTimes(targetPayHrs);
         document.getElementById('calDayStartTime').value = defClock.startTime;
         document.getElementById('calDayEndTime').value = defClock.endTime;
+      } else if (btnKey === 'closed') {
+        const defDay = getDefaultDayClinicHours(editingCalDateStr);
+        document.getElementById('calDayStartTime').value = defDay.startTime;
+        document.getElementById('calDayEndTime').value = defDay.endTime;
       } else {
         document.getElementById('calDayStartTime').value = '08:00';
         document.getElementById('calDayEndTime').value = '08:01';
@@ -4290,7 +4690,7 @@
       saveAndRender();
     };
 
-    // ================= GOOGLE CALENDAR DIRECT SYNC INTEGRATION =================
+    // ================= GOOGLE CALENDAR DIRECT SYNC (ALL-DAY VACATION/SICK, CLINIC CLOSED HOURS & HALF-DAY SICK PREFIX) =================
     function showGcalSyncBanner(msg, isError = false) {
       const banner = document.getElementById('gcalSyncStatusBanner');
       if (banner) {
@@ -4308,15 +4708,35 @@
       }
     }
 
+    function getNextDayDateStr(dateStr) {
+      const [y, m, d] = dateStr.split('-').map(Number);
+      const nextDt = new Date(y, m - 1, d + 1);
+      return formatDateStr(nextDt.getFullYear(), nextDt.getMonth(), nextDt.getDate());
+    }
+
+    function formatEventSummaryWithTypePrefix(basePrefix, rawTitleOrNote) {
+      const clean = (rawTitleOrNote || '').trim();
+      if (!clean || clean.toLowerCase() === basePrefix.toLowerCase()) return basePrefix;
+      const prefixCore = basePrefix.split(' (')[0].toLowerCase();
+      if (clean.toLowerCase().startsWith(prefixCore)) {
+        return clean;
+      }
+      return `${basePrefix}: ${clean}`;
+    }
+
     function buildGoogleCalendarEventsForDay(info) {
       if (info.statHolidayName && !info.hasCustomOverride) {
         return [];
       }
 
-      const clinicLoc = state.settings?.clinicAddress || 'Brockville Optometric Centre, Brockville, ON';
+      const clinicLoc = state.settings?.clinicAddress || 'Brockville Optometric Centre, 2123 Parkedale Ave, Brockville, ON K6V 0B4, Canada';
       const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Toronto';
+      const st = state.settings?.shiftTimes || { start8h: '08:30', end8h: '17:00', start6h: '08:30', end6h: '15:00', start4h: '08:30', end4h: '12:30' };
+      const defDayStart = info.isFriday ? (st.start6h || '08:30') : (st.start8h || '08:30');
+      const defDayEnd = info.isFriday ? (st.end6h || '15:00') : (st.end8h || '17:00');
       const events = [];
 
+      // 1. Primary Shift / Day Event
       if (info.payHours > 0 && (info.type === 'work_full' || info.type === 'half')) {
         const sTime = info.startTime || '08:30';
         const eTime = info.endTime || (info.payHours === 8 ? '17:00' : (info.payHours === 6 ? '15:00' : '12:30'));
@@ -4331,44 +4751,107 @@
             transparency: 'opaque'
           }
         });
-      } else if (['vacation', 'sick', 'closed', 'event'].includes(info.type) || (info.type === 'off' && info.hasCustomOverride && !info.isWeekend)) {
-        const labelMap = {
-          vacation: 'Vacation Day (Off)',
-          sick: 'Sick / Personal Day (Off)',
-          closed: 'Clinic Closed / No Patients',
-          event: 'CE / Clinic Event',
-          off: 'Day Off'
-        };
-        const baseTitle = labelMap[info.type] || 'Day Off';
-        const summary = info.note ? `${baseTitle}: ${info.note}` : baseTitle;
-        const customOverrideEntry = state.calendarDays?.[info.dateStr];
-        const sTime = (customOverrideEntry && customOverrideEntry.startTime) ? customOverrideEntry.startTime : '08:00';
-        const eTime = (customOverrideEntry && customOverrideEntry.endTime) ? customOverrideEntry.endTime : '08:01';
+      } else if (['vacation', 'sick'].includes(info.type)) {
+        const baseTitle = info.type === 'sick' ? 'Sick / Personal Day (Off)' : 'Vacation Day (Off)';
+        const summary = formatEventSummaryWithTypePrefix(baseTitle, info.note);
+        const nextDayStr = getNextDayDateStr(info.dateStr);
         events.push({
           keySuffix: 'primary',
           body: {
             summary,
-            description: `Synced from OptoTrack (${baseTitle})`,
+            description: `Synced from OptoTrack (${baseTitle})${info.note ? ' — ' + info.note : ''}`,
+            start: { date: info.dateStr },
+            end: { date: nextDayStr },
+            transparency: 'transparent'
+          }
+        });
+      } else if (info.type === 'closed') {
+        const baseTitle = 'Clinic Closed / No Patients';
+        const summary = formatEventSummaryWithTypePrefix(baseTitle, info.note);
+        const customEntry = state.calendarDays?.[info.dateStr];
+        const hasValidCustomHours = customEntry && customEntry.startTime && customEntry.endTime && !(customEntry.startTime === '08:00' && customEntry.endTime === '08:01');
+        const sTime = hasValidCustomHours ? customEntry.startTime : defDayStart;
+        const eTime = hasValidCustomHours ? customEntry.endTime : defDayEnd;
+        events.push({
+          keySuffix: 'primary',
+          body: {
+            summary,
+            location: clinicLoc,
+            description: `Synced from OptoTrack (${baseTitle})${info.note ? ' — ' + info.note : ''}`,
             start: { dateTime: `${info.dateStr}T${sTime}:00`, timeZone: tz },
             end: { dateTime: `${info.dateStr}T${eTime}:00`, timeZone: tz },
             transparency: 'transparent'
           }
         });
+      } else if (info.type === 'event' || (info.type === 'off' && info.hasCustomOverride && !info.isWeekend)) {
+        const baseTitle = info.type === 'event' ? 'CE / Clinic Event' : 'Day Off';
+        const summary = formatEventSummaryWithTypePrefix(baseTitle, info.note);
+        if (info.type === 'off') {
+          const nextDayStr = getNextDayDateStr(info.dateStr);
+          events.push({
+            keySuffix: 'primary',
+            body: {
+              summary,
+              description: `Synced from OptoTrack (${baseTitle})`,
+              start: { date: info.dateStr },
+              end: { date: nextDayStr },
+              transparency: 'transparent'
+            }
+          });
+        } else {
+          const customEntry = state.calendarDays?.[info.dateStr];
+          const hasValidCustomHours = customEntry && customEntry.startTime && customEntry.endTime && !(customEntry.startTime === '08:00' && customEntry.endTime === '08:01');
+          const sTime = hasValidCustomHours ? customEntry.startTime : defDayStart;
+          const eTime = hasValidCustomHours ? customEntry.endTime : defDayEnd;
+          events.push({
+            keySuffix: 'primary',
+            body: {
+              summary,
+              description: `Synced from OptoTrack (${baseTitle})`,
+              start: { dateTime: `${info.dateStr}T${sTime}:00`, timeZone: tz },
+              end: { dateTime: `${info.dateStr}T${eTime}:00`, timeZone: tz },
+              transparency: 'opaque'
+            }
+          });
+        }
       }
 
-      // Sync split-day or extra events
+      // 2. Split-Day / Second Half-Day Events
       (info.extraEvents || []).forEach((ev, idx) => {
-        if (!ev.title) return;
+        if (!ev) return;
         const cat = ev.category || 'custom';
+        const sT = (ev.startTime && !(ev.startTime === '08:00' && ev.endTime === '08:01')) ? ev.startTime : '13:00';
+        const eT = (ev.endTime && !(ev.startTime === '08:00' && ev.endTime === '08:01')) ? ev.endTime : '17:00';
+
+        let summary = ev.title || 'Clinic Event';
+        let desc = `Split-day / additional event synced from OptoTrack (${cat})`;
+
+        if (cat === 'half') {
+          summary = 'Work';
+          desc = `OptoTrack 4hr Shift${ev.note ? ' — ' + ev.note : ''}`;
+        } else if (cat === 'sick') {
+          const notePart = ev.note !== undefined ? ev.note : (ev.title || '').replace(/^Sick\s*(\/\s*Personal)?\s*(Day)?\s*(\(Off\)|\s*\(Half\s*Day\))?:?\s*/i, '').trim();
+          summary = formatEventSummaryWithTypePrefix('Sick / Personal Day (Off)', notePart);
+          desc = `Synced from OptoTrack (Half-Day Sick / Personal Day)${notePart ? ' — ' + notePart : ''}`;
+        } else if (cat === 'vacation') {
+          const notePart = ev.note !== undefined ? ev.note : (ev.title || '').replace(/^Vacation\s*(Day)?\s*(\(Off\))?:?\s*/i, '').trim();
+          summary = formatEventSummaryWithTypePrefix('Vacation Day (Off)', notePart);
+          desc = `Synced from OptoTrack (Half-Day Vacation)${notePart ? ' — ' + notePart : ''}`;
+        } else if (cat === 'closed') {
+          const notePart = ev.note !== undefined ? ev.note : (ev.title || '').replace(/^Clinic\s*Closed\s*(\/\s*No\s*Patients)?:?\s*/i, '').trim();
+          summary = formatEventSummaryWithTypePrefix('Clinic Closed / No Patients', notePart);
+          desc = `Synced from OptoTrack (Half-Day Clinic Closed)${notePart ? ' — ' + notePart : ''}`;
+        } else if (cat === 'event') {
+          summary = formatEventSummaryWithTypePrefix('CE / Clinic Event', ev.note || ev.title);
+        }
+
         const isTimeOffHalf = ['vacation', 'sick', 'closed'].includes(cat);
-        const sT = ev.startTime || (isTimeOffHalf ? '08:00' : '13:00');
-        const eT = ev.endTime || (isTimeOffHalf ? '08:01' : '17:00');
         events.push({
           keySuffix: `extra_${idx}`,
           body: {
-            summary: cat === 'half' ? 'Work' : ev.title,
-            location: cat === 'half' ? clinicLoc : undefined,
-            description: `Split-day / additional event synced from OptoTrack (${cat})`,
+            summary,
+            location: (cat === 'half' || cat === 'closed') ? clinicLoc : undefined,
+            description: desc,
             start: { dateTime: `${info.dateStr}T${sT}:00`, timeZone: tz },
             end: { dateTime: `${info.dateStr}T${eT}:00`, timeZone: tz },
             transparency: isTimeOffHalf ? 'transparent' : 'opaque'
@@ -4384,10 +4867,18 @@
       const existingEventId = state.gcalSyncedEvents?.[syncKey] || null;
 
       if (existingEventId) {
+        const putPayload = { ...eventBody };
+        if (putPayload.start.date) {
+          putPayload.start = { date: putPayload.start.date, dateTime: null };
+          putPayload.end = { date: putPayload.end.date, dateTime: null };
+        } else if (putPayload.start.dateTime) {
+          putPayload.start = { dateTime: putPayload.start.dateTime, timeZone: putPayload.start.timeZone, date: null };
+          putPayload.end = { dateTime: putPayload.end.dateTime, timeZone: putPayload.end.timeZone, date: null };
+        }
         const putRes = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${encodeURIComponent(existingEventId)}`, {
           method: 'PUT',
           headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify(eventBody)
+          body: JSON.stringify(putPayload)
         });
         if (putRes.ok) {
           const data = await putRes.json();
@@ -4488,8 +4979,7 @@
         showGcalSyncBanner(`Authorization needed to sync with Google Calendar: ${e.message}`, true);
       }
     };
-
-    // ================= TAX ESTIMATOR MODAL HANDLERS =================
+// ================= TAX ESTIMATOR MODAL HANDLERS =================
     let activeTaxModalMode = 'sole_prop';
 
     window.openTaxEstimatorModal = () => {
@@ -4744,7 +5234,7 @@
       }
     }
 
-    // ================= TASK 3 & TASK 6: CHARTS ENGINE WITH UNIFORM PALETTE & YELLOW TRENDLINES =================
+    // ================= CHARTS ENGINE WITH UNIFORM PALETTE & YELLOW TRENDLINES =================
     function renderSingleChartCanvas(chartKey, canvasId) {
       const canvasEl = document.getElementById(canvasId);
       if (!canvasEl) return;
@@ -4965,7 +5455,6 @@
             </div>`;
         }
       } else if (chartKey === 'quarterSeasonality') {
-        // Task 6: "Average Quarterly Earnings" with standard brand blue bars & yellow trendline
         const qKeys = ['Q1', 'Q2', 'Q3', 'Q4'];
         const qTitleMap = { Q1: 'Q1 (Jan–Mar)', Q2: 'Q2 (Apr–Jun)', Q3: 'Q3 (Jul–Sep)', Q4: 'Q4 (Oct–Dec)' };
         const qStats = qKeys.map(qk => {
@@ -5013,7 +5502,6 @@
           }).join('');
         }
       } else if (chartKey === 'timeOffBreakdown') {
-        // Task 3 & Task 6: Exclude 4-Hr work shifts from Time-Off chart & add Yellow (#f59e0b) Total Days Off trendline
         const toMode = state.timeOffChartMode || 'yearly';
         const yrBtn = document.getElementById('timeOffModeYearlyBtn');
         const mthBtn = document.getElementById('timeOffModeMonthlyBtn');
@@ -5118,7 +5606,6 @@
           }
         });
       } else if (chartKey === 'taxesPaidHistory') {
-        // Task 6: Ontario Provincial + CPP bar changed to green (rgba(16, 185, 129, 0.85)) & trendline changed to yellow (#f59e0b)
         const activeYears = getWorkedYearsList();
         applyMultiYearScrollWidth(canvasId, activeYears.length);
         const fedArr = [], provArr = [], corpArr = [], effRateArr = [];
@@ -5152,7 +5639,6 @@
           }
         });
       } else if (chartKey === 'netTakeHomeHistory') {
-        // Task 6: Net Take-Home bars changed to brand blue (rgba(99, 102, 241, 0.85)) & Gross trendline changed to yellow (#f59e0b)
         const activeYears = getWorkedYearsList();
         applyMultiYearScrollWidth(canvasId, activeYears.length);
         const takeHomeArr = [], grossArr = [];
@@ -5356,29 +5842,32 @@
       const mtR = Number(state.settings.mtRate) || 780;
       const fR = Number(state.settings.fRate) || 630;
       const hR = Number(state.settings.halfRate) || 480;
-      const shiftSel = document.getElementById('logShiftHours');
-      const schedSel = document.getElementById('logScheduledHours');
-      if (shiftSel) {
-        shiftSel.options[0].textContent = `8 hr (Full Day)`;
-        shiftSel.options[1].textContent = `6 hr (Fri Shift)`;
-        shiftSel.options[2].textContent = `4 hr (Half Day)`;
-      }
-      if (schedSel) {
-        schedSel.options[0].textContent = `Scheduled 8-hr Mon–Thu Day ($${mtR} Target Baseline)`;
-        schedSel.options[1].textContent = `Scheduled 6-hr Friday ($${fR} Target Baseline)`;
-        schedSel.options[2].textContent = `Scheduled 4-hr Half Day ($${hR} Target Baseline)`;
-      }
+      ['logShiftHours', 'editLogShiftHours'].forEach(id => {
+        const shiftSel = document.getElementById(id);
+        if (shiftSel) {
+          shiftSel.options[0].textContent = `8 hr (Full Day)`;
+          shiftSel.options[1].textContent = `6 hr (Fri Shift)`;
+          shiftSel.options[2].textContent = `4 hr (Half Day)`;
+        }
+      });
+      ['logScheduledHours', 'editLogScheduledHours'].forEach(id => {
+        const schedSel = document.getElementById(id);
+        if (schedSel) {
+          schedSel.options[0].textContent = `Scheduled 8-hr Mon–Thu Day ($${mtR} Target Baseline)`;
+          schedSel.options[1].textContent = `Scheduled 6-hr Friday ($${fR} Target Baseline)`;
+          schedSel.options[2].textContent = `Scheduled 4-hr Half Day ($${hR} Target Baseline)`;
+        }
+      });
     }
 
-    // Task 7: Auto-derive ledger month & year from selected Date
+    // Auto-derive ledger month & year from selected Date and pre-select scheduled hours from Calendar
     window.onLogDateChange = () => {
       const dateVal = document.getElementById('logDate').value;
       if (dateVal && dateVal.includes('-')) {
         const parts = dateVal.split('-').map(Number);
         const yStr = String(parts[0]);
         const mIdx = parts[1] - 1;
-        const dObj = new Date(parts[0], mIdx, parts[2]);
-        const dow = dObj.getDay();
+        const dNum = parts[2];
         if (state.years[yStr] && state.currentYear !== yStr) {
           state.currentYear = yStr;
         }
@@ -5387,21 +5876,19 @@
         const subEl = document.getElementById('logModalTargetMonthSub');
         if (subEl) subEl.textContent = `Updates Ledger Month: ${monthNamesFull[mIdx]} ${state.currentYear}`;
 
-        if (dow === 5) {
-          document.getElementById('logShiftHours').value = '6';
-          document.getElementById('logScheduledHours').value = '6';
-        } else {
-          document.getElementById('logShiftHours').value = '8';
-          document.getElementById('logScheduledHours').value = '8';
-        }
+        const calInfo = getEffectiveCalendarDayInfo(yStr, mIdx, dNum);
+        const defaultHrs = calInfo.payHours > 0 ? String(calInfo.payHours) : (calInfo.isFriday ? '6' : '8');
+        document.getElementById('logShiftHours').value = defaultHrs;
+        document.getElementById('logScheduledHours').value = defaultHrs;
         window.onLogMonthChange();
       }
     };
 
+    // Default to the most recent scheduled work day on the calendar when opening Log Clinic Day
     window.openDailyLogModal = () => {
       populateShiftDropdownLabels();
-      const now = new Date();
-      document.getElementById('logDate').value = now.toISOString().split('T')[0];
+      const prevWorkDateStr = getMostRecentScheduledWorkDateStr();
+      document.getElementById('logDate').value = prevWorkDateStr;
       document.getElementById('logNote').value = '';
       window.onLogDateChange();
       document.getElementById('dailyLogModal').classList.remove('hidden');
@@ -5410,12 +5897,18 @@
 
     window.onLogMonthChange = () => {
       const m = state.years[state.currentYear][Number(document.getElementById('logMonthIdx').value) || 0];
-      document.getElementById('prevGrossLbl').textContent = `Prev: ${fmtCurr(m.gross)}`; document.getElementById('prevReciLbl').textContent = `Prev: ${fmtCurr(m.reci)}`;
-      document.getElementById('prevOhipLbl').textContent = `Prev: ${fmtCurr(m.ohip)}`; document.getElementById('prevTotOhipLbl').textContent = `Prev: ${fmtCurr(m.totalOhip)}`;
-      document.getElementById('prevPaidLbl').textContent = `Prev: ${fmtCurr(m.paid)}`; document.getElementById('prevPtsLbl').textContent = `Prev: ${m.patients || 0}`;
-      document.getElementById('logMtdGross').value = m.gross || 0; document.getElementById('logMtdReci').value = m.reci || 0;
-      document.getElementById('logMtdOhip').value = m.ohip || 0; document.getElementById('logMtdTotalOhip').value = m.totalOhip || 0;
-      document.getElementById('logMtdPaid').value = m.paid || 0; document.getElementById('logMtdPatients').value = m.patients || 0;
+      document.getElementById('prevGrossLbl').textContent = `Prev: ${fmtCurr(m.gross)}`;
+      document.getElementById('prevReciLbl').textContent = `Prev: ${fmtCurr(m.reci)}`;
+      document.getElementById('prevOhipLbl').textContent = `Prev: ${fmtCurr(m.ohip)}`;
+      document.getElementById('prevTotOhipLbl').textContent = `Prev: ${fmtCurr(m.totalOhip)}`;
+      document.getElementById('prevPaidLbl').textContent = `Prev: ${fmtCurr(m.paid)}`;
+      document.getElementById('prevPtsLbl').textContent = `Prev: ${m.patients || 0}`;
+      document.getElementById('logMtdGross').value = m.gross || 0;
+      document.getElementById('logMtdReci').value = m.reci || 0;
+      document.getElementById('logMtdOhip').value = m.ohip || 0;
+      document.getElementById('logMtdTotalOhip').value = m.totalOhip || 0;
+      document.getElementById('logMtdPaid').value = m.paid || 0;
+      document.getElementById('logMtdPatients').value = m.patients || 0;
       window.updateDailyDeltaPreview();
     };
 
@@ -5433,15 +5926,21 @@
       const badgeEl = document.getElementById('logTargetDeltaBadge');
       if (badgeEl) {
         badgeEl.textContent = `Month Target Δ: ${tDelta >= 0 ? '+' : ''}${fmtCurr(tDelta)}`;
-        badgeEl.className = `mono font-bold text-[11px] ${tDelta === 0 ? 'text-slate-400' : (tDelta < 0 ? 'text-sky-400' : 'text-amber-500')}`;
+        badgeEl.className = `mono font-bold text-[11px] shrink-0 ${tDelta === 0 ? 'text-slate-400' : (tDelta < 0 ? 'text-sky-400' : 'text-amber-500')}`;
       }
 
-      document.getElementById('deltaGrossVal').textContent = fmtCurr(dGross); document.getElementById('deltaNetVal').textContent = fmtCurr(dNet);
-      document.getElementById('deltaPtsVal').textContent = dPts; document.getElementById('deltaOhipVal').textContent = fmtCurr(dOhip);
+      document.getElementById('deltaGrossVal').textContent = fmtCurr(dGross);
+      document.getElementById('deltaNetVal').textContent = fmtCurr(dNet);
+      document.getElementById('deltaPtsVal').textContent = dPts;
+      document.getElementById('deltaOhipVal').textContent = fmtCurr(dOhip);
       document.getElementById('deltaRecordAlert').classList.toggle('hidden', dGross <= (state.recordHigh?.amount || 0));
     };
 
-    window.closeDailyLogModal = () => { document.getElementById('dailyLogModal').classList.add('hidden'); syncBodyModalLock(); };
+    window.closeDailyLogModal = () => {
+      document.getElementById('dailyLogModal').classList.add('hidden');
+      syncBodyModalLock();
+    };
+
     window.saveDailyLog = () => {
       ensureRecordBaselineInitialized();
       const beforeSnap = snapshotAllRecords();
@@ -5453,6 +5952,13 @@
       const dayInc = shiftHours === 8 ? 1 : (shiftHours === 6 ? 1 : (shiftHours === 4 ? 0.5 : 0));
       const targetDelta = shiftHours === 0 ? 0 : (getRateForShiftHours(shiftHours) - getRateForShiftHours(scheduledHours));
 
+      const prevGross = Number(m.gross) || 0;
+      const prevReci = Number(m.reci) || 0;
+      const prevOhip = Number(m.ohip) || 0;
+      const prevTotOhip = Number(m.totalOhip) || 0;
+      const prevPaid = Number(m.paid) || 0;
+      const prevPts = Number(m.patients) || 0;
+
       const newGross = Number(document.getElementById('logMtdGross').value) || 0;
       const newReci = Number(document.getElementById('logMtdReci').value) || 0;
       const newOhip = Number(document.getElementById('logMtdOhip').value) || 0;
@@ -5460,12 +5966,12 @@
       const newPaid = Number(document.getElementById('logMtdPaid').value) || 0;
       const newPts = Number(document.getElementById('logMtdPatients').value) || 0;
 
-      const dGross = newGross - (Number(m.gross) || 0);
-      const dReci = newReci - (Number(m.reci) || 0);
-      const dOhip = newOhip - (Number(m.ohip) || 0);
-      const dTotOhip = newTotOhip - (Number(m.totalOhip) || 0);
-      const dPaid = newPaid - (Number(m.paid) || 0);
-      const dPts = newPts - (Number(m.patients) || 0);
+      const dGross = newGross - prevGross;
+      const dReci = newReci - prevReci;
+      const dOhip = newOhip - prevOhip;
+      const dTotOhip = newTotOhip - prevTotOhip;
+      const dPaid = newPaid - prevPaid;
+      const dPts = newPts - prevPts;
       const dNet = (dReci + dOhip) * ((state.settings.netPct || 24) / 100);
 
       m.daysWorked = Number(((Number(m.daysWorked) || 0) + dayInc).toFixed(2));
@@ -5494,6 +6000,12 @@
         dOhip: Number(dOhip.toFixed(2)),
         dTotOhip: Number(dTotOhip.toFixed(2)),
         dPaid: Number(dPaid.toFixed(2)),
+        mtdGross: Number(newGross.toFixed(2)),
+        mtdReci: Number(newReci.toFixed(2)),
+        mtdOhip: Number(newOhip.toFixed(2)),
+        mtdTotalOhip: Number(newTotOhip.toFixed(2)),
+        mtdPaid: Number(newPaid.toFixed(2)),
+        mtdPts: newPts,
         note: document.getElementById('logNote').value.trim()
       });
 
@@ -5503,83 +6015,332 @@
       saveAndRender();
     };
 
-    function findLedgerMonthForLog(log) {
-      const yr = log.year || (log.date && log.date.length >= 4 ? log.date.substring(0, 4) : state.currentYear);
+    // ================= FULL-FEATURED EDIT LOGGED SHIFT ENGINE WITH FORWARD RIPPLE / CASCADE =================
+    function resolveYearAndMonthIdxForLog(log) {
+      const yr = String(log.year || (log.date && log.date.length >= 4 ? log.date.substring(0, 4) : state.currentYear));
+      let mIdx = (log.monthIdx !== undefined && log.monthIdx !== null) ? Number(log.monthIdx) : -1;
       const yearArr = state.years[yr] || state.years[state.currentYear];
-      if (!yearArr) return null;
-      if (log.monthIdx !== undefined && log.monthIdx !== null && yearArr[log.monthIdx]) {
-        return yearArr[log.monthIdx];
+      if (mIdx < 0 && log.month && yearArr) {
+        mIdx = yearArr.findIndex(x => x.month === log.month);
       }
-      if (log.month) {
-        const found = yearArr.find(x => x.month === log.month);
-        if (found) return found;
+      if (mIdx < 0 && log.date && log.date.includes('-')) {
+        mIdx = Number(log.date.split('-')[1]) - 1;
       }
-      if (log.date && log.date.includes('-')) {
-        const mPart = Number(log.date.split('-')[1]) - 1;
-        if (mPart >= 0 && mPart < 12 && yearArr[mPart]) return yearArr[mPart];
+      return { yr, mIdx: Math.max(0, mIdx), monthObj: yearArr ? yearArr[Math.max(0, mIdx)] : null };
+    }
+
+    function getSameMonthOrderedLogIndices(yr, mIdx) {
+      const indices = [];
+      (state.dailyLogs || []).forEach((item, idx) => {
+        const res = resolveYearAndMonthIdxForLog(item);
+        if (res.yr === yr && res.mIdx === mIdx) {
+          indices.push(idx);
+        }
+      });
+      return indices;
+    }
+
+    // Reconstructs the pre-shift baseline and post-shift MTD snapshot for any logged shift in a month
+    function computeLogMtdContext(targetLogIdx) {
+      const l = state.dailyLogs[targetLogIdx];
+      if (!l) return null;
+      const { yr, mIdx, monthObj } = resolveYearAndMonthIdxForLog(l);
+      const sameMonthIdxs = getSameMonthOrderedLogIndices(yr, mIdx);
+      const posInMonth = sameMonthIdxs.indexOf(targetLogIdx);
+      const netRate = (Number(state.settings.netPct) || 24) / 100;
+
+      const getLogDeltas = (entry) => {
+        const dG = entry.dGross !== undefined ? Number(entry.dGross) : (Number(entry.gross) || 0);
+        const dO = entry.dOhip !== undefined ? Number(entry.dOhip) : 0;
+        const dR = entry.dReci !== undefined ? Number(entry.dReci) : (netRate > 0 ? ((Number(entry.net) || 0) / netRate) - dO : 0);
+        const dTO = entry.dTotOhip !== undefined ? Number(entry.dTotOhip) : 0;
+        const dP = entry.dPaid !== undefined ? Number(entry.dPaid) : 0;
+        const dPt = Number(entry.pts) || 0;
+        return { dG, dR, dO, dTO, dP, dPt };
+      };
+
+      // Sum deltas of all logs strictly AFTER targetLogIdx in the same month
+      let afterG = 0, afterR = 0, afterO = 0, afterTO = 0, afterP = 0, afterPt = 0;
+      for (let i = posInMonth + 1; i < sameMonthIdxs.length; i++) {
+        const dl = getLogDeltas(state.dailyLogs[sameMonthIdxs[i]]);
+        afterG += dl.dG;
+        afterR += dl.dR;
+        afterO += dl.dO;
+        afterTO += dl.dTO;
+        afterP += dl.dP;
+        afterPt += dl.dPt;
       }
-      return null;
+
+      const curDeltas = getLogDeltas(l);
+      const mGross = Number(monthObj?.gross) || 0;
+      const mReci = Number(monthObj?.reci) || 0;
+      const mOhip = Number(monthObj?.ohip) || 0;
+      const mTotOhip = Number(monthObj?.totalOhip) || 0;
+      const mPaid = Number(monthObj?.paid) || 0;
+      const mPts = Number(monthObj?.patients) || 0;
+
+      // Post-shift cumulative MTD right after this log was recorded
+      const postMtdGross = l.mtdGross !== undefined ? Number(l.mtdGross) : Math.max(0, mGross - afterG);
+      const postMtdReci = l.mtdReci !== undefined ? Number(l.mtdReci) : Math.max(0, mReci - afterR);
+      const postMtdOhip = l.mtdOhip !== undefined ? Number(l.mtdOhip) : Math.max(0, mOhip - afterO);
+      const postMtdTotOhip = l.mtdTotalOhip !== undefined ? Number(l.mtdTotalOhip) : Math.max(0, mTotOhip - afterTO);
+      const postMtdPaid = l.mtdPaid !== undefined ? Number(l.mtdPaid) : Math.max(0, mPaid - afterP);
+      const postMtdPts = l.mtdPts !== undefined ? Number(l.mtdPts) : Math.max(0, mPts - afterPt);
+
+      // Pre-shift MTD baseline immediately before this log was recorded
+      const preMtdGross = Math.max(0, postMtdGross - curDeltas.dG);
+      const preMtdReci = Math.max(0, postMtdReci - curDeltas.dR);
+      const preMtdOhip = Math.max(0, postMtdOhip - curDeltas.dO);
+      const preMtdTotOhip = Math.max(0, postMtdTotOhip - curDeltas.dTO);
+      const preMtdPaid = Math.max(0, postMtdPaid - curDeltas.dP);
+      const preMtdPts = Math.max(0, postMtdPts - curDeltas.dPt);
+
+      return {
+        yr,
+        mIdx,
+        monthObj,
+        sameMonthIdxs,
+        posInMonth,
+        subsequentCount: Math.max(0, sameMonthIdxs.length - 1 - posInMonth),
+        curDeltas,
+        preMtd: { gross: preMtdGross, reci: preMtdReci, ohip: preMtdOhip, totOhip: preMtdTotOhip, paid: preMtdPaid, pts: preMtdPts },
+        postMtd: { gross: postMtdGross, reci: postMtdReci, ohip: postMtdOhip, totOhip: postMtdTotOhip, paid: postMtdPaid, pts: postMtdPts }
+      };
     }
 
     let editingLogIdx = null;
+    let editLogInputMode = 'mtd'; // 'mtd' or 'delta'
+    let currentEditLogCtx = null;
+
+    window.setEditLogInputMode = (mode) => {
+      if (editingLogIdx === null || !currentEditLogCtx) return;
+      editLogInputMode = mode;
+      const mtdBtn = document.getElementById('editLogModeMtdBtn');
+      const deltaBtn = document.getElementById('editLogModeDeltaBtn');
+      if (mtdBtn && deltaBtn) {
+        mtdBtn.className = mode === 'mtd' ? 'px-2.5 py-1 rounded-md bg-brand-600 text-white shadow-sm transition' : 'px-2.5 py-1 rounded-md text-slate-500 dark:text-slate-400 transition';
+        deltaBtn.className = mode === 'delta' ? 'px-2.5 py-1 rounded-md bg-brand-600 text-white shadow-sm transition' : 'px-2.5 py-1 rounded-md text-slate-500 dark:text-slate-400 transition';
+      }
+
+      const pre = currentEditLogCtx.preMtd;
+      const post = currentEditLogCtx.postMtd;
+      const dl = currentEditLogCtx.curDeltas;
+
+      if (mode === 'mtd') {
+        document.getElementById('editLblGross').textContent = 'MTD Gross';
+        document.getElementById('editLblReci').textContent = 'MTD Acct Rec';
+        document.getElementById('editLblOhip').textContent = 'MTD OHIP Rec';
+        document.getElementById('editLblTotOhip').textContent = 'MTD Tot OHIP';
+        document.getElementById('editLblPaid').textContent = 'MTD Paid';
+        document.getElementById('editLblPts').textContent = 'MTD Pts';
+
+        document.getElementById('editPrevGrossLbl').textContent = `Prev: ${fmtCurr(pre.gross)}`;
+        document.getElementById('editPrevReciLbl').textContent = `Prev: ${fmtCurr(pre.reci)}`;
+        document.getElementById('editPrevOhipLbl').textContent = `Prev: ${fmtCurr(pre.ohip)}`;
+        document.getElementById('editPrevTotOhipLbl').textContent = `Prev: ${fmtCurr(pre.totOhip)}`;
+        document.getElementById('editPrevPaidLbl').textContent = `Prev: ${fmtCurr(pre.paid)}`;
+        document.getElementById('editPrevPtsLbl').textContent = `Prev: ${pre.pts}`;
+
+        document.getElementById('editLogInputGross').value = Number(post.gross.toFixed(2));
+        document.getElementById('editLogInputReci').value = Number(post.reci.toFixed(2));
+        document.getElementById('editLogInputOhip').value = Number(post.ohip.toFixed(2));
+        document.getElementById('editLogInputTotOhip').value = Number(post.totOhip.toFixed(2));
+        document.getElementById('editLogInputPaid').value = Number(post.paid.toFixed(2));
+        document.getElementById('editLogInputPts').value = Math.round(post.pts);
+      } else {
+        document.getElementById('editLblGross').textContent = 'Day Gross Δ';
+        document.getElementById('editLblReci').textContent = 'Day Acct Rec Δ';
+        document.getElementById('editLblOhip').textContent = 'Day OHIP Rec Δ';
+        document.getElementById('editLblTotOhip').textContent = 'Day Tot OHIP Δ';
+        document.getElementById('editLblPaid').textContent = 'Day Paid Δ';
+        document.getElementById('editLblPts').textContent = 'Day Pts Δ';
+
+        document.getElementById('editPrevGrossLbl').textContent = `Was: ${fmtCurr(dl.dG)}`;
+        document.getElementById('editPrevReciLbl').textContent = `Was: ${fmtCurr(dl.dR)}`;
+        document.getElementById('editPrevOhipLbl').textContent = `Was: ${fmtCurr(dl.dO)}`;
+        document.getElementById('editPrevTotOhipLbl').textContent = `Was: ${fmtCurr(dl.dTO)}`;
+        document.getElementById('editPrevPaidLbl').textContent = `Was: ${fmtCurr(dl.dP)}`;
+        document.getElementById('editPrevPtsLbl').textContent = `Was: ${dl.dPt}`;
+
+        document.getElementById('editLogInputGross').value = Number(dl.dG.toFixed(2));
+        document.getElementById('editLogInputReci').value = Number(dl.dR.toFixed(2));
+        document.getElementById('editLogInputOhip').value = Number(dl.dO.toFixed(2));
+        document.getElementById('editLogInputTotOhip').value = Number(dl.dTO.toFixed(2));
+        document.getElementById('editLogInputPaid').value = Number(dl.dP.toFixed(2));
+        document.getElementById('editLogInputPts').value = Math.round(dl.dPt);
+      }
+
+      window.updateEditLogDeltaPreview();
+    };
+
     window.openEditLogModal = (idx) => {
-      editingLogIdx = idx; const l = state.dailyLogs[idx];
-      document.getElementById('editLogDate').value = l.date || ''; document.getElementById('editLogGross').value = l.gross ?? 0;
-      document.getElementById('editLogNet').value = l.net ?? 0; document.getElementById('editLogPts').value = l.pts ?? 0; document.getElementById('editLogNote').value = l.note || '';
+      editingLogIdx = idx;
+      populateShiftDropdownLabels();
+      const l = state.dailyLogs[idx];
+      currentEditLogCtx = computeLogMtdContext(idx);
+
+      document.getElementById('editLogDate').value = l.date || '';
+      document.getElementById('editLogNote').value = l.note || '';
       const sHrs = l.shiftHours !== undefined ? String(l.shiftHours) : (l.dayInc === 0.5 ? '4' : (l.dayInc === 0 ? '0' : '8'));
       const schedHrs = l.scheduledHours !== undefined ? String(l.scheduledHours) : sHrs;
       document.getElementById('editLogShiftHours').value = sHrs;
       document.getElementById('editLogScheduledHours').value = schedHrs;
+
+      const monthNamesFull = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+      const subEl = document.getElementById('editLogTargetMonthSub');
+      if (subEl && currentEditLogCtx) {
+        const rippleText = currentEditLogCtx.subsequentCount > 0
+          ? `Ripples changes forward across ${currentEditLogCtx.subsequentCount} later shift(s) in ${monthNamesFull[currentEditLogCtx.mIdx]} ${currentEditLogCtx.yr}`
+          : `Updates ${monthNamesFull[currentEditLogCtx.mIdx]} ${currentEditLogCtx.yr} Ledger`;
+        subEl.textContent = rippleText;
+      }
+
+      window.setEditLogInputMode('mtd');
       document.getElementById('editLogModal').classList.remove('hidden');
       syncBodyModalLock();
     };
-    window.closeEditLogModal = () => { document.getElementById('editLogModal').classList.add('hidden'); syncBodyModalLock(); };
+
+    window.updateEditLogDeltaPreview = () => {
+      if (!currentEditLogCtx) return;
+      const pre = currentEditLogCtx.preMtd;
+      const inG = Number(document.getElementById('editLogInputGross').value) || 0;
+      const inR = Number(document.getElementById('editLogInputReci').value) || 0;
+      const inO = Number(document.getElementById('editLogInputOhip').value) || 0;
+      const inTO = Number(document.getElementById('editLogInputTotOhip').value) || 0;
+      const inP = Number(document.getElementById('editLogInputPaid').value) || 0;
+      const inPt = Number(document.getElementById('editLogInputPts').value) || 0;
+
+      const dGross = editLogInputMode === 'mtd' ? (inG - pre.gross) : inG;
+      const dReci = editLogInputMode === 'mtd' ? (inR - pre.reci) : inR;
+      const dOhip = editLogInputMode === 'mtd' ? (inO - pre.ohip) : inO;
+      const dTotOhip = editLogInputMode === 'mtd' ? (inTO - pre.totOhip) : inTO;
+      const dPaid = editLogInputMode === 'mtd' ? (inP - pre.paid) : inP;
+      const dPts = editLogInputMode === 'mtd' ? (inPt - pre.pts) : inPt;
+      const dNet = (dReci + dOhip) * ((Number(state.settings.netPct) || 24) / 100);
+
+      const shiftHrs = Number(document.getElementById('editLogShiftHours').value) || 0;
+      const schedHrs = Number(document.getElementById('editLogScheduledHours').value) || 0;
+      const tDelta = shiftHrs === 0 ? 0 : (getRateForShiftHours(shiftHrs) - getRateForShiftHours(schedHrs));
+      const badgeEl = document.getElementById('editLogTargetDeltaBadge');
+      if (badgeEl) {
+        badgeEl.textContent = `Month Target Δ: ${tDelta >= 0 ? '+' : ''}${fmtCurr(tDelta)}`;
+        badgeEl.className = `mono font-bold text-[11px] shrink-0 ${tDelta === 0 ? 'text-slate-400' : (tDelta < 0 ? 'text-sky-400' : 'text-amber-500')}`;
+      }
+
+      document.getElementById('editDeltaGrossVal').textContent = fmtCurr(dGross);
+      document.getElementById('editDeltaNetVal').textContent = fmtCurr(dNet);
+      document.getElementById('editDeltaPaidVal').textContent = (dPaid >= 0 ? '+' : '') + fmtCurr(dPaid);
+      document.getElementById('editDeltaPtsVal').textContent = Math.round(dPts);
+      document.getElementById('editDeltaOhipVal').textContent = fmtCurr(dTotOhip);
+
+      const diffFromOldPaid = dPaid - currentEditLogCtx.curDeltas.dP;
+      const diffFromOldNet = dNet - ((currentEditLogCtx.curDeltas.dR + currentEditLogCtx.curDeltas.dO) * ((Number(state.settings.netPct) || 24) / 100));
+      const noticeEl = document.getElementById('editLogCascadeNotice');
+      if (noticeEl) {
+        const parts = [];
+        if (Math.abs(diffFromOldNet) >= 0.01) parts.push(`Ledger Net ${diffFromOldNet >= 0 ? '+' : ''}${fmtCurr(diffFromOldNet)}`);
+        if (Math.abs(diffFromOldPaid) >= 0.01) parts.push(`Ledger Paid ${diffFromOldPaid >= 0 ? '+' : ''}${fmtCurr(diffFromOldPaid)}`);
+        noticeEl.textContent = parts.join(' • ');
+      }
+    };
+
+    window.closeEditLogModal = () => {
+      editingLogIdx = null;
+      currentEditLogCtx = null;
+      document.getElementById('editLogModal').classList.add('hidden');
+      syncBodyModalLock();
+    };
+
     window.saveEditedDailyLog = () => {
-      if (editingLogIdx === null) return;
+      if (editingLogIdx === null || !currentEditLogCtx) return;
       ensureRecordBaselineInitialized();
       const beforeSnap = snapshotAllRecords();
       const l = state.dailyLogs[editingLogIdx];
+      const ctx = currentEditLogCtx;
+      const pre = ctx.preMtd;
+      const oldDl = ctx.curDeltas;
+
       const newDate = document.getElementById('editLogDate').value;
-      const newGross = Number(document.getElementById('editLogGross').value) || 0;
-      const newNet = Number(document.getElementById('editLogNet').value) || 0;
-      const newPts = Number(document.getElementById('editLogPts').value) || 0;
       const newNote = document.getElementById('editLogNote').value.trim();
       const newShiftHours = Number(document.getElementById('editLogShiftHours').value) || 0;
       const newScheduledHours = Number(document.getElementById('editLogScheduledHours').value) || 0;
       const newDayInc = newShiftHours === 8 ? 1 : (newShiftHours === 6 ? 1 : (newShiftHours === 4 ? 0.5 : 0));
       const newTargetDelta = newShiftHours === 0 ? 0 : (getRateForShiftHours(newShiftHours) - getRateForShiftHours(newScheduledHours));
 
+      const inG = Number(document.getElementById('editLogInputGross').value) || 0;
+      const inR = Number(document.getElementById('editLogInputReci').value) || 0;
+      const inO = Number(document.getElementById('editLogInputOhip').value) || 0;
+      const inTO = Number(document.getElementById('editLogInputTotOhip').value) || 0;
+      const inP = Number(document.getElementById('editLogInputPaid').value) || 0;
+      const inPt = Number(document.getElementById('editLogInputPts').value) || 0;
+
+      const newDGross = editLogInputMode === 'mtd' ? (inG - pre.gross) : inG;
+      const newDReci = editLogInputMode === 'mtd' ? (inR - pre.reci) : inR;
+      const newDOhip = editLogInputMode === 'mtd' ? (inO - pre.ohip) : inO;
+      const newDTotOhip = editLogInputMode === 'mtd' ? (inTO - pre.totOhip) : inTO;
+      const newDPaid = editLogInputMode === 'mtd' ? (inP - pre.paid) : inP;
+      const newDPts = Math.round(editLogInputMode === 'mtd' ? (inPt - pre.pts) : inPt);
+      const newDNet = (newDReci + newDOhip) * ((Number(state.settings.netPct) || 24) / 100);
+
+      // Compute exact ripple deltas to cascade forward into all subsequent logs in that month & the monthly ledger row
+      const rippleGross = newDGross - oldDl.dG;
+      const rippleReci = newDReci - oldDl.dR;
+      const rippleOhip = newDOhip - oldDl.dO;
+      const rippleTotOhip = newDTotOhip - oldDl.dTO;
+      const ripplePaid = newDPaid - oldDl.dP;
+      const ripplePts = newDPts - oldDl.dPt;
+
       const oldDayInc = l.dayInc !== undefined ? Number(l.dayInc) : 1;
       const oldTargetDelta = Number(l.targetDelta) || 0;
-
-      const diffGross = newGross - (Number(l.gross) || 0);
-      const diffNet = newNet - (Number(l.net) || 0);
-      const diffPts = newPts - (Number(l.pts) || 0);
       const diffDays = newDayInc - oldDayInc;
       const diffTargetDelta = newTargetDelta - oldTargetDelta;
-      const netRate = (Number(state.settings.netPct) || 24) / 100;
-      const diffReci = netRate > 0 ? (diffNet / netRate) : 0;
 
-      const m = findLedgerMonthForLog(l);
-      if (m) {
-        m.daysWorked = Math.max(0, Number(((Number(m.daysWorked) || 0) + diffDays).toFixed(2)));
-        m.shiftTargetAdj = Number(((Number(m.shiftTargetAdj) || 0) + diffTargetDelta).toFixed(2));
-        m.gross = Math.max(0, Number(((Number(m.gross) || 0) + diffGross).toFixed(2)));
-        m.reci = Math.max(0, Number(((Number(m.reci) || 0) + diffReci).toFixed(2)));
-        m.patients = Math.max(0, Math.round((Number(m.patients) || 0) + diffPts));
-      }
-
+      // 1. Update this log entry's deltas and MTD snapshot
       l.date = newDate;
-      l.gross = newGross;
-      l.net = newNet;
-      l.pts = newPts;
       l.dayInc = newDayInc;
       l.shiftHours = newShiftHours;
       l.scheduledHours = newScheduledHours;
       l.targetDelta = newTargetDelta;
-      l.dGross = newGross;
-      if (l.dReci !== undefined) l.dReci = Number(((Number(l.dReci) || 0) + diffReci).toFixed(2));
+      l.gross = Number(newDGross.toFixed(2));
+      l.net = Number(newDNet.toFixed(2));
+      l.pts = newDPts;
+      l.dGross = Number(newDGross.toFixed(2));
+      l.dReci = Number(newDReci.toFixed(2));
+      l.dOhip = Number(newDOhip.toFixed(2));
+      l.dTotOhip = Number(newDTotOhip.toFixed(2));
+      l.dPaid = Number(newDPaid.toFixed(2));
+      l.mtdGross = Number((pre.gross + newDGross).toFixed(2));
+      l.mtdReci = Number((pre.reci + newDReci).toFixed(2));
+      l.mtdOhip = Number((pre.ohip + newDOhip).toFixed(2));
+      l.mtdTotalOhip = Number((pre.totOhip + newDTotOhip).toFixed(2));
+      l.mtdPaid = Number((pre.paid + newDPaid).toFixed(2));
+      l.mtdPts = Math.round(pre.pts + newDPts);
       l.note = newNote;
+
+      // 2. Ripple the MTD shift forward across all subsequent logs in the same month
+      for (let i = ctx.posInMonth + 1; i < ctx.sameMonthIdxs.length; i++) {
+        const subLog = state.dailyLogs[ctx.sameMonthIdxs[i]];
+        if (!subLog) continue;
+        if (subLog.mtdGross !== undefined) subLog.mtdGross = Number((Number(subLog.mtdGross) + rippleGross).toFixed(2));
+        if (subLog.mtdReci !== undefined) subLog.mtdReci = Number((Number(subLog.mtdReci) + rippleReci).toFixed(2));
+        if (subLog.mtdOhip !== undefined) subLog.mtdOhip = Number((Number(subLog.mtdOhip) + rippleOhip).toFixed(2));
+        if (subLog.mtdTotalOhip !== undefined) subLog.mtdTotalOhip = Number((Number(subLog.mtdTotalOhip) + rippleTotOhip).toFixed(2));
+        if (subLog.mtdPaid !== undefined) subLog.mtdPaid = Number((Number(subLog.mtdPaid) + ripplePaid).toFixed(2));
+        if (subLog.mtdPts !== undefined) subLog.mtdPts = Math.round(Number(subLog.mtdPts) + ripplePts);
+      }
+
+      // 3. Apply the ripple directly to the Monthly Ledger row
+      const m = ctx.monthObj;
+      if (m) {
+        m.daysWorked = Math.max(0, Number(((Number(m.daysWorked) || 0) + diffDays).toFixed(2)));
+        m.shiftTargetAdj = Number(((Number(m.shiftTargetAdj) || 0) + diffTargetDelta).toFixed(2));
+        m.gross = Math.max(0, Number(((Number(m.gross) || 0) + rippleGross).toFixed(2)));
+        m.reci = Math.max(0, Number(((Number(m.reci) || 0) + rippleReci).toFixed(2)));
+        m.ohip = Math.max(0, Number(((Number(m.ohip) || 0) + rippleOhip).toFixed(2)));
+        m.totalOhip = Math.max(0, Number(((Number(m.totalOhip) || 0) + rippleTotOhip).toFixed(2)));
+        m.paid = Math.max(0, Number(((Number(m.paid) || 0) + ripplePaid).toFixed(2)));
+        m.patients = Math.max(0, Math.round((Number(m.patients) || 0) + ripplePts));
+      }
 
       syncRecordHighWithBaselineAndLogs();
       window.closeEditLogModal();
@@ -5590,32 +6351,40 @@
     window.deleteCurrentEditingLog = () => {
       if (editingLogIdx === null) return;
       ensureRecordBaselineInitialized();
+      const ctx = currentEditLogCtx || computeLogMtdContext(editingLogIdx);
       const l = state.dailyLogs[editingLogIdx];
-      if (l) {
-        const m = findLedgerMonthForLog(l);
-        if (m) {
-          const dayInc = l.dayInc !== undefined ? Number(l.dayInc) : 1;
-          const tDelta = Number(l.targetDelta) || 0;
-          const dGross = l.dGross !== undefined ? Number(l.dGross) : (Number(l.gross) || 0);
-          const netRate = (Number(state.settings.netPct) || 24) / 100;
-          const dReci = l.dReci !== undefined ? Number(l.dReci) : (netRate > 0 ? ((Number(l.net) || 0) / netRate) : 0);
-          const dOhip = l.dOhip !== undefined ? Number(l.dOhip) : 0;
-          const dTotOhip = l.dTotOhip !== undefined ? Number(l.dTotOhip) : 0;
-          const dPaid = l.dPaid !== undefined ? Number(l.dPaid) : 0;
-          const dPts = Number(l.pts) || 0;
+      if (l && ctx) {
+        const dayInc = l.dayInc !== undefined ? Number(l.dayInc) : 1;
+        const tDelta = Number(l.targetDelta) || 0;
+        const dl = ctx.curDeltas;
 
+        // Ripple negative delta forward to any subsequent logs in the same month
+        for (let i = ctx.posInMonth + 1; i < ctx.sameMonthIdxs.length; i++) {
+          const subLog = state.dailyLogs[ctx.sameMonthIdxs[i]];
+          if (!subLog) continue;
+          if (subLog.mtdGross !== undefined) subLog.mtdGross = Math.max(0, Number((Number(subLog.mtdGross) - dl.dG).toFixed(2)));
+          if (subLog.mtdReci !== undefined) subLog.mtdReci = Math.max(0, Number((Number(subLog.mtdReci) - dl.dR).toFixed(2)));
+          if (subLog.mtdOhip !== undefined) subLog.mtdOhip = Math.max(0, Number((Number(subLog.mtdOhip) - dl.dO).toFixed(2)));
+          if (subLog.mtdTotalOhip !== undefined) subLog.mtdTotalOhip = Math.max(0, Number((Number(subLog.mtdTotalOhip) - dl.dTO).toFixed(2)));
+          if (subLog.mtdPaid !== undefined) subLog.mtdPaid = Math.max(0, Number((Number(subLog.mtdPaid) - dl.dP).toFixed(2)));
+          if (subLog.mtdPts !== undefined) subLog.mtdPts = Math.max(0, Math.round(Number(subLog.mtdPts) - dl.dPt));
+        }
+
+        const m = ctx.monthObj;
+        if (m) {
           m.daysWorked = Math.max(0, Number(((Number(m.daysWorked) || 0) - dayInc).toFixed(2)));
           m.shiftTargetAdj = Number(((Number(m.shiftTargetAdj) || 0) - tDelta).toFixed(2));
-          m.gross = Math.max(0, Number(((Number(m.gross) || 0) - dGross).toFixed(2)));
-          m.reci = Math.max(0, Number(((Number(m.reci) || 0) - dReci).toFixed(2)));
-          m.ohip = Math.max(0, Number(((Number(m.ohip) || 0) - dOhip).toFixed(2)));
-          m.totalOhip = Math.max(0, Number(((Number(m.totalOhip) || 0) - dTotOhip).toFixed(2)));
-          m.paid = Math.max(0, Number(((Number(m.paid) || 0) - dPaid).toFixed(2)));
-          m.patients = Math.max(0, Math.round((Number(m.patients) || 0) - dPts));
+          m.gross = Math.max(0, Number(((Number(m.gross) || 0) - dl.dG).toFixed(2)));
+          m.reci = Math.max(0, Number(((Number(m.reci) || 0) - dl.dR).toFixed(2)));
+          m.ohip = Math.max(0, Number(((Number(m.ohip) || 0) - dl.dO).toFixed(2)));
+          m.totalOhip = Math.max(0, Number(((Number(m.totalOhip) || 0) - dl.dTO).toFixed(2)));
+          m.paid = Math.max(0, Number(((Number(m.paid) || 0) - dl.dP).toFixed(2)));
+          m.patients = Math.max(0, Math.round((Number(m.patients) || 0) - dl.dPt));
         }
       }
       state.dailyLogs.splice(editingLogIdx, 1);
       editingLogIdx = null;
+      currentEditLogCtx = null;
       syncRecordHighWithBaselineAndLogs();
       window.closeEditLogModal();
       saveAndRender();
@@ -5647,17 +6416,24 @@
 
     window.openExtrasModal = () => {
       const ex = state.yearPaidExtras?.[state.currentYear] || { health: 0, bonusPaid: 0 };
-      document.getElementById('inputHealthPaid').value = ex.health ?? 0; document.getElementById('inputBonusPaid').value = ex.bonusPaid ?? 0;
+      document.getElementById('inputHealthPaid').value = ex.health ?? 0;
+      document.getElementById('inputBonusPaid').value = ex.bonusPaid ?? 0;
       document.getElementById('extrasModal').classList.remove('hidden');
       syncBodyModalLock();
     };
     window.syncBonusRowFromQuarters = () => {
-      document.getElementById('inputBonusPaid').value = ['Q1','Q2','Q3','Q4'].reduce((a, qk) => { const q = calculateQuarterSummary(state.currentYear, qk); return a + (q.isConfirmed ? q.displayBonus : 0); }, 0).toFixed(2);
+      document.getElementById('inputBonusPaid').value = ['Q1','Q2','Q3','Q4'].reduce((a, qk) => {
+        const q = calculateQuarterSummary(state.currentYear, qk);
+        return a + (q.isConfirmed ? q.displayBonus : 0);
+      }, 0).toFixed(2);
     };
     window.closeExtrasModal = () => { document.getElementById('extrasModal').classList.add('hidden'); syncBodyModalLock(); };
     window.saveExtrasModal = () => {
       const beforeSnap = snapshotAllRecords();
-      state.yearPaidExtras[state.currentYear] = { health: Math.min(1000, Math.max(0, Number(document.getElementById('inputHealthPaid').value) || 0)), bonusPaid: Number(document.getElementById('inputBonusPaid').value) || 0 };
+      state.yearPaidExtras[state.currentYear] = {
+        health: Math.min(1000, Math.max(0, Number(document.getElementById('inputHealthPaid').value) || 0)),
+        bonusPaid: Number(document.getElementById('inputBonusPaid').value) || 0
+      };
       window.closeExtrasModal();
       checkAndCelebrateNewRecords(beforeSnap);
       saveAndRender();
@@ -5669,7 +6445,7 @@
       document.getElementById('setMtRate').value = state.settings.mtRate ?? 780;
       document.getElementById('setFRate').value = state.settings.fRate ?? 630;
       document.getElementById('setHalfRate').value = state.settings.halfRate ?? 480;
-      document.getElementById('setClinicAddress').value = state.settings.clinicAddress || 'Brockville Optometric Centre, Brockville, ON';
+      document.getElementById('setClinicAddress').value = state.settings.clinicAddress || 'Brockville Optometric Centre, 2123 Parkedale Ave, Brockville, ON K6V 0B4, Canada';
       const st = state.settings.shiftTimes || {};
       document.getElementById('setStart8h').value = st.start8h || '08:30';
       document.getElementById('setEnd8h').value = st.end8h || '17:00';
@@ -5690,7 +6466,7 @@
       state.settings.mtRate = Number(document.getElementById('setMtRate').value) || 780;
       state.settings.fRate = Number(document.getElementById('setFRate').value) || 630;
       state.settings.halfRate = Number(document.getElementById('setHalfRate').value) || 480;
-      state.settings.clinicAddress = (document.getElementById('setClinicAddress').value || '').trim() || 'Brockville Optometric Centre, Brockville, ON';
+      state.settings.clinicAddress = (document.getElementById('setClinicAddress').value || '').trim() || 'Brockville Optometric Centre, 2123 Parkedale Ave, Brockville, ON K6V 0B4, Canada';
       state.settings.shiftTimes = {
         start8h: document.getElementById('setStart8h').value || '08:30',
         end8h: document.getElementById('setEnd8h').value || '17:00',
@@ -6036,12 +6812,25 @@
     };
 
     window.downloadBackupJSON = () => {
-      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' }));
-      a.download = `OptoTrack_Backup.json`; a.click();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' }));
+      a.download = `OptoTrack_Backup.json`;
+      a.click();
     };
     window.restoreBackupJSON = (ev) => {
-      const f = ev.target.files[0]; if (!f) return;
-      const r = new FileReader(); r.onload = (e) => { try { state = { ...getEmptyState(), ...JSON.parse(e.target.result) }; ensureLayoutsValid(); ensureRecordBaselineInitialized(); window.closeSettingsModal(); saveAndRender(); } catch (err) {} }; r.readAsText(f);
+      const f = ev.target.files[0];
+      if (!f) return;
+      const r = new FileReader();
+      r.onload = (e) => {
+        try {
+          state = { ...getEmptyState(), ...JSON.parse(e.target.result) };
+          ensureLayoutsValid();
+          ensureRecordBaselineInitialized();
+          window.closeSettingsModal();
+          saveAndRender();
+        } catch (err) {}
+      };
+      r.readAsText(f);
     };
 
     initFirebase();
