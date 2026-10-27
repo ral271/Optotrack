@@ -42,9 +42,13 @@
     };
   </script>
   <style>
+    html {
+      scroll-behavior: auto;
+    }
     body {
       font-family: 'Inter', sans-serif;
       -webkit-tap-highlight-color: transparent;
+      overflow-anchor: none;
     }
     body.modal-open {
       overflow: hidden;
@@ -52,9 +56,11 @@
     .mono {
       font-family: 'JetBrains Mono', monospace;
     }
-    /* iPadOS / iOS Safe-Area Top Inset Support to prevent status bar overlap */
+    /* Smooth GPU layer promotion for sticky header & sidebar on Windows to eliminate scroll jitter */
     .safe-top-header {
       padding-top: env(safe-area-inset-top, 0px);
+      transform: translateZ(0);
+      backface-visibility: hidden;
     }
     .safe-top-modal {
       padding-top: max(0.75rem, calc(env(safe-area-inset-top, 0px) + 0.5rem));
@@ -87,12 +93,10 @@
       background: rgba(148, 163, 184, 0.3);
       border-radius: 3px;
     }
-    /* Smooth modal scrolling on Windows, iPadOS & macOS */
+    /* Smooth modal scrolling without forced layer thrashing on Windows */
     .modal-scroll-pane {
       overscroll-behavior: contain;
       -webkit-overflow-scrolling: touch;
-      transform: translateZ(0);
-      will-change: scroll-position;
       scrollbar-gutter: stable;
     }
     .bm-pill {
@@ -210,7 +214,7 @@
       <div class="flex flex-col items-center text-center space-y-3">
         <img src="data:image/png;base64,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" class="clinic-logo-img w-16 h-16 rounded-2xl object-contain bg-[#e6e6e6] p-1 shadow-lg border border-slate-700" alt="Brockville Optometric Centre" />
         <div>
-          <h1 class="text-xl font-extrabold text-white tracking-tight">OptoTrack Private Suite</h1>
+          <h1 class="text-xl font-extrabold text-white tracking-tight">OptoTrack</h1>
           <p class="text-xs text-slate-400 mt-0.5">Brockville Optometric Centre • Authorized Access Only</p>
         </div>
       </div>
@@ -260,7 +264,7 @@
   <!-- PROTECTED APPLICATION SHELL -->
   <div id="protectedAppShell" class="hidden min-h-screen flex flex-col md:flex-row pb-20 md:pb-0">
 
-    <!-- DESKTOP / TABLET COLLAPSIBLE SIDEBAR RAIL (WITH SAFE-TOP INSET FOR IPAD) -->
+    <!-- DESKTOP / TABLET COLLAPSIBLE SIDEBAR RAIL -->
     <aside id="desktopSidebar" class="safe-top-header hidden md:flex flex-col shrink-0 w-[68px] bg-slate-900 text-slate-300 border-r border-slate-800/90 select-none z-40 sticky top-0 h-screen">
       <div class="h-16 px-3 flex items-center justify-between border-b border-slate-800/80 shrink-0">
         <div class="flex items-center gap-2.5 min-w-0">
@@ -302,8 +306,8 @@
     <!-- MAIN CONTENT COLUMN -->
     <div class="flex-1 min-w-0 flex flex-col">
 
-      <!-- HEADER (WITH SAFE-TOP INSET SO IPAD STATUS BAR NEVER OVERLAPS) -->
-      <header class="safe-top-header sticky top-0 z-30 backdrop-blur-xl bg-white/90 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800">
+      <!-- HEADER (NO BACKDROP-BLUR FOR ULTRA-SMOOTH WINDOWS SCROLLING) -->
+      <header class="safe-top-header sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 border-b border-slate-200 dark:border-slate-800">
         <div class="w-full px-3.5 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-2">
           <div class="flex items-center gap-2.5 min-w-0">
             <button onclick="window.toggleSidebarPane()" class="hidden md:flex p-2 -ml-1 rounded-xl text-slate-500 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition" title="Toggle Navigation Pane">
@@ -438,16 +442,16 @@
               <div>
                 <div class="flex items-center justify-between gap-2">
                   <div class="flex items-center gap-1.5 min-w-0">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 truncate">Predicted Gross Salary</span>
-                    <span id="topCardGrossStatusBadge"></span>
+                    <span class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 truncate">Predicted Gross Salary</span>
+                    <span id="topCardGrossStatusBadge" class="shrink-0"></span>
                   </div>
                   <span id="bmPredGrossPill" class="shrink-0"></span>
                 </div>
                 <div id="topCardPredGross" class="text-2xl sm:text-3xl font-extrabold mono mt-1.5 text-sky-600 dark:text-sky-400 truncate">$0.00</div>
               </div>
-              <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500">
+              <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2 text-[11px] sm:text-xs text-slate-500">
                 <span id="topCardPredGrossSub" class="truncate">Daily Rate × Scheduled Shifts</span>
-                <span class="text-brand-500 font-semibold shrink-0 ml-2">Confirm / Edit →</span>
+                <span class="text-brand-500 font-semibold whitespace-nowrap shrink-0">Confirm / Edit →</span>
               </div>
             </div>
 
@@ -456,16 +460,16 @@
               <div>
                 <div class="flex items-center justify-between gap-2">
                   <div class="flex items-center gap-1.5 min-w-0">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 truncate">Estimated Taxes Owed</span>
-                    <span id="topCardTaxStatusBadge"></span>
+                    <span class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 truncate">Estimated Taxes Owed</span>
+                    <span id="topCardTaxStatusBadge" class="shrink-0"></span>
                   </div>
                   <span id="bmEstTaxPill" class="shrink-0"></span>
                 </div>
                 <div id="topCardEstTax" class="text-2xl sm:text-3xl font-extrabold mono mt-1.5 text-rose-600 dark:text-rose-400 truncate">$0.00</div>
               </div>
-              <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500">
-                <span id="topCardEstTaxSub" class="truncate mono">Fed + Prov + CPP</span>
-                <span id="topCardEffTaxRate" class="font-bold mono text-rose-400 shrink-0 ml-2">0.0% Eff.</span>
+              <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-1.5 text-[11px] text-slate-500">
+                <span id="topCardEstTaxSub" class="mono whitespace-nowrap truncate">Fed + Prov + CPP</span>
+                <span id="topCardEffTaxRate" class="font-bold mono text-rose-400 whitespace-nowrap shrink-0">0.0% Eff.</span>
               </div>
             </div>
 
@@ -474,45 +478,44 @@
               <div>
                 <div class="flex items-center justify-between gap-2">
                   <div class="flex items-center gap-1.5 min-w-0">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 truncate">Net Take-Home Pay</span>
-                    <span id="topCardTakeHomeStatusBadge"></span>
+                    <span class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 truncate">Net Take-Home Pay</span>
+                    <span id="topCardTakeHomeStatusBadge" class="shrink-0"></span>
                   </div>
                   <span id="bmTakeHomePill" class="shrink-0"></span>
                 </div>
                 <div id="topCardTakeHome" class="text-2xl sm:text-3xl font-extrabold mono mt-1.5 text-emerald-600 dark:text-emerald-400 truncate">$0.00</div>
               </div>
-              <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500">
+              <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2 text-[11px] sm:text-xs text-slate-500">
                 <span id="topCardTakeHomeSub" class="truncate">After Estimated Taxes & CPP</span>
-                <span id="topCardMonthlyTakeHome" class="font-semibold mono text-emerald-500 shrink-0 ml-2">$0/mth</span>
+                <span id="topCardMonthlyTakeHome" class="font-semibold mono text-emerald-500 whitespace-nowrap shrink-0">$0/mth</span>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- BLOCK: KPI CARDS -->
+        <!-- BLOCK: KPI CARDS (NON-OVERLAPPING SUB-ROWS FOR 14-INCH LAPTOP SCREENS) -->
         <div id="dashBlock_kpis" data-block-id="kpis" class="customizable-block">
           <div id="kpiGridContainer" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
             <div id="kpiCard_net" data-kpi-id="net" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between min-w-0">
               <div>
-                <div class="flex items-center justify-between gap-2">
-                  <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 truncate">YTD Net Cut (24%)</span>
+                <div class="flex items-center justify-between gap-1.5">
+                  <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 whitespace-nowrap">YTD Net Cut (24%)</span>
                   <span id="bmNetPill" class="shrink-0"></span>
                 </div>
                 <div id="kpiYtdNet" class="text-2xl sm:text-3xl font-extrabold mono mt-1.5 text-brand-600 dark:text-brand-400 truncate">$0.00</div>
               </div>
-              <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2 text-xs">
-                <div class="flex items-center justify-between gap-2">
-                  <span class="text-slate-500 shrink-0">YTD Gross:</span>
-                  <div class="flex items-center justify-end gap-2 min-w-0">
+              <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2 text-[11px]">
+                <div class="flex items-center justify-between gap-1.5">
+                  <span class="text-slate-500 whitespace-nowrap shrink-0">YTD Gross:</span>
+                  <div class="flex items-center justify-end gap-1.5 min-w-0">
                     <span id="kpiYtdGross" class="font-semibold mono text-right whitespace-nowrap">$0.00</span>
-                    <span id="bmGrossPill" class="w-[68px] flex justify-end shrink-0"></span>
+                    <span id="bmGrossPill" class="flex justify-end shrink-0 empty:hidden"></span>
                   </div>
                 </div>
-                <div class="flex items-center justify-between gap-2">
-                  <span class="text-slate-500 shrink-0">YTD Target:</span>
-                  <div class="flex items-center justify-end gap-2 min-w-0">
+                <div class="flex items-center justify-between gap-1.5">
+                  <span class="text-slate-500 whitespace-nowrap shrink-0">YTD Target:</span>
+                  <div class="flex items-center justify-end gap-1.5 min-w-0">
                     <span id="kpiYtdTarget" class="font-semibold mono text-right whitespace-nowrap">$0.00</span>
-                    <span class="w-[68px] shrink-0"></span>
                   </div>
                 </div>
               </div>
@@ -520,23 +523,23 @@
 
             <div id="kpiCard_paid" data-kpi-id="paid" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between min-w-0">
               <div>
-                <div class="flex items-center justify-between gap-2">
-                  <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 truncate">Total Paid (YTD)</span>
+                <div class="flex items-center justify-between gap-1.5">
+                  <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 whitespace-nowrap">Total Paid (YTD)</span>
                   <span id="bmPaidPill" class="shrink-0"></span>
                 </div>
                 <div id="kpiYtdPaid" class="text-2xl sm:text-3xl font-extrabold mono mt-1.5 text-purple-600 dark:text-purple-400 truncate">$0.00</div>
               </div>
-              <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 space-y-1.5 text-xs">
-                <div class="flex items-center justify-between gap-2">
-                  <span class="text-slate-500 shrink-0">Minimum Paid:</span>
+              <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 space-y-1.5 text-[11px]">
+                <div class="flex items-center justify-between gap-1.5">
+                  <span class="text-slate-500 whitespace-nowrap shrink-0">Minimum Paid:</span>
                   <span id="kpiBaseDrawsPaid" class="font-semibold mono text-right whitespace-nowrap">$0.00</span>
                 </div>
-                <div class="flex items-center justify-between gap-2">
-                  <span class="text-slate-500 shrink-0">YTD Bonus Paid:</span>
+                <div class="flex items-center justify-between gap-1.5">
+                  <span class="text-slate-500 whitespace-nowrap shrink-0">YTD Bonus Paid:</span>
                   <span id="kpiBonusPaidSub" class="font-semibold mono text-emerald-500 text-right whitespace-nowrap">+$0.00</span>
                 </div>
-                <div class="flex items-center justify-between gap-2">
-                  <span class="text-slate-500 shrink-0">Health Claimed:</span>
+                <div class="flex items-center justify-between gap-1.5">
+                  <span class="text-slate-500 whitespace-nowrap shrink-0">Health Claimed:</span>
                   <span id="kpiHealthSub" class="font-semibold mono text-sky-500 text-right whitespace-nowrap">$0.00 / $1,000</span>
                 </div>
               </div>
@@ -544,25 +547,25 @@
 
             <div id="kpiCard_daily" data-kpi-id="daily" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between min-w-0">
               <div>
-                <div class="flex items-center justify-between gap-2">
-                  <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 truncate">Avg Daily Net</span>
+                <div class="flex items-center justify-between gap-1.5">
+                  <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 whitespace-nowrap">Avg Daily Net</span>
                   <span id="bmDailyNetPill" class="shrink-0"></span>
                 </div>
                 <div id="kpiAvgDailyNet" class="text-2xl sm:text-3xl font-extrabold mono mt-1.5 text-emerald-600 dark:text-emerald-400 truncate">$0.00</div>
               </div>
-              <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2 text-xs">
-                <div class="flex items-center justify-between gap-2">
-                  <span class="text-slate-500 shrink-0">Days Worked:</span>
-                  <div class="flex items-center justify-end gap-2 min-w-0">
+              <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2 text-[11px]">
+                <div class="flex items-center justify-between gap-1.5">
+                  <span class="text-slate-500 whitespace-nowrap shrink-0">Days Worked:</span>
+                  <div class="flex items-center justify-end gap-1.5 min-w-0">
                     <span id="kpiTotalDays" class="font-semibold mono text-right whitespace-nowrap">0 days</span>
-                    <span id="bmTotalDaysPill" class="w-[68px] flex justify-end shrink-0"></span>
+                    <span id="bmTotalDaysPill" class="flex justify-end shrink-0 empty:hidden"></span>
                   </div>
                 </div>
-                <div class="flex items-center justify-between gap-2">
-                  <span class="text-slate-500 shrink-0">Avg Days / Mth:</span>
-                  <div class="flex items-center justify-end gap-2 min-w-0">
+                <div class="flex items-center justify-between gap-1.5">
+                  <span class="text-slate-500 whitespace-nowrap shrink-0">Avg Days / Mth:</span>
+                  <div class="flex items-center justify-end gap-1.5 min-w-0">
                     <span id="kpiAvgDaysMth" class="font-semibold mono text-right whitespace-nowrap">0.0 d/m</span>
-                    <span id="bmDaysMthPill" class="w-[68px] flex justify-end shrink-0"></span>
+                    <span id="bmDaysMthPill" class="flex justify-end shrink-0 empty:hidden"></span>
                   </div>
                 </div>
               </div>
@@ -570,32 +573,32 @@
 
             <div id="kpiCard_revpt" data-kpi-id="revpt" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between min-w-0">
               <div>
-                <div class="flex items-center justify-between gap-2">
-                  <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 truncate">Rev / Patient</span>
+                <div class="flex items-center justify-between gap-1.5">
+                  <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 whitespace-nowrap">Rev / Patient</span>
                   <span id="bmRevPtPill" class="shrink-0"></span>
                 </div>
                 <div id="kpiRevPerPt" class="text-2xl sm:text-3xl font-extrabold mono mt-1.5 text-amber-600 dark:text-amber-400 truncate">$0.00</div>
               </div>
-              <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 space-y-1.5 text-xs">
-                <div class="flex items-center justify-between gap-2">
-                  <span class="text-slate-500 shrink-0">Total Patients:</span>
-                  <div class="flex items-center justify-end gap-2 min-w-0">
+              <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 space-y-1.5 text-[11px]">
+                <div class="flex items-center justify-between gap-1.5">
+                  <span class="text-slate-500 whitespace-nowrap shrink-0">Total Patients:</span>
+                  <div class="flex items-center justify-end gap-1.5 min-w-0">
                     <span id="kpiTotalPts" class="font-semibold mono text-right whitespace-nowrap">0</span>
-                    <span id="bmTotalPtsPill" class="w-[68px] flex justify-end shrink-0"></span>
+                    <span id="bmTotalPtsPill" class="flex justify-end shrink-0 empty:hidden"></span>
                   </div>
                 </div>
-                <div class="flex items-center justify-between gap-2">
-                  <span class="text-slate-500 shrink-0">Avg Pts / Day:</span>
-                  <div class="flex items-center justify-end gap-2 min-w-0">
+                <div class="flex items-center justify-between gap-1.5">
+                  <span class="text-slate-500 whitespace-nowrap shrink-0">Avg Pts / Day:</span>
+                  <div class="flex items-center justify-end gap-1.5 min-w-0">
                     <span id="kpiPtsPerDay" class="font-semibold mono text-right whitespace-nowrap">0.0/d</span>
-                    <span id="bmPtsDayPill" class="w-[68px] flex justify-end shrink-0"></span>
+                    <span id="bmPtsDayPill" class="flex justify-end shrink-0 empty:hidden"></span>
                   </div>
                 </div>
-                <div class="flex items-center justify-between gap-2">
-                  <span class="text-slate-500 shrink-0">Avg Pts / Mth:</span>
-                  <div class="flex items-center justify-end gap-2 min-w-0">
+                <div class="flex items-center justify-between gap-1.5">
+                  <span class="text-slate-500 whitespace-nowrap shrink-0">Avg Pts / Mth:</span>
+                  <div class="flex items-center justify-end gap-1.5 min-w-0">
                     <span id="kpiAvgPtsMth" class="font-semibold mono text-right whitespace-nowrap">0.0/m</span>
-                    <span id="bmPtsMthPill" class="w-[68px] flex justify-end shrink-0"></span>
+                    <span id="bmPtsMthPill" class="flex justify-end shrink-0 empty:hidden"></span>
                   </div>
                 </div>
               </div>
@@ -912,8 +915,8 @@
 
     </div><!-- END MAIN CONTENT COLUMN -->
 
-    <!-- MOBILE BOTTOM NAVIGATION BAR -->
-    <nav id="mobileBottomNav" class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-slate-900/95 backdrop-blur-xl border-t border-slate-800 px-1 py-1.5 flex items-center justify-around text-[10px] font-semibold text-slate-400"></nav>
+    <!-- MOBILE BOTTOM NAVIGATION BAR (NO BACKDROP-BLUR FOR SMOOTH SCROLLING) -->
+    <nav id="mobileBottomNav" class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-slate-900/95 border-t border-slate-800 px-1 py-1.5 flex items-center justify-around text-[10px] font-semibold text-slate-400"></nav>
 
   </div><!-- END PROTECTED APP SHELL -->
 
@@ -2126,8 +2129,12 @@
 
     const INACTIVITY_LIMIT_MS = 10 * 60 * 1000;
     let inactivityTimer = null;
+    let lastActivityResetTs = 0;
 
     function resetInactivityTimer() {
+      const now = Date.now();
+      if (now - lastActivityResetTs < 3000) return;
+      lastActivityResetTs = now;
       if (inactivityTimer) clearTimeout(inactivityTimer);
       if (!currentUser) return;
       inactivityTimer = setTimeout(async () => {
@@ -2137,7 +2144,7 @@
       }, INACTIVITY_LIMIT_MS);
     }
 
-    ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll', 'click'].forEach(evt => {
+    ['mousedown', 'keydown', 'touchstart', 'scroll', 'click'].forEach(evt => {
       window.addEventListener(evt, resetInactivityTimer, { passive: true });
     });
 
@@ -3175,6 +3182,7 @@
     };
 
     const fmtCurr = (v) => { const n = Number(v) || 0; return (n < 0 ? '-$' : '$') + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+    const fmtCurr0 = (v) => { const n = Math.round(Number(v) || 0); return (n < 0 ? '-$' : '$') + Math.abs(n).toLocaleString('en-US'); };
     const fmtNum = (v, d = 1) => (Number(v) || 0).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
 
     function getRateForShiftHours(hours, settings = state.settings) {
@@ -3850,8 +3858,8 @@ function snapshotAllRecords() {
 
       document.getElementById('topCardEstTax').textContent = fmtCurr(curTax.finalTotalTax);
       document.getElementById('topCardEstTaxSub').textContent = curTax.mode === 'corp'
-        ? `Fed ${fmtCurr(curTax.finalFederalTax)} • Prov ${fmtCurr(curTax.finalProvincialTax)} • Corp ${fmtCurr(curTax.finalCorporateTax)}`
-        : `Fed ${fmtCurr(curTax.finalFederalTax)} • ON+CPP ${fmtCurr(curTax.finalProvincialTax)}`;
+        ? `Fed ${fmtCurr0(curTax.finalFederalTax)} • Prov ${fmtCurr0(curTax.finalProvincialTax)} • Corp ${fmtCurr0(curTax.finalCorporateTax)}`
+        : `Fed ${fmtCurr0(curTax.finalFederalTax)} • ON+CPP ${fmtCurr0(curTax.finalProvincialTax)}`;
       document.getElementById('topCardEffTaxRate').textContent = `${fmtNum(curTax.effectiveTaxRatePct, 1)}% Eff.`;
 
       document.getElementById('topCardTakeHome').textContent = fmtCurr(curTax.finalNetTakeHome);
@@ -4061,7 +4069,7 @@ function snapshotAllRecords() {
       }
     }
 
-    // ================= CALENDAR RENDERING (OPTIMIZED FOR MOBILE ANDROID + TABLET/DESKTOP) & GOOGLE CALENDAR SYNC =================
+    // ================= CALENDAR RENDERING (OPTIMIZED FOR MOBILE ANDROID + 14-INCH LAPTOP + DESKTOP) & GOOGLE CALENDAR SYNC =================
     function getMonthHeatmapBadgeHtml(monthIdx) {
       const hist = computeHistoricalMonthlyDailyAverages();
       const h = hist[monthIdx];
@@ -4290,36 +4298,36 @@ function snapshotAllRecords() {
         : `<span class="text-slate-400">Worked / Historical Month:</span> Ledger targets for ${monthNamesFull[mIdx]} ${yearStr} are locked to your recorded shifts.`;
 
       statsEl.innerHTML = `
-        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-2">
-          <span class="font-bold text-slate-800 dark:text-slate-100">${monthNamesFull[mIdx]} ${yearStr} Summary</span>
-          <span class="mono font-bold text-brand-500">${stats.totalScheduledShiftUnits} shifts</span>
+        <div class="flex items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-700 pb-2">
+          <span class="font-bold text-slate-800 dark:text-slate-100 truncate">${monthNamesFull[mIdx]} ${yearStr} Summary</span>
+          <span class="mono font-bold text-brand-500 whitespace-nowrap shrink-0">${stats.totalScheduledShiftUnits} shifts</span>
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div class="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
             <span class="text-[10px] text-slate-400 block">Work Shifts (8h / 6h / 4h)</span>
-            <span class="font-extrabold mono text-sm">${stats.fullMtCount} 8h • ${stats.fullFriCount} 6h • <span class="text-sky-400">${stats.halfTotalCount} 4h</span></span>
+            <span class="font-extrabold mono text-sm whitespace-nowrap">${stats.fullMtCount} 8h • ${stats.fullFriCount} 6h • <span class="text-sky-400">${stats.halfTotalCount} 4h</span></span>
           </div>
           <div class="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
             <span class="text-[10px] text-slate-400 block">Vacation / Sick</span>
-            <span class="font-extrabold mono text-sm text-emerald-500">${stats.vacationCount} vac • <span class="text-amber-500">${stats.sickCount} sick</span></span>
+            <span class="font-extrabold mono text-sm text-emerald-500 whitespace-nowrap">${stats.vacationCount} vac • <span class="text-amber-500">${stats.sickCount} sick</span></span>
           </div>
           <div class="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
             <span class="text-[10px] text-slate-400 block">Clinic Closed</span>
-            <span class="font-extrabold mono text-sm text-rose-400">${stats.closedCount} closed</span>
+            <span class="font-extrabold mono text-sm text-rose-400 whitespace-nowrap">${stats.closedCount} closed</span>
           </div>
           <div class="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
             <span class="text-[10px] text-slate-400 block">Stat Holidays / CE</span>
-            <span class="font-extrabold mono text-sm text-rose-400">${stats.statCount} stat • <span class="text-purple-400">${stats.eventCount} CE</span></span>
+            <span class="font-extrabold mono text-sm text-rose-400 whitespace-nowrap">${stats.statCount} stat • <span class="text-purple-400">${stats.eventCount} CE</span></span>
           </div>
         </div>
         <div class="pt-2 border-t border-slate-200 dark:border-slate-700 space-y-1 text-[11px]">
-          <div class="flex justify-between">
+          <div class="flex items-center justify-between gap-2">
             <span class="text-slate-500">Ledger Month Target:</span>
-            <span class="mono font-extrabold text-brand-500">${cLedger ? fmtCurr(cLedger.target) : fmtCurr(stats.computedTargetDollar)}</span>
+            <span class="mono font-extrabold text-brand-500 whitespace-nowrap shrink-0">${cLedger ? fmtCurr(cLedger.target) : fmtCurr(stats.computedTargetDollar)}</span>
           </div>
-          <div class="flex justify-between">
+          <div class="flex items-center justify-between gap-2">
             <span class="text-slate-500">Ledger # M–T / # Fri:</span>
-            <span class="mono font-semibold">${cLedger ? `${cLedger.mtDays} M–T / ${cLedger.fDays} Fri` : '—'}</span>
+            <span class="mono font-semibold whitespace-nowrap shrink-0">${cLedger ? `${cLedger.mtDays} M–T / ${cLedger.fDays} Fri` : '—'}</span>
           </div>
         </div>
       `;
@@ -4363,28 +4371,28 @@ function snapshotAllRecords() {
       const cLedger = mLedger ? calculateMonth(mLedger, state.settings, getEffectiveMonthOhipMode(yearStr, mIdx)) : null;
 
       document.getElementById('fullCalendarSidebarStats').innerHTML = `
-        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2.5">
-          <h3 class="font-bold text-sm">${monthNamesFull[mIdx]} ${yearStr} Breakdown</h3>
-          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${isFutureSyncActive ? 'bg-emerald-500/15 text-emerald-500' : 'bg-slate-500/15 text-slate-400'}">${isFutureSyncActive ? 'Future Auto-Sync' : 'Worked Lock'}</span>
+        <div class="flex items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-2.5">
+          <h3 class="font-bold text-sm truncate">${monthNamesFull[mIdx]} ${yearStr} Breakdown</h3>
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold whitespace-nowrap shrink-0 ${isFutureSyncActive ? 'bg-emerald-500/15 text-emerald-500' : 'bg-slate-500/15 text-slate-400'}">${isFutureSyncActive ? 'Future Auto-Sync' : 'Worked Lock'}</span>
         </div>
         <div class="space-y-2">
-          <div class="flex justify-between"><span>8-Hr Full Shifts:</span><span class="mono font-bold">${stats.fullMtCount}</span></div>
-          <div class="flex justify-between"><span>6-Hr Shifts:</span><span class="mono font-bold text-indigo-400">${stats.fullFriCount}</span></div>
-          <div class="flex justify-between text-sky-400"><span>4-Hr Work Shifts ($480):</span><span class="mono font-bold">${stats.halfTotalCount}</span></div>
-          <div class="flex justify-between text-rose-400 pt-1 border-t border-slate-100 dark:border-slate-800"><span>Clinic Closed / No Patients:</span><span class="mono font-bold">${stats.closedCount}</span></div>
-          <div class="flex justify-between text-emerald-500"><span>Vacation Days:</span><span class="mono font-bold">${stats.vacationCount}</span></div>
-          <div class="flex justify-between text-amber-500"><span>Sick / Personal Days:</span><span class="mono font-bold">${stats.sickCount}</span></div>
-          <div class="flex justify-between text-purple-400"><span>CE / Clinic Events:</span><span class="mono font-bold">${stats.eventCount}</span></div>
-          <div class="flex justify-between text-rose-500"><span>Ontario Stat Holidays:</span><span class="mono font-bold">${stats.statCount}</span></div>
+          <div class="flex items-center justify-between gap-2"><span>8-Hr Full Shifts:</span><span class="mono font-bold whitespace-nowrap shrink-0">${stats.fullMtCount}</span></div>
+          <div class="flex items-center justify-between gap-2"><span>6-Hr Shifts:</span><span class="mono font-bold text-indigo-400 whitespace-nowrap shrink-0">${stats.fullFriCount}</span></div>
+          <div class="flex items-center justify-between gap-2 text-sky-400"><span>4-Hr Work Shifts ($480):</span><span class="mono font-bold whitespace-nowrap shrink-0">${stats.halfTotalCount}</span></div>
+          <div class="flex items-center justify-between gap-2 text-rose-400 pt-1 border-t border-slate-100 dark:border-slate-800"><span>Clinic Closed / No Patients:</span><span class="mono font-bold whitespace-nowrap shrink-0">${stats.closedCount}</span></div>
+          <div class="flex items-center justify-between gap-2 text-emerald-500"><span>Vacation Days:</span><span class="mono font-bold whitespace-nowrap shrink-0">${stats.vacationCount}</span></div>
+          <div class="flex items-center justify-between gap-2 text-amber-500"><span>Sick / Personal Days:</span><span class="mono font-bold whitespace-nowrap shrink-0">${stats.sickCount}</span></div>
+          <div class="flex items-center justify-between gap-2 text-purple-400"><span>CE / Clinic Events:</span><span class="mono font-bold whitespace-nowrap shrink-0">${stats.eventCount}</span></div>
+          <div class="flex items-center justify-between gap-2 text-rose-500"><span>Ontario Stat Holidays:</span><span class="mono font-bold whitespace-nowrap shrink-0">${stats.statCount}</span></div>
         </div>
         <div class="pt-3 border-t border-slate-200 dark:border-slate-800 space-y-1.5">
-          <div class="flex justify-between">
+          <div class="flex items-center justify-between gap-2">
             <span class="text-slate-500">Ledger Scheduled Slots:</span>
-            <span class="mono font-bold">${cLedger ? `${cLedger.mtDays} M–T / ${cLedger.fDays} Fri` : '—'}</span>
+            <span class="mono font-bold whitespace-nowrap shrink-0">${cLedger ? `${cLedger.mtDays} M–T / ${cLedger.fDays} Fri` : '—'}</span>
           </div>
-          <div class="flex justify-between">
+          <div class="flex items-center justify-between gap-2">
             <span class="text-slate-500">Ledger Target Baseline:</span>
-            <span class="mono font-extrabold text-brand-500">${cLedger ? fmtCurr(cLedger.target) : '—'}</span>
+            <span class="mono font-extrabold text-brand-500 whitespace-nowrap shrink-0">${cLedger ? fmtCurr(cLedger.target) : '—'}</span>
           </div>
           ${!isFutureSyncActive ? `<button type="button" onclick="window.forceSyncCalendarMonthToLedger()" class="w-full mt-2 py-1.5 px-3 rounded-xl text-[11px] font-bold bg-slate-100 dark:bg-slate-800 hover:bg-brand-600 hover:text-white transition">Sync This Month to Ledger Anyway</button>` : ''}
         </div>
@@ -4402,16 +4410,16 @@ function snapshotAllRecords() {
       const totalDaysOff = Number((yrVac + yrSick + yrEvt + yrClosed).toFixed(1));
 
       document.getElementById('fullCalendarYearSummary').innerHTML = `
-        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+        <div class="flex items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
           <h3 class="font-bold text-sm">${yearStr} Annual Time-Off Totals</h3>
-          <span class="mono font-extrabold text-amber-500">${totalDaysOff}d total</span>
+          <span class="mono font-extrabold text-amber-500 whitespace-nowrap shrink-0">${totalDaysOff}d total</span>
         </div>
         <div class="space-y-1.5">
-          <div class="flex justify-between"><span>Total Vacation Days:</span><span class="mono font-bold text-emerald-500">${Number(yrVac.toFixed(1))} days</span></div>
-          <div class="flex justify-between"><span>Total Sick / Personal:</span><span class="mono font-bold text-amber-500">${Number(yrSick.toFixed(1))} days</span></div>
-          <div class="flex justify-between"><span>Clinic Closed / No Patients:</span><span class="mono font-bold text-rose-400">${Number(yrClosed.toFixed(1))} days</span></div>
-          <div class="flex justify-between"><span>Total CE / Clinic Events:</span><span class="mono font-bold text-purple-400">${Number(yrEvt.toFixed(1))} days</span></div>
-          <div class="flex justify-between pt-1 border-t border-slate-100 dark:border-slate-800"><span>Weekday Stat Holidays:</span><span class="mono font-bold text-rose-500">${yrStat} days</span></div>
+          <div class="flex items-center justify-between gap-2"><span>Total Vacation Days:</span><span class="mono font-bold text-emerald-500 whitespace-nowrap shrink-0">${Number(yrVac.toFixed(1))} days</span></div>
+          <div class="flex items-center justify-between gap-2"><span>Total Sick / Personal:</span><span class="mono font-bold text-amber-500 whitespace-nowrap shrink-0">${Number(yrSick.toFixed(1))} days</span></div>
+          <div class="flex items-center justify-between gap-2"><span>Clinic Closed / No Patients:</span><span class="mono font-bold text-rose-400 whitespace-nowrap shrink-0">${Number(yrClosed.toFixed(1))} days</span></div>
+          <div class="flex items-center justify-between gap-2"><span>Total CE / Clinic Events:</span><span class="mono font-bold text-purple-400 whitespace-nowrap shrink-0">${Number(yrEvt.toFixed(1))} days</span></div>
+          <div class="flex items-center justify-between gap-2 pt-1 border-t border-slate-100 dark:border-slate-800"><span>Weekday Stat Holidays:</span><span class="mono font-bold text-rose-500 whitespace-nowrap shrink-0">${yrStat} days</span></div>
         </div>
       `;
     }
@@ -4742,7 +4750,7 @@ function snapshotAllRecords() {
       saveAndRender();
     };
 
-    // ================= GOOGLE CALENDAR DIRECT SYNC (ALL-DAY VACATION/SICK, CLINIC CLOSED HOURS & HALF-DAY SICK PREFIX) =================
+    // ================= GOOGLE CALENDAR DIRECT SYNC =================
     function showGcalSyncBanner(msg, isError = false) {
       const banner = document.getElementById('gcalSyncStatusBanner');
       if (banner) {
@@ -5286,7 +5294,7 @@ function snapshotAllRecords() {
       }
     }
 
-    // ================= CHARTS ENGINE WITH UNIFORM PALETTE & ALL 12 MONTHS ON ONE SCREEN FOR MONTHLY AVG =================
+    // ================= CHARTS ENGINE =================
     function renderSingleChartCanvas(chartKey, canvasId) {
       const canvasEl = document.getElementById(canvasId);
       if (!canvasEl) return;
@@ -5593,7 +5601,7 @@ function snapshotAllRecords() {
             options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true, grid: { display: false }, ticks: { color: '#94a3b8' } }, y: { stacked: true, grid: { display: false }, ticks: { color: '#94a3b8' } } } }
           });
         } else {
-          // Task 5: Fit all 12 months cleanly on one screen without horizontal scrolling
+          // Fit all 12 months cleanly on one screen without horizontal scrolling
           applyMultiYearScrollWidth(canvasId, 0);
           const mNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
           const vacM = [], sickM = [], evtM = [], closedM = [], totalOffM = [];
