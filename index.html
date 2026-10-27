@@ -66,21 +66,48 @@
       padding-top: max(0.75rem, calc(env(safe-area-inset-top, 0px) + 0.5rem));
       padding-bottom: max(0.75rem, calc(env(safe-area-inset-bottom, 0px) + 0.5rem));
     }
-    /* Prevent iPadOS / iOS native date, time & select inputs from overflowing grid columns */
+    /* Enforce identical width & height across all textboxes, selects, date & time inputs */
     input[type="date"],
     input[type="time"],
     input[type="number"],
     input[type="text"],
     input[type="email"],
     select {
+      width: 100%;
       max-width: 100%;
       min-width: 0;
+      height: 2.375rem;
+      line-height: 1.25rem;
       box-sizing: border-box;
     }
     input[type="date"],
     input[type="time"] {
       -webkit-appearance: none;
       appearance: none;
+    }
+    /* Force equal column widths (minmax(0, 1fr)) so left-hand grid columns never expand wider than right-hand columns */
+    .grid-cols-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .grid-cols-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .grid-cols-4 {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    @media (min-width: 640px) {
+      .sm\:grid-cols-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .sm\:grid-cols-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      .sm\:grid-cols-4 {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+      .sm\:grid-cols-12 {
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+      }
     }
     ::-webkit-scrollbar {
       width: 6px;
@@ -238,11 +265,11 @@
         </div>
         <div>
           <label class="block text-slate-400 font-semibold mb-1">Email</label>
-          <input type="email" id="gateEmail" placeholder="dr.email@domain.com" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white focus:outline-none focus:border-brand-500" />
+          <input type="email" id="gateEmail" placeholder="dr.email@domain.com" class="w-full px-3.5 py-2 rounded-xl bg-slate-800 border border-slate-700 text-white focus:outline-none focus:border-brand-500" />
         </div>
         <div>
           <label class="block text-slate-400 font-semibold mb-1">Password / PIN</label>
-          <input type="text" inputmode="numeric" pattern="[0-9]*" style="-webkit-text-security: disc;" autocomplete="current-password" id="gatePassword" onkeydown="if(event.key==='Enter') window.gateEmailSignIn()" placeholder="••••••••" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white focus:outline-none focus:border-brand-500 mono tracking-widest" />
+          <input type="text" inputmode="numeric" pattern="[0-9]*" style="-webkit-text-security: disc;" autocomplete="current-password" id="gatePassword" onkeydown="if(event.key==='Enter') window.gateEmailSignIn()" placeholder="••••••••" class="w-full px-3.5 py-2 rounded-xl bg-slate-800 border border-slate-700 text-white focus:outline-none focus:border-brand-500 mono tracking-widest" />
         </div>
         <div class="flex items-center justify-between pt-0.5">
           <label class="inline-flex items-center gap-2 cursor-pointer text-slate-300 select-none">
@@ -915,12 +942,12 @@
 
     </div><!-- END MAIN CONTENT COLUMN -->
 
-    <!-- MOBILE BOTTOM NAVIGATION BAR (NO BACKDROP-BLUR FOR SMOOTH SCROLLING) -->
+    <!-- MOBILE BOTTOM NAVIGATION BAR -->
     <nav id="mobileBottomNav" class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-slate-900/95 border-t border-slate-800 px-1 py-1.5 flex items-center justify-around text-[10px] font-semibold text-slate-400"></nav>
 
   </div><!-- END PROTECTED APP SHELL -->
 
-  <!-- ADVANCED OPTOMETRY PRACTICE CRA TAX ESTIMATOR MODAL (WITH SAFE-TOP INSET & ANCHORED TOP-RIGHT X BUTTON) -->
+  <!-- ADVANCED OPTOMETRY PRACTICE CRA TAX ESTIMATOR MODAL (UNIFORM TEXTBOXES ACROSS BOTH COLUMNS) -->
   <div id="taxEstimatorModal" onclick="if(event.target===this) window.closeTaxEstimatorModal()" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center px-3 sm:px-4 safe-top-modal">
     <div class="modal-scroll-pane bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-4xl w-full p-4 sm:p-6 space-y-5 max-h-[88vh] overflow-y-auto shadow-2xl relative">
       <div class="flex items-start justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-3.5">
@@ -942,17 +969,17 @@
 
       <!-- Live Top 3 Summary Preview inside Tax Modal -->
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-        <div class="p-3.5 rounded-xl bg-sky-500/10 border border-sky-500/30">
+        <div class="p-3.5 rounded-xl bg-sky-500/10 border border-sky-500/30 min-w-0">
           <span class="text-sky-600 dark:text-sky-400 font-bold uppercase text-[10px] block">1. Predicted / Confirmed Gross Salary</span>
           <div id="taxModalPreviewGross" class="text-xl font-extrabold mono text-sky-600 dark:text-sky-400 mt-0.5">$0.00</div>
           <span id="taxModalPreviewGrossSub" class="text-[11px] text-slate-500 block mt-0.5">Daily Rate × Scheduled Shifts</span>
         </div>
-        <div class="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30">
+        <div class="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 min-w-0">
           <span class="text-rose-600 dark:text-rose-400 font-bold uppercase text-[10px] block">2. Total Taxes + CPP Owed</span>
           <div id="taxModalPreviewTotalTax" class="text-xl font-extrabold mono text-rose-600 dark:text-rose-400 mt-0.5">$0.00</div>
           <span id="taxModalPreviewTaxSub" class="text-[11px] text-slate-500 block mt-0.5">Effective Rate: 0.0%</span>
         </div>
-        <div class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
+        <div class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 min-w-0">
           <span class="text-emerald-600 dark:text-emerald-400 font-bold uppercase text-[10px] block">3. Net Take-Home Pay</span>
           <div id="taxModalPreviewTakeHome" class="text-xl font-extrabold mono text-emerald-600 dark:text-emerald-400 mt-0.5">$0.00</div>
           <span id="taxModalPreviewTakeHomeSub" class="text-[11px] text-slate-500 block mt-0.5">$0.00 / month after tax</span>
@@ -961,9 +988,9 @@
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 text-xs">
         <!-- Left Column: Deductions, Professional Fees, Registered Accounts, Education Credit -->
-        <div class="space-y-4 bg-slate-50 dark:bg-slate-800/40 p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
+        <div class="space-y-4 bg-slate-50 dark:bg-slate-800/40 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 min-w-0">
           <h4 class="font-bold uppercase tracking-wider text-[11px] text-brand-500">Professional Expenses, Registered Deductions & Credits</h4>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+          <div class="grid grid-cols-2 gap-3 items-end">
             <div class="flex flex-col justify-end min-w-0">
               <label class="font-semibold mb-1.5 text-slate-500 min-h-[2rem] flex items-end leading-tight">Professional License & Dues ($)</label>
               <input type="number" step="10" id="taxInputLicenseFees" oninput="window.onTaxInputChanged()" placeholder="CCO, OAOO, CMPA..." class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono font-semibold" />
@@ -993,7 +1020,7 @@
           <!-- Professional Corporation Salary vs Dividend Controls -->
           <div id="taxCorpControlsBox" class="hidden pt-3 border-t border-slate-200 dark:border-slate-700 space-y-2.5">
             <h5 class="font-bold text-purple-400 uppercase text-[10px] tracking-wider">Ontario Professional Corporation (12.2% Small Business Rate)</h5>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+            <div class="grid grid-cols-2 gap-3 items-end">
               <div class="flex flex-col justify-end min-w-0">
                 <label class="font-semibold mb-1.5 text-slate-500 min-h-[2rem] flex items-end leading-tight">T4 Salary Paid by Corp ($)</label>
                 <input type="number" step="1000" id="taxInputCorpSalary" oninput="window.onTaxInputChanged()" placeholder="0" class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono font-semibold" />
@@ -1010,7 +1037,7 @@
         </div>
 
         <!-- Right Column: Year-End Manual Confirmation & Lock -->
-        <div class="space-y-4 bg-slate-50 dark:bg-slate-800/40 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between">
+        <div class="space-y-4 bg-slate-50 dark:bg-slate-800/40 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between min-w-0">
           <div class="space-y-3">
             <div class="flex items-center justify-between">
               <h4 class="font-bold uppercase tracking-wider text-[11px] text-emerald-500">Year-End Actual Confirmation (<span id="taxConfirmYearLbl">2026</span>)</h4>
@@ -1018,9 +1045,9 @@
             </div>
             <p class="text-[11px] text-slate-500">Confirm your final Gross Salary, actual Federal, Ontario Provincial, and Corporate taxes paid, and final Net Take-Home Pay. Confirmed values lock into the 3 Dashboard cards and Historical Tax / Take-Home charts.</p>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
-              <div class="sm:col-span-2 flex flex-col justify-end min-w-0">
-                <label class="block font-semibold mb-1 text-slate-500">Confirmed Annual Gross Salary ($)</label>
+            <div class="grid grid-cols-2 gap-3 items-end">
+              <div class="col-span-2 flex flex-col justify-end min-w-0">
+                <label class="block font-semibold mb-1.5 text-slate-500">Confirmed Annual Gross Salary ($)</label>
                 <input type="number" step="0.01" id="taxConfirmGross" oninput="window.onTaxInputChanged()" placeholder="Leave blank to use live formula" class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono font-semibold" />
               </div>
               <div class="flex flex-col justify-end min-w-0">
@@ -1037,7 +1064,7 @@
               </div>
               <div class="flex flex-col justify-end min-w-0">
                 <label class="font-semibold mb-1.5 text-slate-500 min-h-[2rem] flex items-end leading-tight">Confirmed Net Take-Home ($)</label>
-                <input type="number" step="0.01" id="taxConfirmTakeHome" oninput="window.onTaxInputChanged()" placeholder="Auto: Gross − Total Tax" class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono font-semibold" />
+                <input type="number" step="0.01" id="taxConfirmTakeHome" oninput="window.onTaxInputChanged()" placeholder="Auto: Gross − Total" class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono font-semibold" />
               </div>
             </div>
 
@@ -1059,7 +1086,7 @@
     </div>
   </div>
 
-  <!-- CALENDAR DAY MODAL WITH IPAD-SAFE GRID & SPLIT-DAY EVENT CLASSIFICATION -->
+  <!-- CALENDAR DAY MODAL WITH UNIFORM SYMMETRICAL TEXTBOXES -->
   <div id="calendarDayModal" onclick="if(event.target===this) window.closeCalendarDayModal()" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center px-3 sm:px-4 safe-top-modal">
     <div class="modal-scroll-pane bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-xl w-full p-4 sm:p-5 space-y-4 max-h-[88vh] overflow-y-auto shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
@@ -1110,15 +1137,15 @@
         </button>
       </div>
 
-      <!-- Shift Start/End Time Override & Pay Classification Selector (Non-Overlapping on iPad) -->
+      <!-- Shift Start/End Time Override & Pay Classification Selector (Equal 3-Column Layout) -->
       <div id="calShiftTimingBox" class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-3 text-xs">
         <div class="flex items-center justify-between gap-2">
           <span class="font-bold text-slate-700 dark:text-slate-200">Primary Shift Clock Hours & Pay Classification</span>
           <button type="button" onclick="window.applyDefaultShiftTimesToCalModal()" class="text-[11px] font-semibold text-brand-500 hover:underline shrink-0">Use Settings Default</button>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
-          <div class="sm:col-span-6 min-w-0">
-            <label class="block font-semibold mb-1 text-slate-500">Pay Classification</label>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+          <div class="min-w-0">
+            <label class="block font-semibold mb-1.5 text-slate-500">Pay Classification</label>
             <select id="calDayPayHoursSelect" onchange="window.onCalPayHoursSelectChange(this.value)" class="w-full px-2.5 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 font-bold mono">
               <option value="8">8-Hr Full Day ($780)</option>
               <option value="6">6-Hr Shift ($630)</option>
@@ -1126,12 +1153,12 @@
               <option value="0">0-Hr (Time Off / Closed)</option>
             </select>
           </div>
-          <div class="sm:col-span-3 min-w-0">
-            <label class="block font-semibold mb-1 text-slate-500">Start Time</label>
+          <div class="min-w-0">
+            <label class="block font-semibold mb-1.5 text-slate-500">Start Time</label>
             <input type="time" id="calDayStartTime" class="w-full px-2.5 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono font-semibold" />
           </div>
-          <div class="sm:col-span-3 min-w-0">
-            <label class="block font-semibold mb-1 text-slate-500">End Time</label>
+          <div class="min-w-0">
+            <label class="block font-semibold mb-1.5 text-slate-500">End Time</label>
             <input type="time" id="calDayEndTime" class="w-full px-2.5 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono font-semibold" />
           </div>
         </div>
@@ -1139,11 +1166,11 @@
       </div>
 
       <div class="text-xs">
-        <label class="block font-semibold mb-1 text-slate-500">Primary Day Note (optional)</label>
+        <label class="block font-semibold mb-1.5 text-slate-500">Primary Day Note (optional)</label>
         <input type="text" id="calDayNoteInput" placeholder="e.g. Morning clinic, leaving at 12:30 PM..." class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700" />
       </div>
 
-      <!-- Split-Day / Additional Events with Non-Overlapping iPad Grid -->
+      <!-- Split-Day / Additional Events with Equal-Width 50/50 Top Row & Equal Start/End Boxes -->
       <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2.5 text-xs">
         <div class="flex items-center justify-between gap-2">
           <div>
@@ -1154,8 +1181,8 @@
         </div>
         <div id="calExtraEventsList" class="space-y-1.5"></div>
         <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 pt-1 items-end">
-          <div class="sm:col-span-5 min-w-0">
-            <label class="block font-semibold mb-1 text-[10px] text-slate-400">Split Category</label>
+          <div class="sm:col-span-6 min-w-0">
+            <label class="block font-semibold mb-1.5 text-[10px] text-slate-400">Split Category</label>
             <select id="calNewEventCategory" onchange="window.onNewExtraEventCategoryChange(this.value)" class="w-full px-2.5 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 font-semibold">
               <option value="vacation">🟢 Vacation (0.5d Half)</option>
               <option value="sick">🟡 Sick / Personal (0.5d Half)</option>
@@ -1165,20 +1192,20 @@
               <option value="custom">⚪ Custom Note / Other</option>
             </select>
           </div>
-          <div class="sm:col-span-7 min-w-0">
-            <label class="block font-semibold mb-1 text-[10px] text-slate-400">Optional Event Note</label>
+          <div class="sm:col-span-6 min-w-0">
+            <label class="block font-semibold mb-1.5 text-[10px] text-slate-400">Optional Event Note</label>
             <input type="text" id="calNewEventTitle" placeholder="e.g. Afternoon off, Dental appt..." class="w-full px-2.5 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700" />
           </div>
           <div class="sm:col-span-3 min-w-0">
-            <label class="block font-semibold mb-1 text-[10px] text-slate-400">Start</label>
+            <label class="block font-semibold mb-1.5 text-[10px] text-slate-400">Start</label>
             <input type="time" id="calNewEventStart" value="13:00" class="w-full px-2 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono" />
           </div>
           <div class="sm:col-span-3 min-w-0">
-            <label class="block font-semibold mb-1 text-[10px] text-slate-400">End</label>
+            <label class="block font-semibold mb-1.5 text-[10px] text-slate-400">End</label>
             <input type="time" id="calNewEventEnd" value="17:00" class="w-full px-2 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono" />
           </div>
           <div class="sm:col-span-6 min-w-0">
-            <button type="button" onclick="window.addExtraEventToCalModal()" class="w-full py-2 px-3 rounded-lg font-bold bg-brand-600 hover:bg-brand-500 text-white transition">+ Add Split-Day / Event</button>
+            <button type="button" onclick="window.addExtraEventToCalModal()" class="w-full h-[2.375rem] px-3 rounded-lg font-bold bg-brand-600 hover:bg-brand-500 text-white transition flex items-center justify-center">+ Add Split-Day / Event</button>
           </div>
         </div>
       </div>
@@ -1266,27 +1293,27 @@
     </div>
   </div>
 
-  <!-- MONTH EDIT MODAL -->
+  <!-- MONTH EDIT MODAL (UNIFORM 3-COLUMN SYMMETRICAL TEXTBOXES) -->
   <div id="monthModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center px-4 safe-top-modal">
     <div class="modal-scroll-pane bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-lg w-full p-5 space-y-4 max-h-[88vh] overflow-y-auto">
       <div class="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
         <h3 id="monthModalTitle" class="font-bold text-lg">Edit Month</h3>
         <button onclick="window.closeMonthModal()">✕</button>
       </div>
-      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
-        <div class="min-w-0"><label class="block font-semibold mb-1 text-slate-500"># M–T (8hr) Shifts</label><input type="number" step="0.5" id="editMtDays" oninput="window.updateMonthModalFormulaPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
-        <div class="min-w-0"><label class="block font-semibold mb-1 text-slate-500"># Fri (6hr) Shifts</label><input type="number" step="0.5" id="editFDays" oninput="window.updateMonthModalFormulaPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
-        <div class="min-w-0"><label class="block font-semibold mb-1 text-slate-500">Days Worked</label><input type="number" step="0.25" id="editDaysWorked" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
-        <div class="col-span-2 sm:col-span-3 min-w-0">
-          <div class="flex justify-between mb-1"><label class="font-semibold text-slate-500">Target Override ($) (Formula + Shift Adj: <span id="formulaTargetPreview" class="mono text-brand-500">$0</span>)</label><button type="button" onclick="document.getElementById('editCustomTarget').value=''" class="text-brand-500 font-semibold">Use Auto Formula</button></div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs items-end">
+        <div class="flex flex-col justify-end min-w-0"><label class="block font-semibold mb-1.5 text-slate-500 whitespace-nowrap"># M–T (8hr) Shifts</label><input type="number" step="0.5" id="editMtDays" oninput="window.updateMonthModalFormulaPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
+        <div class="flex flex-col justify-end min-w-0"><label class="block font-semibold mb-1.5 text-slate-500 whitespace-nowrap"># Fri (6hr) Shifts</label><input type="number" step="0.5" id="editFDays" oninput="window.updateMonthModalFormulaPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
+        <div class="flex flex-col justify-end min-w-0"><label class="block font-semibold mb-1.5 text-slate-500 whitespace-nowrap">Days Worked</label><input type="number" step="0.25" id="editDaysWorked" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
+        <div class="col-span-2 sm:col-span-3 flex flex-col justify-end min-w-0">
+          <div class="flex justify-between mb-1.5"><label class="font-semibold text-slate-500">Target Override ($) (Formula + Shift Adj: <span id="formulaTargetPreview" class="mono text-brand-500">$0</span>)</label><button type="button" onclick="document.getElementById('editCustomTarget').value=''" class="text-brand-500 font-semibold">Use Auto Formula</button></div>
           <input type="number" step="0.01" id="editCustomTarget" placeholder="Auto formula + 4h/6h/8h shift adjustments" class="w-full px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/30 mono font-semibold" />
         </div>
-        <div class="min-w-0"><label class="block font-semibold mb-1 text-slate-500">Gross ($)</label><input type="number" step="0.01" id="editGross" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
-        <div class="min-w-0"><label class="block font-semibold mb-1 text-slate-500">Acct Rec'd ($)</label><input type="number" step="0.01" id="editReci" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
-        <div class="min-w-0"><label class="block font-semibold mb-1 text-slate-500">OHIP Recon ($)</label><input type="number" step="0.01" id="editOhip" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
-        <div class="min-w-0"><label class="block font-semibold mb-1 text-slate-500">Total OHIP ($)</label><input type="number" step="0.01" id="editTotalOhip" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
-        <div class="min-w-0"><label class="block font-semibold mb-1 text-slate-500">Paid Draw ($)</label><input type="number" step="0.01" id="editPaid" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
-        <div class="min-w-0"><label class="block font-semibold mb-1 text-slate-500">Patients</label><input type="number" step="1" id="editPatients" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
+        <div class="flex flex-col justify-end min-w-0"><label class="block font-semibold mb-1.5 text-slate-500 whitespace-nowrap">Gross ($)</label><input type="number" step="0.01" id="editGross" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
+        <div class="flex flex-col justify-end min-w-0"><label class="block font-semibold mb-1.5 text-slate-500 whitespace-nowrap">Acct Rec'd ($)</label><input type="number" step="0.01" id="editReci" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
+        <div class="flex flex-col justify-end min-w-0"><label class="block font-semibold mb-1.5 text-slate-500 whitespace-nowrap">OHIP Recon ($)</label><input type="number" step="0.01" id="editOhip" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
+        <div class="flex flex-col justify-end min-w-0"><label class="block font-semibold mb-1.5 text-slate-500 whitespace-nowrap">Total OHIP ($)</label><input type="number" step="0.01" id="editTotalOhip" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
+        <div class="flex flex-col justify-end min-w-0"><label class="block font-semibold mb-1.5 text-slate-500 whitespace-nowrap">Paid Draw ($)</label><input type="number" step="0.01" id="editPaid" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
+        <div class="flex flex-col justify-end min-w-0"><label class="block font-semibold mb-1.5 text-slate-500 whitespace-nowrap">Patients</label><input type="number" step="1" id="editPatients" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
       </div>
       <div class="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
         <button onclick="window.closeMonthModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800">Cancel</button>
@@ -1308,8 +1335,8 @@
         <div class="flex justify-between"><span>Ledger Est. Bonus:</span><span id="qModalEstBonus" class="mono font-bold text-brand-500">$0.00</span></div>
       </div>
       <div class="space-y-3 text-xs">
-        <div><div class="flex justify-between mb-1"><label class="font-semibold text-slate-500">Confirmed Actual 24% Net ($)</label><button type="button" onclick="window.calcQuarterNetFromBonus()" class="text-brand-500 font-semibold">Calc from Bonus</button></div><input type="number" step="0.01" id="qEditActualNet" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
-        <div><div class="flex justify-between mb-1"><label class="font-semibold text-slate-500">Confirmed Bonus Paid ($)</label><button type="button" onclick="window.calcQuarterBonusFromNet()" class="text-brand-500 font-semibold">Calc from Net</button></div><input type="number" step="0.01" id="qEditActualBonus" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
+        <div><div class="flex justify-between mb-1.5"><label class="font-semibold text-slate-500">Confirmed Actual 24% Net ($)</label><button type="button" onclick="window.calcQuarterNetFromBonus()" class="text-brand-500 font-semibold">Calc from Bonus</button></div><input type="number" step="0.01" id="qEditActualNet" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
+        <div><div class="flex justify-between mb-1.5"><label class="font-semibold text-slate-500">Confirmed Bonus Paid ($)</label><button type="button" onclick="window.calcQuarterBonusFromNet()" class="text-brand-500 font-semibold">Calc from Net</button></div><input type="number" step="0.01" id="qEditActualBonus" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
         <label class="flex items-center gap-2 pt-1"><input type="checkbox" id="qEditConfirmed" class="rounded" /><span class="font-semibold">Mark Quarter as Confirmed</span></label>
       </div>
       <div class="flex justify-between pt-3 border-t border-slate-200 dark:border-slate-800">
@@ -1319,7 +1346,7 @@
     </div>
   </div>
 
-  <!-- STREAMLINED DAILY LOG MODAL WITH IPAD-SAFE STACKED HEADERS & NON-OVERLAPPING DATE/SHIFT PICKERS -->
+  <!-- STREAMLINED DAILY LOG MODAL WITH EQUAL-SIZE TEXTBOXES (50/50 TOP ROW + UNIFORM 3-COL MTD GRID) -->
   <div id="dailyLogModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center px-3 sm:px-4 safe-top-modal">
     <div class="modal-scroll-pane bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-lg w-full p-4 sm:p-5 space-y-4 max-h-[88vh] overflow-y-auto shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
@@ -1331,11 +1358,11 @@
       </div>
       <input type="hidden" id="logMonthIdx" value="0" />
       <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 text-xs items-end">
-        <div class="sm:col-span-5 flex flex-col justify-end min-w-0">
+        <div class="sm:col-span-6 flex flex-col justify-end min-w-0">
           <label class="block font-semibold mb-1.5 text-slate-500">Date</label>
-          <input type="date" id="logDate" onchange="window.onLogDateChange()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 font-semibold" />
+          <input type="date" id="logDate" onchange="window.onLogDateChange()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 font-semibold mono" />
         </div>
-        <div class="sm:col-span-7 flex flex-col justify-end min-w-0">
+        <div class="sm:col-span-6 flex flex-col justify-end min-w-0">
           <label class="block font-semibold mb-1.5 text-slate-500">Shift Worked</label>
           <select id="logShiftHours" onchange="window.updateDailyDeltaPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 font-semibold">
             <option value="8">8 hr (Full Day)</option>
@@ -1358,7 +1385,7 @@
         </div>
       </div>
 
-      <!-- 3-Column MTD Grid with Stacked Title + Prev Value so iPad Never Wraps or Collides -->
+      <!-- 3-Column MTD Grid with Equal-Width Columns & Identical Input Heights -->
       <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs items-end">
         <div class="flex flex-col justify-end min-w-0">
           <div class="flex flex-col items-start justify-end mb-1.5">
@@ -1421,7 +1448,7 @@
     </div>
   </div>
 
-  <!-- FULL-FEATURED EDIT LOGGED SHIFT MODAL (IPAD-SAFE STACKED HEADERS & NON-OVERLAPPING DATE/SHIFT PICKERS) -->
+  <!-- FULL-FEATURED EDIT LOGGED SHIFT MODAL (EQUAL-SIZE TEXTBOXES: 50/50 TOP ROW + UNIFORM 3-COL GRID) -->
   <div id="editLogModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center px-3 sm:px-4 safe-top-modal">
     <div class="modal-scroll-pane bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-lg w-full p-4 sm:p-5 space-y-4 max-h-[88vh] overflow-y-auto shadow-2xl">
       <div class="flex justify-between items-start border-b border-slate-200 dark:border-slate-800 pb-3">
@@ -1442,11 +1469,11 @@
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 text-xs items-end">
-        <div class="sm:col-span-5 flex flex-col justify-end min-w-0">
+        <div class="sm:col-span-6 flex flex-col justify-end min-w-0">
           <label class="block font-semibold mb-1.5 text-slate-500">Date</label>
-          <input type="date" id="editLogDate" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 font-semibold" />
+          <input type="date" id="editLogDate" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 font-semibold mono" />
         </div>
-        <div class="sm:col-span-7 flex flex-col justify-end min-w-0">
+        <div class="sm:col-span-6 flex flex-col justify-end min-w-0">
           <label class="block font-semibold mb-1.5 text-slate-500">Shift Worked</label>
           <select id="editLogShiftHours" onchange="window.updateEditLogDeltaPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 font-semibold">
             <option value="8">8 hr (Full Day)</option>
@@ -1469,7 +1496,7 @@
         </div>
       </div>
 
-      <!-- 3-Column MTD / Delta Grid with Stacked Headers so iPad Never Collides -->
+      <!-- 3-Column MTD / Delta Grid with Equal-Width Columns & Identical Input Heights -->
       <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs items-end">
         <div class="flex flex-col justify-end min-w-0">
           <div class="flex flex-col items-start justify-end mb-1.5">
@@ -1541,7 +1568,7 @@
       </div>
     </div>
   </div>
-<!-- RECORD BASELINE MODAL -->
+<!-- RECORD BASELINE MODAL (UNIFORM TEXTBOX HEIGHTS & SPACING) -->
   <div id="recordModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center px-4 safe-top-modal">
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-sm w-full p-5 space-y-4">
       <div class="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
@@ -1550,9 +1577,9 @@
       </div>
       <p class="text-[11px] text-slate-400">Sets your historical baseline record. If a future logged shift breaks this record and is later deleted, OptoTrack automatically reverts back to this baseline.</p>
       <div class="space-y-3 text-xs">
-        <div><label class="block font-semibold mb-1 text-slate-500">Baseline Peak Daily Gross ($)</label><input type="number" step="0.01" id="inputRecordAmount" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-bold" /></div>
-        <div><label class="block font-semibold mb-1 text-slate-500">Date Achieved</label><input type="text" id="inputRecordDate" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800" /></div>
-        <div><label class="block font-semibold mb-1 text-slate-500">Note</label><input type="text" id="inputRecordNote" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800" /></div>
+        <div class="flex flex-col justify-end min-w-0"><label class="block font-semibold mb-1.5 text-slate-500">Baseline Peak Daily Gross ($)</label><input type="number" step="0.01" id="inputRecordAmount" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-bold" /></div>
+        <div class="flex flex-col justify-end min-w-0"><label class="block font-semibold mb-1.5 text-slate-500">Date Achieved</label><input type="text" id="inputRecordDate" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 font-medium" /></div>
+        <div class="flex flex-col justify-end min-w-0"><label class="block font-semibold mb-1.5 text-slate-500">Note</label><input type="text" id="inputRecordNote" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 font-medium" /></div>
       </div>
       <div class="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
         <button onclick="window.closeRecordModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800">Cancel</button>
@@ -1569,8 +1596,8 @@
         <button onclick="window.closeExtrasModal()">✕</button>
       </div>
       <div class="space-y-3 text-xs">
-        <div><label class="block font-semibold mb-1 text-slate-500">Health Reimbursement Claimed ($ / $1,000)</label><input type="number" step="0.01" id="inputHealthPaid" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-bold" /></div>
-        <div><div class="flex justify-between mb-1"><label class="font-semibold text-slate-500">Confirmed Bonus Paid YTD ($)</label><button type="button" onclick="window.syncBonusRowFromQuarters()" class="text-brand-500 font-semibold">Sum Q1-Q4</button></div><input type="number" step="0.01" id="inputBonusPaid" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-bold" /></div>
+        <div class="flex flex-col justify-end min-w-0"><label class="block font-semibold mb-1.5 text-slate-500">Health Reimbursement Claimed ($ / $1,000)</label><input type="number" step="0.01" id="inputHealthPaid" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-bold" /></div>
+        <div class="flex flex-col justify-end min-w-0"><div class="flex justify-between mb-1.5"><label class="font-semibold text-slate-500">Confirmed Bonus Paid YTD ($)</label><button type="button" onclick="window.syncBonusRowFromQuarters()" class="text-brand-500 font-semibold">Sum Q1-Q4</button></div><input type="number" step="0.01" id="inputBonusPaid" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-bold" /></div>
       </div>
       <div class="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
         <button onclick="window.closeExtrasModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800">Cancel</button>
@@ -1579,7 +1606,7 @@
     </div>
   </div>
 
-  <!-- UNIFIED SETTINGS MODAL WITH WINDOWS/IPAD SMOOTH SCROLLING + GOOGLE CALENDAR SYNC -->
+  <!-- UNIFIED SETTINGS MODAL WITH EQUAL-SIZE TEXTBOXES ACROSS 3-COL RATES & 2-COL SHIFT TIMES -->
   <div id="settingsModal" onclick="if(event.target===this) window.closeSettingsModal()" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center px-3 sm:px-4 safe-top-modal">
     <div class="modal-scroll-pane bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-4 sm:p-5 space-y-5 max-h-[88vh] overflow-y-auto shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
@@ -1592,21 +1619,21 @@
 
       <div class="space-y-3 text-xs">
         <h4 class="font-bold uppercase tracking-wider text-[11px] text-brand-500">Contract Rates & Shift Targets (8hr / 6hr / 4hr)</h4>
-        <div>
-          <label class="block font-semibold mb-1 text-slate-500">Associate Net Rate (%)</label>
+        <div class="flex flex-col justify-end min-w-0">
+          <label class="block font-semibold mb-1.5 text-slate-500">Associate Net Rate (%)</label>
           <input type="number" step="0.1" id="setNetPct" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-bold" />
         </div>
-        <div class="grid grid-cols-3 gap-2.5">
-          <div class="min-w-0">
-            <label class="block font-semibold mb-1 text-slate-500">8-Hr M–T ($)</label>
+        <div class="grid grid-cols-3 gap-2.5 items-end">
+          <div class="flex flex-col justify-end min-w-0">
+            <label class="block font-semibold mb-1.5 text-slate-500 whitespace-nowrap">8-Hr M–T ($)</label>
             <input type="number" step="1" id="setMtRate" class="w-full px-2.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-bold" />
           </div>
-          <div class="min-w-0">
-            <label class="block font-semibold mb-1 text-slate-500">6-Hr Fri ($)</label>
+          <div class="flex flex-col justify-end min-w-0">
+            <label class="block font-semibold mb-1.5 text-slate-500 whitespace-nowrap">6-Hr Fri ($)</label>
             <input type="number" step="1" id="setFRate" class="w-full px-2.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-bold" />
           </div>
-          <div class="min-w-0">
-            <label class="block font-semibold mb-1 text-slate-500">4-Hr Half ($)</label>
+          <div class="flex flex-col justify-end min-w-0">
+            <label class="block font-semibold mb-1.5 text-slate-500 whitespace-nowrap">4-Hr Half ($)</label>
             <input type="number" step="1" id="setHalfRate" class="w-full px-2.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-bold" />
           </div>
         </div>
@@ -1616,34 +1643,34 @@
       <div class="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-3 text-xs">
         <h4 class="font-bold uppercase tracking-wider text-[11px] text-emerald-500">Default Shift Clock Times & Clinic Location</h4>
         <p class="text-[11px] text-slate-500">Used as defaults on your Calendar & Google Calendar sync (clock duration does not alter 8hr/6hr/4hr pay targets).</p>
-        <div>
-          <label class="block font-semibold mb-1 text-slate-500">Clinic Name & Address (Location)</label>
+        <div class="flex flex-col justify-end min-w-0">
+          <label class="block font-semibold mb-1.5 text-slate-500">Clinic Name & Address (Location)</label>
           <input type="text" id="setClinicAddress" placeholder="Brockville Optometric Centre, 2123 Parkedale Ave, Brockville, ON K6V 0B4, Canada" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 font-medium" />
         </div>
-        <div class="grid grid-cols-2 gap-2.5">
-          <div class="min-w-0">
-            <label class="block font-semibold mb-1 text-slate-500">8-Hr Start Time</label>
-            <input type="time" id="setStart8h" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
+        <div class="grid grid-cols-2 gap-2.5 items-end">
+          <div class="flex flex-col justify-end min-w-0">
+            <label class="block font-semibold mb-1.5 text-slate-500 whitespace-nowrap">8-Hr Start Time</label>
+            <input type="time" id="setStart8h" class="w-full px-2.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
           </div>
-          <div class="min-w-0">
-            <label class="block font-semibold mb-1 text-slate-500">8-Hr End Time</label>
-            <input type="time" id="setEnd8h" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
+          <div class="flex flex-col justify-end min-w-0">
+            <label class="block font-semibold mb-1.5 text-slate-500 whitespace-nowrap">8-Hr End Time</label>
+            <input type="time" id="setEnd8h" class="w-full px-2.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
           </div>
-          <div class="min-w-0">
-            <label class="block font-semibold mb-1 text-slate-500">6-Hr (Fri) Start</label>
-            <input type="time" id="setStart6h" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
+          <div class="flex flex-col justify-end min-w-0">
+            <label class="block font-semibold mb-1.5 text-slate-500 whitespace-nowrap">6-Hr (Fri) Start</label>
+            <input type="time" id="setStart6h" class="w-full px-2.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
           </div>
-          <div class="min-w-0">
-            <label class="block font-semibold mb-1 text-slate-500">6-Hr (Fri) End</label>
-            <input type="time" id="setEnd6h" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
+          <div class="flex flex-col justify-end min-w-0">
+            <label class="block font-semibold mb-1.5 text-slate-500 whitespace-nowrap">6-Hr (Fri) End</label>
+            <input type="time" id="setEnd6h" class="w-full px-2.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
           </div>
-          <div class="min-w-0">
-            <label class="block font-semibold mb-1 text-slate-500">4-Hr (Half) Start</label>
-            <input type="time" id="setStart4h" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
+          <div class="flex flex-col justify-end min-w-0">
+            <label class="block font-semibold mb-1.5 text-slate-500 whitespace-nowrap">4-Hr (Half) Start</label>
+            <input type="time" id="setStart4h" class="w-full px-2.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
           </div>
-          <div class="min-w-0">
-            <label class="block font-semibold mb-1 text-slate-500">4-Hr (Half) End</label>
-            <input type="time" id="setEnd4h" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
+          <div class="flex flex-col justify-end min-w-0">
+            <label class="block font-semibold mb-1.5 text-slate-500 whitespace-nowrap">4-Hr (Half) End</label>
+            <input type="time" id="setEnd4h" class="w-full px-2.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
           </div>
         </div>
         <div class="flex justify-end pt-1">
@@ -1675,13 +1702,13 @@
           </div>
           <div id="driveSyncStatusMsg" class="hidden text-[11px] font-semibold pt-1"></div>
         </div>
-        <div>
-          <label class="block font-semibold mb-1 text-slate-500">Target Personal Google Account Email</label>
-          <input type="email" id="setBackupAccountEmail" placeholder="rolandlewis2812@gmail.com" onchange="window.saveBackupAccountEmail(this.value)" class="w-full px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 mono text-[11px]" />
+        <div class="flex flex-col justify-end min-w-0">
+          <label class="block font-semibold mb-1.5 text-slate-500">Target Personal Google Account Email</label>
+          <input type="email" id="setBackupAccountEmail" placeholder="rolandlewis2812@gmail.com" onchange="window.saveBackupAccountEmail(this.value)" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono text-[11px]" />
         </div>
-        <div>
-          <label class="block font-semibold mb-1 text-slate-500">Google OAuth Client ID</label>
-          <input type="text" id="setDriveClientId" placeholder="xxxx.apps.googleusercontent.com" onchange="window.saveDriveClientId(this.value)" class="w-full px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 mono text-[11px]" />
+        <div class="flex flex-col justify-end min-w-0">
+          <label class="block font-semibold mb-1.5 text-slate-500">Google OAuth Client ID</label>
+          <input type="text" id="setDriveClientId" placeholder="xxxx.apps.googleusercontent.com" onchange="window.saveDriveClientId(this.value)" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono text-[11px]" />
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <button onclick="window.triggerManualDriveBackup()" id="manualDriveBackupBtn" class="py-2.5 px-3 rounded-xl font-bold bg-sky-600 hover:bg-sky-500 text-white shadow-sm transition flex items-center justify-center gap-1.5">
@@ -1726,17 +1753,17 @@
         <button onclick="window.closeAddYearModal()">✕</button>
       </div>
       <div class="space-y-3 text-xs">
-        <div>
-          <label class="block font-semibold mb-1 text-slate-500">Year (e.g. 2028)</label>
+        <div class="flex flex-col justify-end min-w-0">
+          <label class="block font-semibold mb-1.5 text-slate-500">Year (e.g. 2028)</label>
           <input type="number" step="1" min="2020" max="2050" id="inputNewYear" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-bold text-base" />
         </div>
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block font-semibold mb-1 text-slate-500">Default # M–T / Mth</label>
+        <div class="grid grid-cols-2 gap-2.5 items-end">
+          <div class="flex flex-col justify-end min-w-0">
+            <label class="block font-semibold mb-1.5 text-slate-500">Default # M–T / Mth</label>
             <input type="number" step="0.5" id="inputNewYearMt" value="16" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-bold" />
           </div>
-          <div>
-            <label class="block font-semibold mb-1 text-slate-500">Default # Fri / Mth</label>
+          <div class="flex flex-col justify-end min-w-0">
+            <label class="block font-semibold mb-1.5 text-slate-500">Default # Fri / Mth</label>
             <input type="number" step="0.5" id="inputNewYearF" value="4" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-bold" />
           </div>
         </div>
@@ -4069,7 +4096,7 @@ function snapshotAllRecords() {
       }
     }
 
-    // ================= CALENDAR RENDERING (OPTIMIZED FOR MOBILE ANDROID + 14-INCH LAPTOP + DESKTOP) & GOOGLE CALENDAR SYNC =================
+    // ================= CALENDAR RENDERING & GOOGLE CALENDAR SYNC =================
     function getMonthHeatmapBadgeHtml(monthIdx) {
       const hist = computeHistoricalMonthlyDailyAverages();
       const h = hist[monthIdx];
@@ -4302,22 +4329,22 @@ function snapshotAllRecords() {
           <span class="font-bold text-slate-800 dark:text-slate-100 truncate">${monthNamesFull[mIdx]} ${yearStr} Summary</span>
           <span class="mono font-bold text-brand-500 whitespace-nowrap shrink-0">${stats.totalScheduledShiftUnits} shifts</span>
         </div>
-        <div class="grid grid-cols-2 gap-2">
-          <div class="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-            <span class="text-[10px] text-slate-400 block">Work Shifts (8h / 6h / 4h)</span>
-            <span class="font-extrabold mono text-sm whitespace-nowrap">${stats.fullMtCount} 8h • ${stats.fullFriCount} 6h • <span class="text-sky-400">${stats.halfTotalCount} 4h</span></span>
+        <div class="grid grid-cols-2 gap-2.5 items-stretch">
+          <div class="h-full p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-col justify-between min-w-0">
+            <span class="text-[10px] text-slate-400 block truncate">Work Shifts (8h / 6h / 4h)</span>
+            <span class="font-extrabold mono text-xs sm:text-sm whitespace-nowrap truncate mt-0.5">${stats.fullMtCount} 8h • ${stats.fullFriCount} 6h • <span class="text-sky-400">${stats.halfTotalCount} 4h</span></span>
           </div>
-          <div class="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-            <span class="text-[10px] text-slate-400 block">Vacation / Sick</span>
-            <span class="font-extrabold mono text-sm text-emerald-500 whitespace-nowrap">${stats.vacationCount} vac • <span class="text-amber-500">${stats.sickCount} sick</span></span>
+          <div class="h-full p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-col justify-between min-w-0">
+            <span class="text-[10px] text-slate-400 block truncate">Vacation / Sick</span>
+            <span class="font-extrabold mono text-xs sm:text-sm text-emerald-500 whitespace-nowrap truncate mt-0.5">${stats.vacationCount} vac • <span class="text-amber-500">${stats.sickCount} sick</span></span>
           </div>
-          <div class="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-            <span class="text-[10px] text-slate-400 block">Clinic Closed</span>
-            <span class="font-extrabold mono text-sm text-rose-400 whitespace-nowrap">${stats.closedCount} closed</span>
+          <div class="h-full p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-col justify-between min-w-0">
+            <span class="text-[10px] text-slate-400 block truncate">Clinic Closed</span>
+            <span class="font-extrabold mono text-xs sm:text-sm text-rose-400 whitespace-nowrap truncate mt-0.5">${stats.closedCount} closed</span>
           </div>
-          <div class="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-            <span class="text-[10px] text-slate-400 block">Stat Holidays / CE</span>
-            <span class="font-extrabold mono text-sm text-rose-400 whitespace-nowrap">${stats.statCount} stat • <span class="text-purple-400">${stats.eventCount} CE</span></span>
+          <div class="h-full p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-col justify-between min-w-0">
+            <span class="text-[10px] text-slate-400 block truncate">Stat Holidays / CE</span>
+            <span class="font-extrabold mono text-xs sm:text-sm text-rose-400 whitespace-nowrap truncate mt-0.5">${stats.statCount} stat • <span class="text-purple-400">${stats.eventCount} CE</span></span>
           </div>
         </div>
         <div class="pt-2 border-t border-slate-200 dark:border-slate-700 space-y-1 text-[11px]">
