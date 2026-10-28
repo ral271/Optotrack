@@ -777,9 +777,16 @@
             <div class="h-64"><canvas id="chartPageDailyAvg"></canvas></div>
           </div>
 
+          <!-- Patient Volume & Revenue per Patient Chart (With Current Year vs. Monthly Avg Toggle) -->
           <div id="chartBlock_patients" data-chart-id="patients" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm min-w-0">
-            <h3 class="font-bold text-sm sm:text-base mb-1">Patient Volume & Revenue per Patient</h3>
-            <p class="text-xs text-slate-500 mb-4">Monthly patients seen vs. average net revenue per patient.</p>
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+              <h3 class="font-bold text-sm sm:text-base">Patient Volume & Revenue per Patient</h3>
+              <div class="inline-flex rounded-lg p-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] font-bold">
+                <button id="patientsModeCurrentBtn" type="button" onclick="window.setPatientsChartMode('current', event)" class="px-2 py-0.5 rounded-md transition">Current Year</button>
+                <button id="patientsModeAvgBtn" type="button" onclick="window.setPatientsChartMode('monthly_avg', event)" class="px-2 py-0.5 rounded-md transition">Monthly Avg</button>
+              </div>
+            </div>
+            <p id="patientsChartSubtitle" class="text-xs text-slate-500 mb-4">Monthly patients seen vs. average net revenue per patient.</p>
             <div class="h-64"><canvas id="chartPagePatients"></canvas></div>
           </div>
 
@@ -2109,6 +2116,7 @@
         quarterOhipMode: 'recon',
         coneQuarter: 'Q4',
         timeOffChartMode: 'yearly',
+        patientsChartMode: 'current',
         themeMode: localStorage.getItem(THEME_MODE_KEY) || 'auto',
         lastDriveSyncMonth: null,
         lastDriveBackupTimestamp: null,
@@ -2240,6 +2248,7 @@
       });
 
       if (!state.timeOffChartMode) state.timeOffChartMode = 'yearly';
+      if (!state.patientsChartMode) state.patientsChartMode = 'current';
       if (!state.layouts) state.layouts = def;
       if (!Array.isArray(state.layouts.dashBlocks)) {
         state.layouts.dashBlocks = def.dashBlocks;
@@ -3831,11 +3840,30 @@ function snapshotAllRecords() {
           const meta = CHART_META[cid] || { title: cid, sub: '' };
           const sizeKey = `pinned_${cid}`;
           const isWide = (state.layouts.widgetSizes?.[sizeKey] || (['forecastCone', 'annualSalaryCone', 'quarterSeasonality'].includes(cid) ? 'full' : 'normal')) === 'full';
+          let headerControlHtml = '';
+          if (cid === 'patients') {
+            headerControlHtml = `
+              <div class="inline-flex rounded-lg p-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] font-bold">
+                <button id="pinnedPatientsModeCurrentBtn" type="button" onclick="window.setPatientsChartMode('current', event)" class="px-2 py-0.5 rounded-md transition">Current Year</button>
+                <button id="pinnedPatientsModeAvgBtn" type="button" onclick="window.setPatientsChartMode('monthly_avg', event)" class="px-2 py-0.5 rounded-md transition">Monthly Avg</button>
+              </div>
+            `;
+          } else if (cid === 'timeOffBreakdown') {
+            headerControlHtml = `
+              <div class="inline-flex rounded-lg p-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] font-bold">
+                <button id="pinnedTimeOffModeYearlyBtn" type="button" onclick="window.setTimeOffChartMode('yearly', event)" class="px-2 py-0.5 rounded-md transition">By Year</button>
+                <button id="pinnedTimeOffModeMonthlyBtn" type="button" onclick="window.setTimeOffChartMode('monthly_avg', event)" class="px-2 py-0.5 rounded-md transition">Monthly Avg</button>
+              </div>
+            `;
+          }
           return `
             <div id="pinnedChartBlock_${cid}" class="customizable-block ${isWide ? 'lg:col-span-2' : ''} bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm min-w-0">
               ${makeEditOverlayBar('dashPinnedCharts', cid, `Pinned: ${meta.title}`, true, sizeKey)}
-              <h3 class="font-bold text-sm sm:text-base mb-1">${meta.title}</h3>
-              <p class="text-xs text-slate-500 mb-4">${meta.sub}</p>
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+                <h3 class="font-bold text-sm sm:text-base">${meta.title}</h3>
+                ${headerControlHtml}
+              </div>
+              <p ${cid === 'patients' ? 'id="pinnedPatientsChartSubtitle"' : ''} class="text-xs text-slate-500 mb-4">${meta.sub}</p>
               <div class="overflow-x-auto pb-1">
                 <div id="wrap_homePinnedChart_${cid}" class="h-64 min-w-full"><canvas id="homePinnedChart_${cid}"></canvas></div>
               </div>
@@ -5238,6 +5266,56 @@ function snapshotAllRecords() {
 
     window.setConeQuarter = (qk) => { state.coneQuarter = qk; saveAndRender(); };
 
+    function syncPatientsChartModeButtons() {
+      const pMode = state.patientsChartMode || 'current';
+      const activeCls = 'px-2 py-0.5 rounded-md bg-brand-600 text-white shadow-sm transition';
+      const inactiveCls = 'px-2 py-0.5 rounded-md text-slate-500 dark:text-slate-400 transition';
+      ['patientsModeCurrentBtn', 'pinnedPatientsModeCurrentBtn'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.className = pMode === 'current' ? activeCls : inactiveCls;
+      });
+      ['patientsModeAvgBtn', 'pinnedPatientsModeAvgBtn'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.className = pMode === 'monthly_avg' ? activeCls : inactiveCls;
+      });
+      const subText = pMode === 'monthly_avg'
+        ? 'All-time monthly average patients seen vs. average net revenue per patient across worked years (ignores 0-patient months).'
+        : `Monthly patients seen vs. average net revenue per patient (${state.currentYear}).`;
+      ['patientsChartSubtitle', 'pinnedPatientsChartSubtitle'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = subText;
+      });
+    }
+
+    window.setPatientsChartMode = (mode, ev) => {
+      if (ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+      }
+      const savedScrollY = window.scrollY;
+      state.patientsChartMode = mode;
+      syncPatientsChartModeButtons();
+      renderSingleChartCanvas('patients', 'chartPagePatients');
+      renderSingleChartCanvas('patients', 'homePinnedChart_patients');
+      window.scrollTo(0, savedScrollY);
+      skipNextRemoteRender = true;
+      pushStateToCloud();
+    };
+
+    function syncTimeOffChartModeButtons() {
+      const toMode = state.timeOffChartMode || 'yearly';
+      const activeCls = 'px-2 py-0.5 rounded-md bg-brand-600 text-white shadow-sm transition';
+      const inactiveCls = 'px-2 py-0.5 rounded-md text-slate-500 dark:text-slate-400 transition';
+      ['timeOffModeYearlyBtn', 'pinnedTimeOffModeYearlyBtn'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.className = toMode === 'yearly' ? activeCls : inactiveCls;
+      });
+      ['timeOffModeMonthlyBtn', 'pinnedTimeOffModeMonthlyBtn'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.className = toMode === 'monthly_avg' ? activeCls : inactiveCls;
+      });
+    }
+
     window.setTimeOffChartMode = (mode, ev) => {
       if (ev) {
         ev.preventDefault();
@@ -5245,12 +5323,7 @@ function snapshotAllRecords() {
       }
       const savedScrollY = window.scrollY;
       state.timeOffChartMode = mode;
-      const yrBtn = document.getElementById('timeOffModeYearlyBtn');
-      const mthBtn = document.getElementById('timeOffModeMonthlyBtn');
-      if (yrBtn && mthBtn) {
-        yrBtn.className = mode === 'yearly' ? 'px-2 py-0.5 rounded-md bg-brand-600 text-white shadow-sm transition' : 'px-2 py-0.5 rounded-md text-slate-500 dark:text-slate-400 transition';
-        mthBtn.className = mode === 'monthly_avg' ? 'px-2 py-0.5 rounded-md bg-brand-600 text-white shadow-sm transition' : 'px-2 py-0.5 rounded-md text-slate-500 dark:text-slate-400 transition';
-      }
+      syncTimeOffChartModeButtons();
       renderSingleChartCanvas('timeOffBreakdown', 'chartPageTimeOffBreakdown');
       renderSingleChartCanvas('timeOffBreakdown', 'homePinnedChart_timeOffBreakdown');
       window.scrollTo(0, savedScrollY);
@@ -5309,6 +5382,27 @@ function snapshotAllRecords() {
       });
 
       return results;
+    }
+
+    function computeHistoricalMonthlyPatientStats() {
+      const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const sortedYears = Object.keys(state.years || {}).sort();
+      return monthNames.map((mName, mIdx) => {
+        const ptsList = [];
+        const revPtList = [];
+        sortedYears.forEach(yr => {
+          const mObj = state.years[yr]?.[mIdx];
+          if (!mObj) return;
+          const c = calculateMonth(mObj, state.settings, getEffectiveMonthOhipMode(yr, mIdx));
+          if (c.isActive && c.patients > 0) {
+            ptsList.push(c.patients);
+            if (c.revPerPt > 0) revPtList.push(c.revPerPt);
+          }
+        });
+        const avgPts = ptsList.length > 0 ? Number((ptsList.reduce((a, b) => a + b, 0) / ptsList.length).toFixed(1)) : 0;
+        const avgRevPerPt = revPtList.length > 0 ? Number((revPtList.reduce((a, b) => a + b, 0) / revPtList.length).toFixed(2)) : 0;
+        return { month: mName, avgPts, avgRevPerPt, count: ptsList.length };
+      });
     }
 
     function applyMultiYearScrollWidth(canvasId, itemCount) {
@@ -5393,22 +5487,66 @@ function snapshotAllRecords() {
           }
         });
       } else if (chartKey === 'patients') {
-        chartsObj[canvasId] = new Chart(canvasEl, {
-          type: 'bar',
-          data: { labels, datasets: [
-            { label: 'Total Patients', data: calcCur.map(c => c.patients), backgroundColor: 'rgba(99, 102, 241, 0.8)', borderRadius: 4, yAxisID: 'y' },
-            { label: 'Rev / Pt ($)', data: calcCur.map(c => c.revPerPt), type: 'line', borderColor: '#f59e0b', borderWidth: 2, yAxisID: 'y1' }
-          ]},
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-              x: { grid: { display: false }, ticks: { color: '#94a3b8' } },
-              y: { position: 'left', grid: { display: false }, ticks: { color: '#94a3b8' } },
-              y1: { position: 'right', grid: { display: false, drawOnChartArea: false }, ticks: { color: '#94a3b8' } }
+        syncPatientsChartModeButtons();
+        const pMode = state.patientsChartMode || 'current';
+        if (pMode === 'monthly_avg') {
+          const histPts = computeHistoricalMonthlyPatientStats();
+          chartsObj[canvasId] = new Chart(canvasEl, {
+            type: 'bar',
+            data: {
+              labels: histPts.map(h => h.month),
+              datasets: [
+                {
+                  label: 'Avg Patients / Mth',
+                  data: histPts.map(h => h.avgPts > 0 ? h.avgPts : null),
+                  backgroundColor: 'rgba(99, 102, 241, 0.85)',
+                  borderRadius: 4,
+                  yAxisID: 'y'
+                },
+                {
+                  label: 'Avg Rev / Pt ($)',
+                  data: histPts.map(h => h.avgRevPerPt > 0 ? h.avgRevPerPt : null),
+                  type: 'line',
+                  borderColor: '#f59e0b',
+                  backgroundColor: '#f59e0b',
+                  borderWidth: 2.5,
+                  pointRadius: 3,
+                  tension: 0.25,
+                  yAxisID: 'y1'
+                }
+              ]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                x: { grid: { display: false }, ticks: { color: '#94a3b8', autoSkip: false, maxRotation: 0 } },
+                y: { position: 'left', grid: { display: false }, ticks: { color: '#94a3b8' } },
+                y1: { position: 'right', grid: { display: false, drawOnChartArea: false }, ticks: { color: '#94a3b8' } }
+              }
             }
-          }
-        });
+          });
+        } else {
+          chartsObj[canvasId] = new Chart(canvasEl, {
+            type: 'bar',
+            data: {
+              labels,
+              datasets: [
+                { label: 'Total Patients', data: calcCur.map(c => c.patients), backgroundColor: 'rgba(99, 102, 241, 0.8)', borderRadius: 4, yAxisID: 'y' },
+                { label: 'Rev / Pt ($)', data: calcCur.map(c => Number(c.revPerPt.toFixed(2))), type: 'line', borderColor: '#f59e0b', borderWidth: 2, yAxisID: 'y1' }
+              ]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                x: { grid: { display: false }, ticks: { color: '#94a3b8' } },
+                y: { position: 'left', grid: { display: false }, ticks: { color: '#94a3b8' } },
+                y1: { position: 'right', grid: { display: false, drawOnChartArea: false }, ticks: { color: '#94a3b8' } }
+              }
+            }
+          });
+        }
       } else if (chartKey === 'breakdown') {
         chartsObj[canvasId] = new Chart(canvasEl, {
           type: 'bar',
@@ -5589,13 +5727,8 @@ function snapshotAllRecords() {
           }).join('');
         }
       } else if (chartKey === 'timeOffBreakdown') {
+        syncTimeOffChartModeButtons();
         const toMode = state.timeOffChartMode || 'yearly';
-        const yrBtn = document.getElementById('timeOffModeYearlyBtn');
-        const mthBtn = document.getElementById('timeOffModeMonthlyBtn');
-        if (yrBtn && mthBtn) {
-          yrBtn.className = toMode === 'yearly' ? 'px-2 py-0.5 rounded-md bg-brand-600 text-white shadow-sm transition' : 'px-2 py-0.5 rounded-md text-slate-500 dark:text-slate-400 transition';
-          mthBtn.className = toMode === 'monthly_avg' ? 'px-2 py-0.5 rounded-md bg-brand-600 text-white shadow-sm transition' : 'px-2 py-0.5 rounded-md text-slate-500 dark:text-slate-400 transition';
-        }
 
         const activeYears = getWorkedYearsList();
         if (toMode === 'yearly') {
