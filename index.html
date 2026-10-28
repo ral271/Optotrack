@@ -477,7 +477,7 @@
                 <div id="topCardPredGross" class="text-2xl sm:text-3xl font-extrabold mono mt-1.5 text-sky-600 dark:text-sky-400 truncate">$0.00</div>
               </div>
               <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2 text-[11px] sm:text-xs text-slate-500">
-                <span id="topCardPredGrossSub" class="truncate">Daily Rate × Scheduled Shifts</span>
+                <span id="topCardPredGrossSub" class="truncate">YTD Net + Remaining Shifts × Daily Avg</span>
                 <span class="text-brand-500 font-semibold whitespace-nowrap shrink-0">Confirm / Edit →</span>
               </div>
             </div>
@@ -979,7 +979,7 @@
         <div class="p-3.5 rounded-xl bg-sky-500/10 border border-sky-500/30 min-w-0">
           <span class="text-sky-600 dark:text-sky-400 font-bold uppercase text-[10px] block">1. Predicted / Confirmed Gross Salary</span>
           <div id="taxModalPreviewGross" class="text-xl font-extrabold mono text-sky-600 dark:text-sky-400 mt-0.5">$0.00</div>
-          <span id="taxModalPreviewGrossSub" class="text-[11px] text-slate-500 block mt-0.5">Daily Rate × Scheduled Shifts</span>
+          <span id="taxModalPreviewGrossSub" class="text-[11px] text-slate-500 block mt-0.5">YTD Net + Remaining Shifts × Daily Avg</span>
         </div>
         <div class="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 min-w-0">
           <span class="text-rose-600 dark:text-rose-400 font-bold uppercase text-[10px] block">2. Total Taxes + CPP Owed</span>
@@ -2647,9 +2647,11 @@
 
       const sliceEnd = maxMonthIdxOverride !== null ? maxMonthIdxOverride : 11;
       const slicedMonths = months.slice(0, sliceEnd + 1);
+      const lastActiveIdx = getLastActiveMonthIndex(yearStr);
 
       const dailyRateUsed = ym.avgDailyNet > 0 ? ym.avgDailyNet : 0;
       let totalScheduledShifts = 0;
+      let totalRemainingShifts = 0;
       let formulaGross = 0;
 
       if (isPastCompletedYear && maxMonthIdxOverride === null) {
@@ -2660,8 +2662,18 @@
         formulaGross = Math.max(ym.ytdTotalPaid, ym.ytdNet + ym.healthPaid, dailyRateUsed * totalScheduledShifts);
       } else {
         totalScheduledShifts = slicedMonths.reduce((acc, m) => acc + (Number(m.mtDays) || 0) + (Number(m.fDays) || 0), 0);
-        const projectedByRate = (dailyRateUsed * totalScheduledShifts) + ym.healthPaid;
-        formulaGross = Math.max(projectedByRate, ym.ytdTotalPaid, ym.ytdNet + ym.healthPaid);
+        slicedMonths.forEach((m, idx) => {
+          const c = calculateMonth(m, state.settings, getEffectiveMonthOhipMode(yearStr, idx));
+          const { remDays, isFuture } = getMonthRemainingDaysAndTarget(c, idx, lastActiveIdx);
+          if (!isFuture && c.isActive) {
+            totalRemainingShifts += remDays;
+          } else if (isFuture) {
+            totalRemainingShifts += remDays;
+          }
+        });
+        // Unified Additive Run-Rate Formula: Actual Logged YTD Net + (Remaining Shifts * Avg Daily Net) + Health Claimed
+        const projectedByRunRate = ym.ytdNet + (dailyRateUsed * totalRemainingShifts) + ym.healthPaid;
+        formulaGross = Math.max(projectedByRunRate, ym.ytdTotalPaid, ym.ytdNet + ym.healthPaid);
       }
 
       const estPredictedGrossSalary = formulaGross;
@@ -2786,6 +2798,8 @@
         isPastCompletedYear,
         isConfirmed: !!(tp.confirmed || hasConfirmedGross || hasConfFed || hasConfProv || hasConfCorp || hasConfTakeHome),
         totalScheduledShifts,
+        totalRemainingShifts,
+        ytdNetEarned: ym.ytdNet,
         dailyRateUsed,
         estPredictedGrossSalary,
         grossPracticeIncome,
@@ -3909,7 +3923,7 @@ function snapshotAllRecords() {
       document.getElementById('topCardPredGross').textContent = fmtCurr(curTax.grossPracticeIncome);
       document.getElementById('topCardPredGrossSub').textContent = curTax.isPastCompletedYear
         ? `Actual / Reconciled ${state.currentYear} Gross (${curTax.totalScheduledShifts} shifts)`
-        : `${fmtCurr(curTax.dailyRateUsed)}/d × ${curTax.totalScheduledShifts} shifts`;
+        : `YTD ${fmtCurr0(curTax.ytdNetEarned)} + ${fmtNum(curTax.totalRemainingShifts, 1)}d @ ${fmtCurr(curTax.dailyRateUsed)}/d`;
 
       document.getElementById('topCardEstTax').textContent = fmtCurr(curTax.finalTotalTax);
       document.getElementById('topCardEstTaxSub').textContent = curTax.mode === 'corp'
@@ -5180,7 +5194,7 @@ function snapshotAllRecords() {
       document.getElementById('taxModalPreviewGross').textContent = fmtCurr(calc.grossPracticeIncome);
       document.getElementById('taxModalPreviewGrossSub').textContent = calc.isPastCompletedYear
         ? `Actual / Reconciled ${state.currentYear} Gross (${calc.totalScheduledShifts} shifts)`
-        : `${fmtCurr(calc.dailyRateUsed)}/d × ${calc.totalScheduledShifts} scheduled shifts`;
+        : `YTD ${fmtCurr0(calc.ytdNetEarned)} + ${fmtNum(calc.totalRemainingShifts, 1)}d @ ${fmtCurr(calc.dailyRateUsed)}/d`;
       document.getElementById('taxModalPreviewTotalTax').textContent = fmtCurr(calc.finalTotalTax);
       document.getElementById('taxModalPreviewTaxSub').textContent = `Effective Rate: ${fmtNum(calc.effectiveTaxRatePct, 1)}% (${calc.isConfirmed ? 'Confirmed' : 'Estimated'})`;
       document.getElementById('taxModalPreviewTakeHome').textContent = fmtCurr(calc.finalNetTakeHome);
