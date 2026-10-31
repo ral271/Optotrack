@@ -539,7 +539,7 @@
           </div>
         </div>
 
-        <!-- BLOCK: KPI CARDS (NON-OVERLAPPING SUB-ROWS FOR 14-INCH LAPTOP SCREENS) -->
+        <!-- BLOCK: KPI CARDS (FLUSH-RIGHT ALIGNED SUB-ROWS FOR PERFECT VERTICAL ALIGNMENT) -->
         <div id="dashBlock_kpis" data-block-id="kpis" class="customizable-block">
           <div id="kpiGridContainer" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
             <div id="kpiCard_net" data-kpi-id="net" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between min-w-0">
@@ -551,18 +551,16 @@
                 <div id="kpiYtdNet" class="text-2xl sm:text-3xl font-extrabold mono mt-1.5 text-brand-600 dark:text-brand-400 truncate">$0.00</div>
               </div>
               <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2 text-[11px]">
-                <div class="flex items-center justify-between gap-1.5">
-                  <span class="text-slate-500 whitespace-nowrap shrink-0">YTD Gross:</span>
-                  <div class="flex items-center justify-end gap-1.5 min-w-0">
-                    <span id="kpiYtdGross" class="font-semibold mono text-right whitespace-nowrap">$0.00</span>
-                    <span id="bmGrossPill" class="flex justify-end shrink-0 empty:hidden"></span>
+                <div class="flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-1.5 min-w-0">
+                    <span class="text-slate-500 whitespace-nowrap shrink-0">YTD Net:</span>
+                    <span id="bmGrossPill" class="flex shrink-0 empty:hidden"></span>
                   </div>
+                  <span id="kpiYtdGross" class="font-semibold mono text-right whitespace-nowrap shrink-0">$0.00</span>
                 </div>
-                <div class="flex items-center justify-between gap-1.5">
+                <div class="flex items-center justify-between gap-2">
                   <span class="text-slate-500 whitespace-nowrap shrink-0">YTD Target:</span>
-                  <div class="flex items-center justify-end gap-1.5 min-w-0">
-                    <span id="kpiYtdTarget" class="font-semibold mono text-right whitespace-nowrap">$0.00</span>
-                  </div>
+                  <span id="kpiYtdTarget" class="font-semibold mono text-right whitespace-nowrap shrink-0">$0.00</span>
                 </div>
               </div>
             </div>
@@ -576,17 +574,17 @@
                 <div id="kpiYtdPaid" class="text-2xl sm:text-3xl font-extrabold mono mt-1.5 text-purple-600 dark:text-purple-400 truncate">$0.00</div>
               </div>
               <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 space-y-1.5 text-[11px]">
-                <div class="flex items-center justify-between gap-1.5">
+                <div class="flex items-center justify-between gap-2">
                   <span class="text-slate-500 whitespace-nowrap shrink-0">Minimum Paid:</span>
-                  <span id="kpiBaseDrawsPaid" class="font-semibold mono text-right whitespace-nowrap">$0.00</span>
+                  <span id="kpiBaseDrawsPaid" class="font-semibold mono text-right whitespace-nowrap shrink-0">$0.00</span>
                 </div>
-                <div class="flex items-center justify-between gap-1.5">
+                <div class="flex items-center justify-between gap-2">
                   <span class="text-slate-500 whitespace-nowrap shrink-0">YTD Bonus Paid:</span>
-                  <span id="kpiBonusPaidSub" class="font-semibold mono text-emerald-500 text-right whitespace-nowrap">+$0.00</span>
+                  <span id="kpiBonusPaidSub" class="font-semibold mono text-emerald-500 text-right whitespace-nowrap shrink-0">+$0.00</span>
                 </div>
-                <div id="kpiHealthRowWrap" class="flex items-center justify-between gap-1.5 cursor-pointer hover:underline" onclick="window.openExpensesModal()">
+                <div id="kpiHealthRowWrap" class="flex items-center justify-between gap-2 cursor-pointer hover:underline" onclick="window.openExpensesModal()">
                   <span class="text-slate-500 whitespace-nowrap shrink-0">Health Claimed:</span>
-                  <span id="kpiHealthSub" class="font-semibold mono text-sky-500 text-right whitespace-nowrap">$0.00 / $1,000</span>
+                  <span id="kpiHealthSub" class="font-semibold mono text-sky-500 text-right whitespace-nowrap shrink-0">$0.00 / $1,000</span>
                 </div>
               </div>
             </div>
@@ -600,19 +598,19 @@
                 <div id="kpiAvgDailyNet" class="text-2xl sm:text-3xl font-extrabold mono mt-1.5 text-emerald-600 dark:text-emerald-400 truncate">$0.00</div>
               </div>
               <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2 text-[11px]">
-                <div class="flex items-center justify-between gap-1.5">
-                  <span class="text-slate-500 whitespace-nowrap shrink-0">Days Worked:</span>
-                  <div class="flex items-center justify-end gap-1.5 min-w-0">
-                    <span id="kpiTotalDays" class="font-semibold mono text-right whitespace-nowrap">0 days</span>
-                    <span id="bmTotalDaysPill" class="flex justify-end shrink-0 empty:hidden"></span>
+                <div class="flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-1.5 min-w-0">
+                    <span class="text-slate-500 whitespace-nowrap shrink-0">Days Worked:</span>
+                    <span id="bmTotalDaysPill" class="flex shrink-0 empty:hidden"></span>
                   </div>
+                  <span id="kpiTotalDays" class="font-semibold mono text-right whitespace-nowrap shrink-0">0 days</span>
                 </div>
-                <div class="flex items-center justify-between gap-1.5">
-                  <span class="text-slate-500 whitespace-nowrap shrink-0">Avg Days / Mth:</span>
-                  <div class="flex items-center justify-end gap-1.5 min-w-0">
-                    <span id="kpiAvgDaysMth" class="font-semibold mono text-right whitespace-nowrap">0.0 d/m</span>
-                    <span id="bmDaysMthPill" class="flex justify-end shrink-0 empty:hidden"></span>
+                <div class="flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-1.5 min-w-0">
+                    <span class="text-slate-500 whitespace-nowrap shrink-0">Avg Days / Mth:</span>
+                    <span id="bmDaysMthPill" class="flex shrink-0 empty:hidden"></span>
                   </div>
+                  <span id="kpiAvgDaysMth" class="font-semibold mono text-right whitespace-nowrap shrink-0">0.0 d/m</span>
                 </div>
               </div>
             </div>
@@ -626,26 +624,26 @@
                 <div id="kpiRevPerPt" class="text-2xl sm:text-3xl font-extrabold mono mt-1.5 text-amber-600 dark:text-amber-400 truncate">$0.00</div>
               </div>
               <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 space-y-1.5 text-[11px]">
-                <div class="flex items-center justify-between gap-1.5">
-                  <span class="text-slate-500 whitespace-nowrap shrink-0">Total Patients:</span>
-                  <div class="flex items-center justify-end gap-1.5 min-w-0">
-                    <span id="kpiTotalPts" class="font-semibold mono text-right whitespace-nowrap">0</span>
-                    <span id="bmTotalPtsPill" class="flex justify-end shrink-0 empty:hidden"></span>
+                <div class="flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-1.5 min-w-0">
+                    <span class="text-slate-500 whitespace-nowrap shrink-0">Total Patients:</span>
+                    <span id="bmTotalPtsPill" class="flex shrink-0 empty:hidden"></span>
                   </div>
+                  <span id="kpiTotalPts" class="font-semibold mono text-right whitespace-nowrap shrink-0">0</span>
                 </div>
-                <div class="flex items-center justify-between gap-1.5">
-                  <span class="text-slate-500 whitespace-nowrap shrink-0">Avg Pts / Day:</span>
-                  <div class="flex items-center justify-end gap-1.5 min-w-0">
-                    <span id="kpiPtsPerDay" class="font-semibold mono text-right whitespace-nowrap">0.0/d</span>
-                    <span id="bmPtsDayPill" class="flex justify-end shrink-0 empty:hidden"></span>
+                <div class="flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-1.5 min-w-0">
+                    <span class="text-slate-500 whitespace-nowrap shrink-0">Avg Pts / Day:</span>
+                    <span id="bmPtsDayPill" class="flex shrink-0 empty:hidden"></span>
                   </div>
+                  <span id="kpiPtsPerDay" class="font-semibold mono text-right whitespace-nowrap shrink-0">0.0/d</span>
                 </div>
-                <div class="flex items-center justify-between gap-1.5">
-                  <span class="text-slate-500 whitespace-nowrap shrink-0">Avg Pts / Mth:</span>
-                  <div class="flex items-center justify-end gap-1.5 min-w-0">
-                    <span id="kpiAvgPtsMth" class="font-semibold mono text-right whitespace-nowrap">0.0/m</span>
-                    <span id="bmPtsMthPill" class="flex justify-end shrink-0 empty:hidden"></span>
+                <div class="flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-1.5 min-w-0">
+                    <span class="text-slate-500 whitespace-nowrap shrink-0">Avg Pts / Mth:</span>
+                    <span id="bmPtsMthPill" class="flex shrink-0 empty:hidden"></span>
                   </div>
+                  <span id="kpiAvgPtsMth" class="font-semibold mono text-right whitespace-nowrap shrink-0">0.0/m</span>
                 </div>
               </div>
             </div>
@@ -2718,7 +2716,6 @@
           state.taxProfiles[yr] = makeDefaultTaxYearObj();
         } else {
           state.taxProfiles[yr] = { ...makeDefaultTaxYearObj(), ...state.taxProfiles[yr] };
-          // Always lock federal tuition carryforward credit rate to 14.5%
           state.taxProfiles[yr].eduCreditPct = 14.5;
           if (Number(yr) >= 2027) {
             state.taxProfiles[yr].eduAmount = 0;
@@ -3181,7 +3178,6 @@
       const registeredDeductions = Number(tp.registeredDeductions) || 0;
       const yNum = Number(yearStr) || 2026;
       const FED_LOWEST_RATE = yNum <= 2025 ? 0.145 : 0.14;
-      // Disable Federal Education / Tuition carryforward starting in 2027 onwards, and lock credit multiplier to 14.5%
       const eduAmount = yNum >= 2027 ? 0 : (Number(tp.eduAmount) || 0);
       const eduCreditPct = 14.5;
       const mode = tp.mode || 'sole_prop';
@@ -3338,7 +3334,6 @@
       const finalNetTakeHome = hasConfTakeHome ? Number(tp.confirmedTakeHome) : estNetTakeHome;
       const effectiveTaxRatePct = totalCombinedGrossIncome > 0 ? (finalTotalTax / totalCombinedGrossIncome) * 100 : 0;
 
-      // RRSP Room Created (18% of earned practice/T4 income up to CRA annual dollar cap: $32,490 for 2025, $33,810 for 2026, $35,390 for 2027+)
       const rrspMaxCap = yNum <= 2025 ? 32490 : (yNum === 2026 ? 33810 : 35390);
       const rrspBaseIncome = mode === 'corp' ? (Number(tp.corpSalary) || 0) : netProfessionalIncome;
       const rrspRoomCreated = Math.min(rrspMaxCap, Math.max(0, rrspBaseIncome * 0.18));
@@ -4117,7 +4112,9 @@ function snapshotAllRecords() {
         const allT = workedYrs.map(y => calculateYearTaxAndSalarySummary(y, null));
         return {
           label: 'All-Time Peak',
-          ytdNet: Math.max(...allM.map(x => x.ytdNet)), ytdGross: Math.max(...allM.map(x => x.ytdGross)),
+          ytdNet: Math.max(...allM.map(x => x.ytdNet)),
+          ytdRecd: Math.max(...allM.map(x => x.ytdRecd)),
+          ytdGross: Math.max(...allM.map(x => x.ytdGross)),
           ytdTotalPaid: Math.max(...allM.map(x => x.ytdTotalPaid)), avgDailyNet: Math.max(...allM.map(x => x.avgDailyNet)),
           avgRevPerPt: Math.max(...allM.map(x => x.avgRevPerPt)), ytdDaysWorked: Math.max(...allM.map(x => x.ytdDaysWorked)),
           avgDaysPerMth: Math.max(...allM.map(x => x.avgDaysPerMth)), ytdPatients: Math.max(...allM.map(x => x.ytdPatients)),
@@ -4134,7 +4131,11 @@ function snapshotAllRecords() {
         const bmYtd = getYearMetrics(compareYear, ytdCut), bmAvg = getYearMetrics(compareYear, avgCut);
         const bmTax = calculateYearTaxAndSalarySummary(compareYear, null);
         return {
-          label: `${compareYear} (Jan–${monthNames[ytdCut]})`, ytdNet: bmYtd.ytdNet, ytdGross: bmYtd.ytdGross, ytdTotalPaid: bmYtd.ytdTotalPaid,
+          label: `${compareYear} (Jan–${monthNames[ytdCut]})`,
+          ytdNet: bmYtd.ytdNet,
+          ytdRecd: bmYtd.ytdRecd,
+          ytdGross: bmYtd.ytdGross,
+          ytdTotalPaid: bmYtd.ytdTotalPaid,
           ytdDaysWorked: bmYtd.ytdDaysWorked, ytdPatients: bmYtd.ytdPatients, avgDailyNet: bmAvg.avgDailyNet, avgRevPerPt: bmAvg.avgRevPerPt,
           avgDaysPerMth: bmAvg.avgDaysPerMth, avgPtsPerDay: bmAvg.avgPtsPerDay, avgPtsPerMth: bmAvg.avgPtsPerMth,
           predGrossSalary: bmTax.grossPracticeIncome,
@@ -4571,7 +4572,8 @@ function snapshotAllRecords() {
       if (kpiHealthWrap) kpiHealthWrap.classList.toggle('hidden', !enableHsa);
 
       document.getElementById('kpiYtdNet').textContent = fmtCurr(cur.ytdNet);
-      document.getElementById('kpiYtdGross').textContent = fmtCurr(cur.ytdGross);
+      // Display YTD Received (cur.ytdRecd) under "YTD Net:" since 24% Net Cut is calculated directly from Received collections
+      document.getElementById('kpiYtdGross').textContent = fmtCurr(cur.ytdRecd);
       document.getElementById('kpiYtdTarget').textContent = fmtCurr(cur.ytdTarget);
       document.getElementById('kpiYtdPaid').textContent = fmtCurr(cur.ytdTotalPaid);
       document.getElementById('kpiBaseDrawsPaid').textContent = fmtCurr(cur.ytdBasePaid);
@@ -4586,7 +4588,7 @@ function snapshotAllRecords() {
       document.getElementById('kpiAvgPtsMth').textContent = `${fmtNum(cur.avgPtsPerMth, 1)}/m`;
 
       document.getElementById('bmNetPill').innerHTML = makeDiffPill(cur.ytdNet, bm.ytdNet, bm.label, 'currency');
-      document.getElementById('bmGrossPill').innerHTML = makeDiffPill(cur.ytdGross, bm.ytdGross, bm.label, 'currency');
+      document.getElementById('bmGrossPill').innerHTML = makeDiffPill(cur.ytdRecd, bm.ytdRecd ?? bm.ytdGross, bm.label, 'currency');
       document.getElementById('bmPaidPill').innerHTML = makeDiffPill(cur.ytdTotalPaid, bm.ytdTotalPaid, bm.label, 'currency');
       document.getElementById('bmDailyNetPill').innerHTML = makeDiffPill(cur.avgDailyNet, bm.avgDailyNet, bm.label, 'currency');
       document.getElementById('bmTotalDaysPill').innerHTML = makeDiffPill(cur.ytdDaysWorked, bm.ytdDaysWorked, bm.label, 'num');
