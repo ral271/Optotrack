@@ -661,7 +661,7 @@
           <div id="quarterCardsGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4"></div>
         </section>
 
-        <!-- BLOCK: MONTHLY LEDGER (CLEAN HEADER WITHOUT EXPENSES BUTTON; CLICK ANY MONTH TO LOG PATIENT MIX) -->
+        <!-- BLOCK: MONTHLY LEDGER (CLEAN HEADER WITHOUT EXPENSES BUTTON; GROSS COLUMN HIDDEN AUTOMATICALLY FOR 2027+) -->
         <section id="dashBlock_ledger" data-block-id="ledger" class="customizable-block bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
           <div class="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
@@ -677,7 +677,7 @@
                   <th class="py-3 px-2 text-center"># M-T</th>
                   <th class="py-3 px-2 text-center"># F</th>
                   <th class="py-3 px-2 text-center">Days</th>
-                  <th class="py-3 px-3 text-right">Gross</th>
+                  <th id="ledgerGrossColHeader" class="py-3 px-3 text-right">Gross</th>
                   <th class="py-3 px-3 text-right">Acct Rec'd</th>
                   <th class="py-3 px-3 text-right">OHIP Recon</th>
                   <th class="py-3 px-3 text-right">Total OHIP</th>
@@ -1030,7 +1030,7 @@
               </div>
             </div>
           </div>
-          <p class="text-xs text-slate-500 mt-1">2026 CRA Federal (14% lowest bracket + high-income BPA phase-out + 14.5% Tuition Credit) + Ontario brackets, Schedule 8 CPP Deduction (Line 22200/22215), Multi-Asset Investments, Quarterly Installments, SBD Passive Grind-Down & CDA Ledger.</p>
+          <p class="text-xs text-slate-500 mt-1">CRA Federal (14% lowest bracket + high-income BPA phase-out + 14.5% Tuition Credit through 2026) + Ontario brackets, Schedule 8 CPP Deduction (Line 22200/22215), Multi-Asset Investments, Quarterly Installments, SBD Passive Grind-Down & CDA Ledger.</p>
         </div>
         <button type="button" onclick="window.closeTaxEstimatorModal()" title="Close Tax Estimator" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-rose-500/20 text-slate-500 hover:text-rose-500 dark:text-slate-300 dark:hover:text-white flex items-center justify-center font-bold text-sm shrink-0 transition">✕</button>
       </div>
@@ -1521,7 +1521,7 @@
     </div>
   </div>
 
-  <!-- MONTH EDIT MODAL (NOW INCLUDES MONTHLY PATIENT MIX & OHIP FEE CODE BREAKDOWN + COMMA FORMATTING) -->
+  <!-- MONTH EDIT MODAL (GROSS FIELD HIDDEN AUTOMATICALLY FOR 2027+) -->
   <div id="monthModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center px-4 safe-top-modal">
     <div class="modal-scroll-pane bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-lg w-full p-5 space-y-4 max-h-[88vh] overflow-y-auto">
       <div class="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
@@ -1539,7 +1539,7 @@
           <div class="flex justify-between mb-1.5"><label class="font-semibold text-slate-500">Target Override ($) (Formula + Shift Adj: <span id="formulaTargetPreview" class="mono text-brand-500">$0</span>)</label><button type="button" onclick="document.getElementById('editCustomTarget').value=''" class="text-brand-500 font-semibold">Use Auto Formula</button></div>
           <input type="text" inputmode="decimal" data-comma-format="true" id="editCustomTarget" placeholder="Auto formula + 4h/6h/8h shift adjustments" class="w-full px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/30 mono font-semibold" />
         </div>
-        <div class="flex flex-col justify-end min-w-0"><label class="block font-semibold mb-1.5 text-slate-500 whitespace-nowrap">Gross ($)</label><input type="text" inputmode="decimal" data-comma-format="true" id="editGross" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
+        <div id="editGrossWrap" class="flex flex-col justify-end min-w-0"><label class="block font-semibold mb-1.5 text-slate-500 whitespace-nowrap">Gross ($)</label><input type="text" inputmode="decimal" data-comma-format="true" id="editGross" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
         <div class="flex flex-col justify-end min-w-0"><label class="block font-semibold mb-1.5 text-slate-500 whitespace-nowrap">Acct Rec'd ($)</label><input type="text" inputmode="decimal" data-comma-format="true" id="editReci" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
         <div class="flex flex-col justify-end min-w-0"><label class="block font-semibold mb-1.5 text-slate-500 whitespace-nowrap">OHIP Recon ($)</label><input type="text" inputmode="decimal" data-comma-format="true" id="editOhip" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
         <div class="flex flex-col justify-end min-w-0"><label class="block font-semibold mb-1.5 text-slate-500 whitespace-nowrap">Total OHIP ($)</label><input type="text" inputmode="decimal" data-comma-format="true" id="editTotalOhip" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
@@ -1547,7 +1547,7 @@
         <div class="flex flex-col justify-end min-w-0"><label class="block font-semibold mb-1.5 text-slate-500 whitespace-nowrap">Patients</label><input type="text" inputmode="numeric" data-comma-format="true" id="editPatients" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" /></div>
       </div>
 
-      <!-- Monthly Patient Mix & OHIP Fee Code Breakdown (Stored on the Month in Ledger, Not Shown on Homepage Table) -->
+      <!-- Monthly Patient Mix & OHIP Fee Code Breakdown -->
       <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2.5 text-xs">
         <div class="flex items-center justify-between">
           <span class="font-bold text-brand-500 uppercase tracking-wider text-[10px]">Monthly Patient Mix & OHIP Fee Code Breakdown (Optional)</span>
@@ -1604,7 +1604,7 @@
     </div>
   </div>
 
-  <!-- STREAMLINED DAILY LOG MODAL WITH EQUAL-SIZE TEXTBOXES (CLEAN WITHOUT PATIENT MIX + COMMA FORMATTING) -->
+  <!-- DAILY LOG MODAL WITH DAILY/MTD TOGGLE (DEFAULT: DAILY + INDEPENDENT PER-CATEGORY SWITCHING + 2027+ GROSS HIDING) -->
   <div id="dailyLogModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center px-3 sm:px-4 safe-top-modal">
     <div class="modal-scroll-pane bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-lg w-full p-4 sm:p-5 space-y-4 max-h-[88vh] overflow-y-auto shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
@@ -1614,6 +1614,16 @@
         </div>
         <button onclick="window.closeDailyLogModal()" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center font-bold shrink-0">✕</button>
       </div>
+
+      <!-- Daily vs. MTD Input Mode Toggle (Defaults to Daily; switching preserves already-entered categories in their chosen mode) -->
+      <div class="flex items-center justify-between gap-2 bg-slate-100 dark:bg-slate-800/80 p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs">
+        <span class="font-semibold text-slate-500 pl-1">Entry Mode:</span>
+        <div class="inline-flex rounded-lg p-0.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 font-bold text-[11px]">
+          <button type="button" id="logModeDeltaBtn" onclick="window.setDailyLogInputMode('delta')" class="px-2.5 py-1 rounded-md transition">Single-Day Delta</button>
+          <button type="button" id="logModeMtdBtn" onclick="window.setDailyLogInputMode('mtd')" class="px-2.5 py-1 rounded-md transition">Cumulative MTD</button>
+        </div>
+      </div>
+
       <input type="hidden" id="logMonthIdx" value="0" />
       <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 text-xs items-end">
         <div class="sm:col-span-6 flex flex-col justify-end min-w-0">
@@ -1643,59 +1653,77 @@
         </div>
       </div>
 
-      <!-- 3-Column MTD Grid with Equal-Width Columns & Identical Input Heights -->
+      <!-- 3-Column Daily/MTD Grid with Per-Field Mode Badges -->
       <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs items-end">
-        <div class="flex flex-col justify-end min-w-0">
+        <div id="logGrossFieldWrap" class="flex flex-col justify-end min-w-0">
           <div class="flex flex-col items-start justify-end mb-1.5">
-            <label class="font-semibold text-slate-600 dark:text-slate-300 leading-tight whitespace-nowrap">MTD Gross</label>
-            <span id="prevGrossLbl" class="text-[10px] text-slate-400 mono leading-tight truncate max-w-full mt-0.5">Prev: $0.00</span>
+            <div class="flex items-center gap-1 max-w-full">
+              <label id="logLblGross" class="font-semibold text-slate-600 dark:text-slate-300 leading-tight whitespace-nowrap">Day Gross</label>
+              <span id="logBadgeGross" class="px-1 py-0.2 rounded text-[9px] font-bold bg-brand-500/15 text-brand-400">Daily</span>
+            </div>
+            <span id="prevGrossLbl" class="text-[10px] text-slate-400 mono leading-tight truncate max-w-full mt-0.5">MTD: $0.00</span>
           </div>
-          <input type="text" inputmode="decimal" data-comma-format="true" id="logMtdGross" oninput="window.updateDailyDeltaPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
+          <input type="text" inputmode="decimal" data-comma-format="true" id="logMtdGross" oninput="window.onDailyLogFieldInput('gross')" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
         </div>
         <div class="flex flex-col justify-end min-w-0">
           <div class="flex flex-col items-start justify-end mb-1.5">
-            <label class="font-semibold text-slate-600 dark:text-slate-300 leading-tight whitespace-nowrap">MTD Acct Rec</label>
-            <span id="prevReciLbl" class="text-[10px] text-slate-400 mono leading-tight truncate max-w-full mt-0.5">Prev: $0.00</span>
+            <div class="flex items-center gap-1 max-w-full">
+              <label id="logLblReci" class="font-semibold text-slate-600 dark:text-slate-300 leading-tight whitespace-nowrap">Day Acct Rec</label>
+              <span id="logBadgeReci" class="px-1 py-0.2 rounded text-[9px] font-bold bg-brand-500/15 text-brand-400">Daily</span>
+            </div>
+            <span id="prevReciLbl" class="text-[10px] text-slate-400 mono leading-tight truncate max-w-full mt-0.5">MTD: $0.00</span>
           </div>
-          <input type="text" inputmode="decimal" data-comma-format="true" id="logMtdReci" oninput="window.updateDailyDeltaPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
+          <input type="text" inputmode="decimal" data-comma-format="true" id="logMtdReci" oninput="window.onDailyLogFieldInput('reci')" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
         </div>
         <div class="flex flex-col justify-end min-w-0">
           <div class="flex flex-col items-start justify-end mb-1.5">
-            <label class="font-semibold text-slate-600 dark:text-slate-300 leading-tight whitespace-nowrap">MTD OHIP Rec</label>
-            <span id="prevOhipLbl" class="text-[10px] text-slate-400 mono leading-tight truncate max-w-full mt-0.5">Prev: $0.00</span>
+            <div class="flex items-center gap-1 max-w-full">
+              <label id="logLblOhip" class="font-semibold text-slate-600 dark:text-slate-300 leading-tight whitespace-nowrap">Day OHIP Rec</label>
+              <span id="logBadgeOhip" class="px-1 py-0.2 rounded text-[9px] font-bold bg-brand-500/15 text-brand-400">Daily</span>
+            </div>
+            <span id="prevOhipLbl" class="text-[10px] text-slate-400 mono leading-tight truncate max-w-full mt-0.5">MTD: $0.00</span>
           </div>
-          <input type="text" inputmode="decimal" data-comma-format="true" id="logMtdOhip" oninput="window.updateDailyDeltaPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
+          <input type="text" inputmode="decimal" data-comma-format="true" id="logMtdOhip" oninput="window.onDailyLogFieldInput('ohip')" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
         </div>
         <div class="flex flex-col justify-end min-w-0">
           <div class="flex flex-col items-start justify-end mb-1.5">
-            <label class="font-semibold text-slate-600 dark:text-slate-300 leading-tight whitespace-nowrap">MTD Tot OHIP</label>
-            <span id="prevTotOhipLbl" class="text-[10px] text-slate-400 mono leading-tight truncate max-w-full mt-0.5">Prev: $0.00</span>
+            <div class="flex items-center gap-1 max-w-full">
+              <label id="logLblTotOhip" class="font-semibold text-slate-600 dark:text-slate-300 leading-tight whitespace-nowrap">Day Tot OHIP</label>
+              <span id="logBadgeTotOhip" class="px-1 py-0.2 rounded text-[9px] font-bold bg-brand-500/15 text-brand-400">Daily</span>
+            </div>
+            <span id="prevTotOhipLbl" class="text-[10px] text-slate-400 mono leading-tight truncate max-w-full mt-0.5">MTD: $0.00</span>
           </div>
-          <input type="text" inputmode="decimal" data-comma-format="true" id="logMtdTotalOhip" oninput="window.updateDailyDeltaPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
+          <input type="text" inputmode="decimal" data-comma-format="true" id="logMtdTotalOhip" oninput="window.onDailyLogFieldInput('totOhip')" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
         </div>
         <div class="flex flex-col justify-end min-w-0">
           <div class="flex flex-col items-start justify-end mb-1.5">
-            <label class="font-semibold text-slate-600 dark:text-slate-300 leading-tight whitespace-nowrap">MTD Paid</label>
-            <span id="prevPaidLbl" class="text-[10px] text-slate-400 mono leading-tight truncate max-w-full mt-0.5">Prev: $0.00</span>
+            <div class="flex items-center gap-1 max-w-full">
+              <label id="logLblPaid" class="font-semibold text-slate-600 dark:text-slate-300 leading-tight whitespace-nowrap">Day Paid</label>
+              <span id="logBadgePaid" class="px-1 py-0.2 rounded text-[9px] font-bold bg-brand-500/15 text-brand-400">Daily</span>
+            </div>
+            <span id="prevPaidLbl" class="text-[10px] text-slate-400 mono leading-tight truncate max-w-full mt-0.5">MTD: $0.00</span>
           </div>
-          <input type="text" inputmode="decimal" data-comma-format="true" id="logMtdPaid" oninput="window.updateDailyDeltaPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
+          <input type="text" inputmode="decimal" data-comma-format="true" id="logMtdPaid" oninput="window.onDailyLogFieldInput('paid')" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
         </div>
         <div class="flex flex-col justify-end min-w-0">
           <div class="flex flex-col items-start justify-end mb-1.5">
-            <label class="font-semibold text-slate-600 dark:text-slate-300 leading-tight whitespace-nowrap">MTD Pts</label>
-            <span id="prevPtsLbl" class="text-[10px] text-slate-400 mono leading-tight truncate max-w-full mt-0.5">Prev: 0</span>
+            <div class="flex items-center gap-1 max-w-full">
+              <label id="logLblPts" class="font-semibold text-slate-600 dark:text-slate-300 leading-tight whitespace-nowrap">Day Pts</label>
+              <span id="logBadgePts" class="px-1 py-0.2 rounded text-[9px] font-bold bg-brand-500/15 text-brand-400">Daily</span>
+            </div>
+            <span id="prevPtsLbl" class="text-[10px] text-slate-400 mono leading-tight truncate max-w-full mt-0.5">MTD: 0</span>
           </div>
-          <input type="text" inputmode="numeric" data-comma-format="true" id="logMtdPatients" oninput="window.updateDailyDeltaPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
+          <input type="text" inputmode="numeric" data-comma-format="true" id="logMtdPatients" oninput="window.onDailyLogFieldInput('pts')" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
         </div>
       </div>
 
       <div class="p-3 rounded-xl bg-brand-500/10 border border-brand-500/20 text-xs">
-        <div class="flex justify-between mb-1"><span class="font-bold text-brand-400 uppercase text-[11px]">Today's Clinic Delta</span><span id="deltaRecordAlert" class="hidden px-2 py-0.5 rounded-full bg-amber-500 text-white font-bold text-[10px]">★ New All-Time Gross Record!</span></div>
+        <div class="flex justify-between mb-1"><span class="font-bold text-brand-400 uppercase text-[11px]">Today's Clinic Delta (Net = [Acct Rec + Tot OHIP] × Net %)</span><span id="deltaRecordAlert" class="hidden px-2 py-0.5 rounded-full bg-amber-500 text-white font-bold text-[10px]">★ New All-Time High!</span></div>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          <div><span class="text-slate-500 block">Gross</span><span id="deltaGrossVal" class="font-bold mono">$0.00</span></div>
+          <div id="logPreviewGrossCell"><span class="text-slate-500 block">Gross</span><span id="deltaGrossVal" class="font-bold mono">$0.00</span></div>
           <div><span class="text-slate-500 block">24% Net</span><span id="deltaNetVal" class="font-bold mono text-brand-500">$0.00</span></div>
           <div><span class="text-slate-500 block">Pts</span><span id="deltaPtsVal" class="font-bold mono">0</span></div>
-          <div><span class="text-slate-500 block">OHIP Δ</span><span id="deltaOhipVal" class="font-bold mono">$0.00</span></div>
+          <div><span class="text-slate-500 block">Tot OHIP Δ</span><span id="deltaOhipVal" class="font-bold mono">$0.00</span></div>
         </div>
       </div>
       <input type="text" id="logNote" placeholder="Shift note (optional)" class="w-full px-3 py-2 rounded-lg text-xs bg-slate-100 dark:bg-slate-800" />
@@ -1706,7 +1734,7 @@
     </div>
   </div>
 
-  <!-- FULL-FEATURED EDIT LOGGED SHIFT MODAL (CLEAN WITHOUT PATIENT MIX + COMMA FORMATTING) -->
+  <!-- FULL-FEATURED EDIT LOGGED SHIFT MODAL (2027+ GROSS HIDDEN + DAY NET = [ACCT REC + TOT OHIP] * NET %) -->
   <div id="editLogModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center px-3 sm:px-4 safe-top-modal">
     <div class="modal-scroll-pane bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-lg w-full p-4 sm:p-5 space-y-4 max-h-[88vh] overflow-y-auto shadow-2xl">
       <div class="flex justify-between items-start border-b border-slate-200 dark:border-slate-800 pb-3">
@@ -1756,7 +1784,7 @@
 
       <!-- 3-Column MTD / Delta Grid with Equal-Width Columns & Identical Input Heights -->
       <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs items-end">
-        <div class="flex flex-col justify-end min-w-0">
+        <div id="editLogGrossFieldWrap" class="flex flex-col justify-end min-w-0">
           <div class="flex flex-col items-start justify-end mb-1.5">
             <label id="editLblGross" class="font-semibold text-slate-600 dark:text-slate-300 leading-tight whitespace-nowrap">MTD Gross</label>
             <span id="editPrevGrossLbl" class="text-[10px] text-slate-400 mono leading-tight truncate max-w-full mt-0.5">Prev: $0.00</span>
@@ -1806,7 +1834,7 @@
           <span id="editLogCascadeNotice" class="text-[10px] font-semibold text-emerald-400 mono"></span>
         </div>
         <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
-          <div><span class="text-slate-500 block">Day Gross</span><span id="editDeltaGrossVal" class="font-bold mono">$0.00</span></div>
+          <div id="editPreviewGrossCell"><span class="text-slate-500 block">Day Gross</span><span id="editDeltaGrossVal" class="font-bold mono">$0.00</span></div>
           <div><span class="text-slate-500 block">Day 24% Net</span><span id="editDeltaNetVal" class="font-bold mono text-brand-500">$0.00</span></div>
           <div><span class="text-slate-500 block">Day Paid Δ</span><span id="editDeltaPaidVal" class="font-bold mono text-purple-400">$0.00</span></div>
           <div><span class="text-slate-500 block">Day Pts</span><span id="editDeltaPtsVal" class="font-bold mono">0</span></div>
@@ -1815,7 +1843,7 @@
       </div>
 
       <input type="text" id="editLogNote" placeholder="Shift note (optional)" class="w-full px-3 py-2 rounded-lg text-xs bg-slate-100 dark:bg-slate-800" />
-      <p class="text-[11px] text-slate-400">Any edits to Gross, Acct Rec'd, OHIP, Paid draws, or Patients on this shift automatically cascade forward to all subsequent logs in the month and update your Monthly Ledger row.</p>
+      <p class="text-[11px] text-slate-400">Any edits to Acct Rec'd, OHIP, Paid draws, or Patients on this shift automatically cascade forward to all subsequent logs in the month and update your Monthly Ledger row.</p>
 
       <div class="flex justify-between pt-3 border-t border-slate-200 dark:border-slate-800">
         <button onclick="window.deleteCurrentEditingLog()" class="px-3 py-2 rounded-xl text-xs font-semibold bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition">Delete Log & Revert</button>
@@ -1830,12 +1858,12 @@
   <div id="recordModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center px-4 safe-top-modal">
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-sm w-full p-5 space-y-4">
       <div class="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
-        <h3 class="font-bold text-lg">Manual Baseline Daily Gross Record</h3>
+        <h3 class="font-bold text-lg">Manual Baseline Daily Record</h3>
         <button onclick="window.closeRecordModal()">✕</button>
       </div>
       <p class="text-[11px] text-slate-400">Sets your historical baseline record. If a future logged shift breaks this record and is later deleted, OptoTrack automatically reverts back to this baseline.</p>
       <div class="space-y-3 text-xs">
-        <div class="flex flex-col justify-end min-w-0"><label class="block font-semibold mb-1.5 text-slate-500">Baseline Peak Daily Gross ($)</label><input type="text" inputmode="decimal" data-comma-format="true" id="inputRecordAmount" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-bold" /></div>
+        <div class="flex flex-col justify-end min-w-0"><label class="block font-semibold mb-1.5 text-slate-500">Baseline Peak Daily Amount ($)</label><input type="text" inputmode="decimal" data-comma-format="true" id="inputRecordAmount" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-bold" /></div>
         <div class="flex flex-col justify-end min-w-0"><label class="block font-semibold mb-1.5 text-slate-500">Date Achieved</label><input type="text" id="inputRecordDate" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 font-medium" /></div>
         <div class="flex flex-col justify-end min-w-0"><label class="block font-semibold mb-1.5 text-slate-500">Note</label><input type="text" id="inputRecordNote" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 font-medium" /></div>
       </div>
@@ -2141,7 +2169,6 @@
       el.value = formatValWithCommas(val, decimals);
     }
 
-    // Global capture listener for live comma formatting while preserving caret position
     document.addEventListener('input', (e) => {
       const el = e.target;
       if (!el || el.getAttribute?.('data-comma-format') !== 'true') return;
@@ -2475,6 +2502,16 @@
       patientMix: { ohipFull: 0, ohipSeniorPed: 0, ohipPartial: 0, privateExam: 0 }
     }));
 
+    function isNoGrossYear(yearStr) {
+      return Number(yearStr) >= 2027;
+    }
+
+    function getEffectiveGrossOrReciForMonth(yearStr, mObj) {
+      if (!mObj) return 0;
+      if (isNoGrossYear(yearStr)) return Number(mObj.reci) || 0;
+      return Number(mObj.gross) || 0;
+    }
+
     function makeDefaultTaxYearObj() {
       return {
         mode: 'sole_prop',
@@ -2652,8 +2689,11 @@
         state.recordHigh = { amount: 0, date: '—', note: '', baselineAmount: 0, baselineDate: '—', baselineNote: '', fromLog: false };
       }
       if (state.recordHigh.baselineAmount === undefined || state.recordHigh.baselineAmount === null) {
-        const maxLogGross = Math.max(0, ...(state.dailyLogs || []).map(l => Number(l.gross) || 0));
-        if ((Number(state.recordHigh.amount) || 0) >= maxLogGross) {
+        const maxLogAmt = Math.max(0, ...(state.dailyLogs || []).map(l => {
+          const yr = String(l.year || (l.date && l.date.length >= 4 ? l.date.substring(0, 4) : '2026'));
+          return isNoGrossYear(yr) ? (Number(l.dReci ?? l.gross) || 0) : (Number(l.gross) || 0);
+        }));
+        if ((Number(state.recordHigh.amount) || 0) >= maxLogAmt) {
           state.recordHigh.baselineAmount = Number(state.recordHigh.amount) || 0;
           state.recordHigh.baselineDate = state.recordHigh.date || '—';
           state.recordHigh.baselineNote = state.recordHigh.note || '';
@@ -2673,11 +2713,14 @@
       let fromLog = false;
 
       (state.dailyLogs || []).forEach(l => {
-        const g = Number(l.gross) || 0;
-        if (g > bestAmt) {
-          bestAmt = g;
+        const yr = String(l.year || (l.date && l.date.length >= 4 ? l.date.substring(0, 4) : '2026'));
+        const amt = isNoGrossYear(yr)
+          ? (l.dReci !== undefined ? Number(l.dReci) : (Number(l.gross) || 0))
+          : (Number(l.gross) || 0);
+        if (amt > bestAmt) {
+          bestAmt = amt;
           bestDate = l.date || '—';
-          bestNote = l.note || 'All-Time Daily Gross High!';
+          bestNote = l.note || (isNoGrossYear(yr) ? 'All-Time Daily Acct Rec High!' : 'All-Time Daily Gross High!');
           fromLog = true;
         }
       });
@@ -2974,7 +3017,8 @@
       const yNum = Number(yearStr);
       const mObj = state.years[yearStr]?.[monthIdx];
       if (!mObj) return false;
-      const hasWorkedActivity = (Number(mObj.daysWorked) || 0) > 0 || (Number(mObj.gross) || 0) > 0 || (Number(mObj.reci) || 0) > 0 || (Number(mObj.ohip) || 0) > 0 || (Number(mObj.patients) || 0) > 0;
+      const amtForCheck = getEffectiveGrossOrReciForMonth(yearStr, mObj);
+      const hasWorkedActivity = (Number(mObj.daysWorked) || 0) > 0 || amtForCheck > 0 || (Number(mObj.reci) || 0) > 0 || (Number(mObj.ohip) || 0) > 0 || (Number(mObj.patients) || 0) > 0;
       if (hasWorkedActivity) return false;
 
       let latestWorkedYear = -1;
@@ -2982,7 +3026,8 @@
       Object.keys(state.years || {}).sort().forEach(yr => {
         const yrNum = Number(yr);
         (state.years[yr] || []).forEach((m, idx) => {
-          if ((Number(m.daysWorked) || 0) > 0 || (Number(m.gross) || 0) > 0 || (Number(m.reci) || 0) > 0 || (Number(m.ohip) || 0) > 0 || (Number(m.patients) || 0) > 0) {
+          const mAmt = getEffectiveGrossOrReciForMonth(yr, m);
+          if ((Number(m.daysWorked) || 0) > 0 || mAmt > 0 || (Number(m.reci) || 0) > 0 || (Number(m.ohip) || 0) > 0 || (Number(m.patients) || 0) > 0) {
             if (yrNum > latestWorkedYear || (yrNum === latestWorkedYear && idx > latestWorkedMonth)) {
               latestWorkedYear = yrNum;
               latestWorkedMonth = idx;
@@ -3094,7 +3139,7 @@
       });
     }
 
-    // ================= 2026 CRA & ONTARIO TAX ENGINE (14% LOWEST BRACKET + 14.5% TUITION CREDIT + HIGH-INCOME BPA PHASE-OUT + SCHEDULE 8 CPP) =================
+    // ================= CRA & ONTARIO TAX ENGINE (2026 & CONFIRMED 2027 T4127 + BILL C-30 CPP) =================
     function computeGraduatedTax(taxableIncome, brackets) {
       if (taxableIncome <= 0) return 0;
       let tax = 0;
@@ -3120,11 +3165,10 @@
       return Math.min(900, 750 + (taxableIncome - 200000) * 0.25);
     }
 
-    function computeEffectiveFederalBpaCredit(taxableIncome, fedBpaMax, fedLowestRate) {
+    function computeEffectiveFederalBpaCredit(taxableIncome, fedBpaMax, fedLowestRate, phaseStart = 181440, phaseEnd = 258482, minBpa = 14834) {
       const fullCredit = fedBpaMax * fedLowestRate;
-      const phaseStart = 181440;
-      const phaseEnd = 258482;
-      const maxClawbackTax = 450.68;
+      const minCredit = minBpa * fedLowestRate;
+      const maxClawbackTax = Math.max(0, fullCredit - minCredit);
       if (taxableIncome <= phaseStart) return fullCredit;
       if (taxableIncome >= phaseEnd) return Math.max(0, fullCredit - maxClawbackTax);
       const ratio = (taxableIncome - phaseStart) / (phaseEnd - phaseStart);
@@ -3177,8 +3221,9 @@
       const bizExpenses = Number(tp.bizExpenses) || 0;
       const registeredDeductions = Number(tp.registeredDeductions) || 0;
       const yNum = Number(yearStr) || 2026;
+      const is2027Plus = yNum >= 2027;
       const FED_LOWEST_RATE = yNum <= 2025 ? 0.145 : 0.14;
-      const eduAmount = yNum >= 2027 ? 0 : (Number(tp.eduAmount) || 0);
+      const eduAmount = is2027Plus ? 0 : (Number(tp.eduAmount) || 0);
       const eduCreditPct = 14.5;
       const mode = tp.mode || 'sole_prop';
 
@@ -3204,26 +3249,50 @@
       const hasConfInst = tp.confirmed && tp.confirmedInstallments !== null && tp.confirmedInstallments !== undefined && tp.confirmedInstallments !== '';
       const finalInstallmentsPaid = hasConfInst ? Number(tp.confirmedInstallments) : estInstallmentsPaid;
 
-      const FED_BRACKETS = [
-        { upTo: 58523, rate: FED_LOWEST_RATE },
-        { upTo: 117045, rate: 0.205 },
-        { upTo: 181440, rate: 0.26 },
-        { upTo: 258482, rate: 0.29 },
-        { upTo: Infinity, rate: 0.33 }
-      ];
-      const ON_BRACKETS = [
-        { upTo: 53891, rate: 0.0505 },
-        { upTo: 107785, rate: 0.0915 },
-        { upTo: 150000, rate: 0.1116 },
-        { upTo: 220000, rate: 0.1216 },
-        { upTo: Infinity, rate: 0.1316 }
-      ];
-      const FED_BPA = 16452;
-      const ON_BPA = 12989;
+      // Confirmed 2027 CRA T4127 (124th Edition) & Ontario brackets/BPA vs 2026
+      const FED_BRACKETS = is2027Plus
+        ? [
+            { upTo: 60044, rate: FED_LOWEST_RATE },
+            { upTo: 120088, rate: 0.205 },
+            { upTo: 186157, rate: 0.26 },
+            { upTo: 265203, rate: 0.29 },
+            { upTo: Infinity, rate: 0.33 }
+          ]
+        : [
+            { upTo: 58523, rate: FED_LOWEST_RATE },
+            { upTo: 117045, rate: 0.205 },
+            { upTo: 181440, rate: 0.26 },
+            { upTo: 258482, rate: 0.29 },
+            { upTo: Infinity, rate: 0.33 }
+          ];
+      const ON_BRACKETS = is2027Plus
+        ? [
+            { upTo: 55023, rate: 0.0505 },
+            { upTo: 110048, rate: 0.0915 },
+            { upTo: 150000, rate: 0.1116 },
+            { upTo: 220000, rate: 0.1216 },
+            { upTo: Infinity, rate: 0.1316 }
+          ]
+        : [
+            { upTo: 53891, rate: 0.0505 },
+            { upTo: 107785, rate: 0.0915 },
+            { upTo: 150000, rate: 0.1116 },
+            { upTo: 220000, rate: 0.1216 },
+            { upTo: Infinity, rate: 0.1316 }
+          ];
+      const FED_BPA = is2027Plus ? 16879 : 16452;
+      const FED_BPA_MIN = is2027Plus ? 15214 : 14834;
+      const FED_BPA_PHASE_START = is2027Plus ? 186157 : 181440;
+      const FED_BPA_PHASE_END = is2027Plus ? 265203 : 258482;
+      const ON_BPA = is2027Plus ? 13261 : 12989;
 
-      const CPP_YMPE = 74600;
-      const CPP_YAMPE = 85000;
+      // Confirmed 2027 CPP ceilings & Bill C-30 base rate (4.75% base + 1.0% enhanced = 5.75% per side)
+      const CPP_YMPE = is2027Plus ? 76700 : 74600;
+      const CPP_YAMPE = is2027Plus ? 87400 : 85000;
       const CPP_BASIC_EXEMPTION = 3500;
+      const BASE_CPP1_RATE = is2027Plus ? 0.0475 : 0.0495;
+      const ENH_CPP1_RATE = 0.01;
+      const ENH_CPP2_RATE = 0.04;
 
       let estFederalTax = 0;
       let estProvincialTaxAndCpp = 0;
@@ -3245,10 +3314,10 @@
 
       if (mode === 'sole_prop') {
         const pensionable1 = Math.max(0, Math.min(netProfessionalIncome, CPP_YMPE) - CPP_BASIC_EXEMPTION);
-        const baseCpp1 = pensionable1 * 0.0495;
-        const enhancedCpp1 = pensionable1 * 0.01;
+        const baseCpp1 = pensionable1 * BASE_CPP1_RATE;
+        const enhancedCpp1 = pensionable1 * ENH_CPP1_RATE;
         const pensionable2 = Math.max(0, Math.min(netProfessionalIncome, CPP_YAMPE) - CPP_YMPE);
-        const enhancedCpp2 = pensionable2 * 0.04;
+        const enhancedCpp2 = pensionable2 * ENH_CPP2_RATE;
 
         const totalCpp1SelfEmp = baseCpp1 * 2 + enhancedCpp1 * 2;
         const totalCpp2SelfEmp = enhancedCpp2 * 2;
@@ -3260,7 +3329,7 @@
         const taxableIncome = Math.max(0, netProfessionalIncome + totalTaxableInvestmentInclusion - registeredDeductions - cppDeductionFromIncome);
 
         const grossFedTax = computeGraduatedTax(taxableIncome, FED_BRACKETS);
-        const fedBpaCredit = computeEffectiveFederalBpaCredit(taxableIncome, FED_BPA, FED_LOWEST_RATE);
+        const fedBpaCredit = computeEffectiveFederalBpaCredit(taxableIncome, FED_BPA, FED_LOWEST_RATE, FED_BPA_PHASE_START, FED_BPA_PHASE_END, FED_BPA_MIN);
         const fedCppCredit = cppNonRefundableCreditBase * FED_LOWEST_RATE;
         const fedTuitionCredit = eduAmount * (eduCreditPct / 100);
         const fedEligDivCredit = grossedUpEligibleDivs * 0.150198;
@@ -3286,10 +3355,10 @@
         const corpDividends = Number(tp.corpDividends) || 0;
 
         const pensionable1 = Math.max(0, Math.min(corpSalary, CPP_YMPE) - CPP_BASIC_EXEMPTION);
-        const baseCpp1 = pensionable1 * 0.0495;
-        const enhancedCpp1 = pensionable1 * 0.01;
+        const baseCpp1 = pensionable1 * BASE_CPP1_RATE;
+        const enhancedCpp1 = pensionable1 * ENH_CPP1_RATE;
         const pensionable2 = Math.max(0, Math.min(corpSalary, CPP_YAMPE) - CPP_YMPE);
-        const enhancedCpp2 = pensionable2 * 0.04;
+        const enhancedCpp2 = pensionable2 * ENH_CPP2_RATE;
         cppTotalContribution = Number((((baseCpp1 + enhancedCpp1) * 2) + (enhancedCpp2 * 2)).toFixed(2));
 
         const corpActiveIncome = Math.max(0, netProfessionalIncome - corpSalary - (baseCpp1 + enhancedCpp1));
@@ -3303,7 +3372,7 @@
         const personalTaxable = Math.max(0, corpSalary + totalNonEligGrossedUp + grossedUpEligibleDivs + taxableCapitalGains + interestIncome - registeredDeductions - enhancedCpp2);
 
         const grossFed = computeGraduatedTax(personalTaxable, FED_BRACKETS);
-        const fedBpaCredit = computeEffectiveFederalBpaCredit(personalTaxable, FED_BPA, FED_LOWEST_RATE);
+        const fedBpaCredit = computeEffectiveFederalBpaCredit(personalTaxable, FED_BPA, FED_LOWEST_RATE, FED_BPA_PHASE_START, FED_BPA_PHASE_END, FED_BPA_MIN);
         const fedNonEligDivCredit = totalNonEligGrossedUp * 0.090301;
         const fedEligDivCredit = grossedUpEligibleDivs * 0.150198;
         const fedTuitionCredit = eduAmount * (eduCreditPct / 100);
@@ -3389,7 +3458,10 @@
         corpTaxSbdPortion,
         corpTaxGeneralPortion,
         rrspRoomCreated,
-        rrspMaxCap
+        rrspMaxCap,
+        cppYmpe: CPP_YMPE,
+        cppYampe: CPP_YAMPE,
+        baseCpp1Rate: BASE_CPP1_RATE
       };
     }
 
@@ -3688,7 +3760,7 @@
       const sortedYears = Object.keys(state.years || {}).sort();
       return sortedYears.filter(yr => {
         const yNum = Number(yr);
-        const hasActivity = (state.years[yr] || []).some(m => (Number(m.daysWorked) || 0) > 0 || (Number(m.gross) || 0) > 0 || (Number(m.reci) || 0) > 0 || (Number(m.ohip) || 0) > 0);
+        const hasActivity = (state.years[yr] || []).some(m => (Number(m.daysWorked) || 0) > 0 || getEffectiveGrossOrReciForMonth(yr, m) > 0 || (Number(m.reci) || 0) > 0 || (Number(m.ohip) || 0) > 0);
         return yNum <= nowYear || hasActivity;
       });
     }
@@ -3857,9 +3929,10 @@
       return thisMonthQtr === currentActiveQtr ? 'total' : 'recon';
     }
 
-    function calculateMonth(m, settings = state.settings, ohipMode = 'recon') {
+    function calculateMonth(m, settings = state.settings, ohipMode = 'recon', yearStr = state.currentYear) {
       const mtDays = Number(m.mtDays) || 0, fDays = Number(m.fDays) || 0, daysWorked = Number(m.daysWorked) || 0;
-      const gross = Number(m.gross) || 0, reci = Number(m.reci) || 0, ohip = Number(m.ohip) || 0, totalOhip = Number(m.totalOhip) || 0;
+      const gross = isNoGrossYear(yearStr) ? (Number(m.reci) || 0) : (Number(m.gross) || 0);
+      const reci = Number(m.reci) || 0, ohip = Number(m.ohip) || 0, totalOhip = Number(m.totalOhip) || 0;
       const paid = Number(m.paid) || 0, patients = Number(m.patients) || 0;
       const shiftTargetAdj = Number(m.shiftTargetAdj) || 0;
       const selectedOhip = ohipMode === 'total' ? (totalOhip || ohip) : ohip;
@@ -3887,7 +3960,7 @@
       const months = state.years[yearStr] || [];
       for (let i = 0; i < months.length; i++) {
         const m = months[i];
-        if ((Number(m.gross) || 0) > 0 || (Number(m.reci) || 0) > 0 || (Number(m.ohip) || 0) > 0 || (Number(m.patients) || 0) > 0 || (Number(m.daysWorked) || 0) > 0) {
+        if (getEffectiveGrossOrReciForMonth(yearStr, m) > 0 || (Number(m.reci) || 0) > 0 || (Number(m.ohip) || 0) > 0 || (Number(m.patients) || 0) > 0 || (Number(m.daysWorked) || 0) > 0) {
           return i;
         }
       }
@@ -3898,7 +3971,7 @@
       const months = state.years[yearStr] || [];
       let lastIdx = -1;
       months.forEach((m, idx) => {
-        if ((Number(m.gross) || 0) > 0 || (Number(m.reci) || 0) > 0 || (Number(m.ohip) || 0) > 0 || (Number(m.patients) || 0) > 0 || (Number(m.daysWorked) || 0) > 0) {
+        if (getEffectiveGrossOrReciForMonth(yearStr, m) > 0 || (Number(m.reci) || 0) > 0 || (Number(m.ohip) || 0) > 0 || (Number(m.patients) || 0) > 0 || (Number(m.daysWorked) || 0) > 0) {
           lastIdx = idx;
         }
       });
@@ -3933,7 +4006,7 @@
 
       months.forEach((m, idx) => {
         const effMode = getEffectiveMonthOhipMode(yearStr, idx, requestedOhipMode);
-        const c = calculateMonth(m, state.settings, effMode);
+        const c = calculateMonth(m, state.settings, effMode, yearStr);
         if (c.isActive) {
           if (idx <= ytdCutoffIdx) {
             ytdGross += c.gross;
@@ -4027,7 +4100,7 @@
 
       let estNet = 0, target = 0, paid = 0, activeMonthsCount = 0;
       (qMap[qKey] || []).forEach(i => {
-        const c = calculateMonth(months[i], state.settings, effectiveModeForQtr);
+        const c = calculateMonth(months[i], state.settings, effectiveModeForQtr, yearStr);
         if (c.isActive) { estNet += c.net; target += c.target; paid += c.paid; activeMonthsCount++; }
       });
       const estBonus = estNet - target;
@@ -4036,8 +4109,13 @@
       return { qKey, estNet, target, paid, estBonus, displayNet, displayBonus, isConfirmed, activeMonthsCount, qConf };
     }
 function snapshotAllRecords() {
-      let maxDailyPts = { val: 0, label: '' }, maxDailyNet = { val: 0, label: '' };
+      let maxDailyPts = { val: 0, label: '' }, maxDailyNet = { val: 0, label: '' }, maxDailyGross = { val: 0, label: '' };
       (state.dailyLogs || []).forEach(l => {
+        const yr = String(l.year || (l.date && l.date.length >= 4 ? l.date.substring(0, 4) : '2026'));
+        const dayGrossOrReci = isNoGrossYear(yr)
+          ? (l.dReci !== undefined ? Number(l.dReci) : (Number(l.gross) || 0))
+          : (Number(l.gross) || 0);
+        if (dayGrossOrReci > maxDailyGross.val) maxDailyGross = { val: dayGrossOrReci, label: l.date };
         if ((Number(l.pts) || 0) > maxDailyPts.val) maxDailyPts = { val: Number(l.pts) || 0, label: l.date };
         if ((Number(l.net) || 0) > maxDailyNet.val) maxDailyNet = { val: Number(l.net) || 0, label: l.date };
       });
@@ -4045,7 +4123,7 @@ function snapshotAllRecords() {
       for (const yr in state.years) {
         let yrDays = 0;
         state.years[yr].forEach((m, idx) => {
-          const c = calculateMonth(m, state.settings, getEffectiveMonthOhipMode(yr, idx));
+          const c = calculateMonth(m, state.settings, getEffectiveMonthOhipMode(yr, idx), yr);
           if (c.patients > maxMthPts.val) maxMthPts = { val: c.patients, label: `${m.month} ${yr}` };
           if (c.daysWorked > maxMthDays.val) maxMthDays = { val: c.daysWorked, label: `${m.month} ${yr}` };
           if (c.gross > maxMthGross.val) maxMthGross = { val: c.gross, label: `${m.month} ${yr}` };
@@ -4060,14 +4138,15 @@ function snapshotAllRecords() {
           if (q.displayNet > maxQtrNet.val) maxQtrNet = { val: q.displayNet, label: `${qk} ${yr}` };
         });
       }
+      const effectiveBestDaily = Math.max(Number(state.recordHigh?.amount) || 0, maxDailyGross.val);
       return {
-        dailyGross: { val: Number(state.recordHigh?.amount) || 0, label: state.recordHigh?.date || '', title: 'All-Time Daily Gross', fmt: fmtCurr },
+        dailyGross: { val: effectiveBestDaily, label: state.recordHigh?.date || maxDailyGross.label || '', title: isNoGrossYear(state.currentYear) ? 'All-Time Daily Acct Rec' : 'All-Time Daily Gross', fmt: fmtCurr },
         dailyNet: { val: maxDailyNet.val, label: maxDailyNet.label, title: 'Highest Daily 24% Net', fmt: fmtCurr },
         dailyPts: { val: maxDailyPts.val, label: maxDailyPts.label, title: 'Most Patients in a Day', fmt: v => `${Math.round(v)} pts` },
         mthPts: { val: maxMthPts.val, label: maxMthPts.label, title: 'Most Patients in a Month', fmt: v => `${Math.round(v)} pts (${maxMthPts.label})` },
         mthDays: { val: maxMthDays.val, label: maxMthDays.label, title: 'Most Days Worked in a Month', fmt: v => `${v} days (${maxMthDays.label})` },
         yrDays: { val: maxYrDays.val, label: maxYrDays.label, title: 'Most Days Worked in a Year', fmt: v => `${v} days (${maxYrDays.label})` },
-        mthGross: { val: maxMthGross.val, label: maxMthGross.label, title: 'Highest Monthly Gross', fmt: v => `${fmtCurr(v)} (${maxMthGross.label})` },
+        mthGross: { val: maxMthGross.val, label: maxMthGross.label, title: isNoGrossYear(state.currentYear) ? 'Highest Monthly Acct Rec' : 'Highest Monthly Gross', fmt: v => `${fmtCurr(v)} (${maxMthGross.label})` },
         mthDailyAvg: { val: maxMthDailyAvg.val, label: maxMthDailyAvg.label, title: 'Best Monthly Daily Net Pace', fmt: v => `${fmtCurr(v)}/day (${maxMthDailyAvg.label})` },
         qtrNet: { val: maxQtrNet.val, label: maxQtrNet.label, title: 'Highest Quarter 24% Net', fmt: v => `${fmtCurr(v)} (${maxQtrNet.label})` },
         yrPaid: { val: maxYrPaid.val, label: maxYrPaid.label, title: 'Highest Annual Total Paid', fmt: v => `${fmtCurr(v)} (${maxYrPaid.label})` }
@@ -4572,7 +4651,6 @@ function snapshotAllRecords() {
       if (kpiHealthWrap) kpiHealthWrap.classList.toggle('hidden', !enableHsa);
 
       document.getElementById('kpiYtdNet').textContent = fmtCurr(cur.ytdNet);
-      // Display YTD Received (cur.ytdRecd) under "YTD Net:" since 24% Net Cut is calculated directly from Received collections
       document.getElementById('kpiYtdGross').textContent = fmtCurr(cur.ytdRecd);
       document.getElementById('kpiYtdTarget').textContent = fmtCurr(cur.ytdTarget);
       document.getElementById('kpiYtdPaid').textContent = fmtCurr(cur.ytdTotalPaid);
@@ -4627,19 +4705,24 @@ function snapshotAllRecords() {
 
     function renderLedgerTable() {
       document.getElementById('ledgerYearLabel').textContent = state.currentYear;
+      const hideGross = isNoGrossYear(state.currentYear);
+      const grossHdr = document.getElementById('ledgerGrossColHeader');
+      if (grossHdr) grossHdr.classList.toggle('hidden', hideGross);
+
       const months = state.years[state.currentYear] || [], cur = getYearMetrics(state.currentYear);
       const enableHsa = state.settings?.enableHsa !== false;
       const hsaCap = Number(state.settings?.hsaAnnualCap ?? 1000);
+      const grossCellHtml = (val) => hideGross ? '' : `<td class="py-2.5 px-3 text-right mono">${val ? fmtCurr(val) : '—'}</td>`;
 
       let rowsHtml = months.map((m, idx) => {
         const effMode = getEffectiveMonthOhipMode(state.currentYear, idx, state.quarterOhipMode);
-        const c = calculateMonth(m, state.settings, effMode);
+        const c = calculateMonth(m, state.settings, effMode, state.currentYear);
         const targetBadge = c.hasCustomTarget
           ? ' <span class="text-[9px] text-amber-500 font-bold" title="Manual Target Override">M</span>'
           : (c.shiftTargetAdj !== 0 ? ` <span class="text-[9px] ${c.shiftTargetAdj > 0 ? 'text-emerald-500' : 'text-sky-400'} font-bold" title="Dynamic 4h/6h/8h Shift Target Adjustment (${c.shiftTargetAdj > 0 ? '+' : ''}${fmtCurr(c.shiftTargetAdj)})">Δ</span>` : '');
         return `<tr onclick="window.openMonthModal(${idx})" class="hover:bg-slate-100/70 dark:hover:bg-slate-800/50 cursor-pointer">
           <td class="py-2.5 px-3 font-bold">${c.month}</td><td class="py-2.5 px-2 text-center mono text-slate-500">${c.mtDays}</td><td class="py-2.5 px-2 text-center mono text-slate-500">${c.fDays}</td>
-          <td class="py-2.5 px-2 text-center mono font-semibold">${c.daysWorked ? fmtNum(c.daysWorked, 2).replace(/\.00$/, '') : '—'}</td><td class="py-2.5 px-3 text-right mono">${c.gross ? fmtCurr(c.gross) : '—'}</td>
+          <td class="py-2.5 px-2 text-center mono font-semibold">${c.daysWorked ? fmtNum(c.daysWorked, 2).replace(/\.00$/, '') : '—'}</td>${grossCellHtml(c.gross)}
           <td class="py-2.5 px-3 text-right mono">${c.reci ? fmtCurr(c.reci) : '—'}</td><td class="py-2.5 px-3 text-right mono">${c.ohip ? fmtCurr(c.ohip) : '—'}</td>
           <td class="py-2.5 px-3 text-right mono">${c.totalOhip ? fmtCurr(c.totalOhip) : '—'}</td><td class="py-2.5 px-3 text-right mono">${c.totalRecd ? fmtCurr(c.totalRecd) : '—'}</td>
           <td class="py-2.5 px-3 text-right mono font-bold text-brand-500">${c.net ? fmtCurr(c.net) : '—'}</td><td class="py-2.5 px-3 text-right mono">${c.paid ? fmtCurr(c.paid) : '—'}</td>
@@ -4649,13 +4732,14 @@ function snapshotAllRecords() {
           <td class="py-2.5 px-2 text-right mono font-semibold">${c.patients || '—'}</td><td class="py-2.5 px-3 text-right mono">${c.ptsPerDay ? fmtNum(c.ptsPerDay, 2) : '—'}</td></tr>`;
       }).join('');
 
+      const extrasColSpan = hideGross ? 9 : 10;
       if (enableHsa) {
         rowsHtml += `<tr onclick="window.openExtrasModal()" class="bg-slate-50/70 dark:bg-slate-900/60 cursor-pointer border-t border-slate-200 dark:border-slate-800 text-xs">
-          <td class="py-2 px-3 font-bold text-sky-500" colspan="10">Health Reimbursement Claimed (${fmtCurr(cur.healthPaid)} / ${fmtCurr(hsaCap)})</td>
+          <td class="py-2 px-3 font-bold text-sky-500" colspan="${extrasColSpan}">Health Reimbursement Claimed (${fmtCurr(cur.healthPaid)} / ${fmtCurr(hsaCap)})</td>
           <td class="py-2 px-3 text-right mono font-bold text-sky-500">${fmtCurr(cur.healthPaid)}</td><td colspan="6" class="py-2 px-3 text-[11px] text-slate-400">Click to edit</td></tr>`;
       }
       rowsHtml += `<tr onclick="window.openExtrasModal()" class="bg-slate-50/70 dark:bg-slate-900/60 cursor-pointer ${enableHsa ? '' : 'border-t border-slate-200 dark:border-slate-800'} text-xs">
-        <td class="py-2 px-3 font-bold text-emerald-500" colspan="10">Confirmed Quarterly Bonuses Paid YTD</td>
+        <td class="py-2 px-3 font-bold text-emerald-500" colspan="${extrasColSpan}">Confirmed Quarterly Bonuses Paid YTD</td>
         <td class="py-2 px-3 text-right mono font-bold text-emerald-500">${fmtCurr(cur.bonusPaid)}</td><td colspan="6" class="py-2 px-3 text-[11px] text-slate-400">Click to edit</td></tr>`;
       document.getElementById('ledgerTableBody').innerHTML = rowsHtml;
 
@@ -4663,7 +4747,7 @@ function snapshotAllRecords() {
       document.getElementById('ledgerTableFoot').innerHTML = `
         <tr class="bg-slate-100 dark:bg-slate-800/90 font-bold text-slate-900 dark:text-white border-t-2 border-slate-300 dark:border-slate-700">
           <td class="py-3 px-3 uppercase text-xs">Total (YTD)</td><td class="py-3 px-2 text-center mono">${totalMt}</td><td class="py-3 px-2 text-center mono">${totalF}</td><td class="py-3 px-2 text-center mono">${fmtNum(cur.ytdDaysWorked, 2).replace(/\.00$/, '')}</td>
-          <td class="py-3 px-3 text-right mono">${fmtCurr(cur.ytdGross)}</td><td class="py-3 px-3 text-right mono">${fmtCurr(cur.ytdReci)}</td><td class="py-3 px-3 text-right mono">${fmtCurr(cur.ytdOhip)}</td><td class="py-3 px-3 text-right mono">${fmtCurr(cur.ytdTotalOhip)}</td>
+          ${hideGross ? '' : `<td class="py-3 px-3 text-right mono">${fmtCurr(cur.ytdGross)}</td>`}<td class="py-3 px-3 text-right mono">${fmtCurr(cur.ytdReci)}</td><td class="py-3 px-3 text-right mono">${fmtCurr(cur.ytdOhip)}</td><td class="py-3 px-3 text-right mono">${fmtCurr(cur.ytdTotalOhip)}</td>
           <td class="py-3 px-3 text-right mono">${fmtCurr(cur.ytdRecd)}</td><td class="py-3 px-3 text-right mono">${fmtCurr(cur.ytdNet)}</td><td class="py-3 px-3 text-right mono">${fmtCurr(cur.ytdTotalPaid)}</td><td class="py-3 px-3 text-right mono">${fmtCurr(cur.ytdTarget)}</td>
           <td class="py-3 px-3 text-right mono">${fmtCurr(cur.ytdDiff)}</td><td class="py-3 px-3 text-right mono">—</td><td class="py-3 px-3 text-right mono">—</td><td class="py-3 px-2 text-right mono">${cur.ytdPatients.toLocaleString()}</td><td class="py-3 px-3 text-right mono">—</td>
         </tr>
@@ -4672,7 +4756,7 @@ function snapshotAllRecords() {
           <td class="py-3 px-2 text-center mono">—</td>
           <td class="py-3 px-2 text-center mono">—</td>
           <td class="py-3 px-2 text-center mono">${cur.avgDaysPerMth ? fmtNum(cur.avgDaysPerMth, 1) : '—'}</td>
-          <td class="py-3 px-3 text-right mono">${cur.avgGross ? fmtCurr(cur.avgGross) : '—'}</td>
+          ${hideGross ? '' : `<td class="py-3 px-3 text-right mono">${cur.avgGross ? fmtCurr(cur.avgGross) : '—'}</td>`}
           <td class="py-3 px-3 text-right mono">${cur.avgReci ? fmtCurr(cur.avgReci) : '—'}</td>
           <td class="py-3 px-3 text-right mono">${cur.avgOhip ? fmtCurr(cur.avgOhip) : '—'}</td>
           <td class="py-3 px-3 text-right mono">${cur.avgTotalOhip ? fmtCurr(cur.avgTotalOhip) : '—'}</td>
@@ -4699,8 +4783,8 @@ function snapshotAllRecords() {
         data: {
           labels: months.map(m => m.month),
           datasets: [
-            { label: '24% Net Earnings', data: months.map((m, idx) => calculateMonth(m, state.settings, getEffectiveMonthOhipMode(state.currentYear, idx)).net), backgroundColor: 'rgba(99, 102, 241, 0.8)', borderRadius: 6 },
-            { label: 'Monthly Target', data: months.map((m, idx) => calculateMonth(m, state.settings, getEffectiveMonthOhipMode(state.currentYear, idx)).target), type: 'line', borderColor: '#f59e0b', borderWidth: 2, tension: 0.25 }
+            { label: '24% Net Earnings', data: months.map((m, idx) => calculateMonth(m, state.settings, getEffectiveMonthOhipMode(state.currentYear, idx), state.currentYear).net), backgroundColor: 'rgba(99, 102, 241, 0.8)', borderRadius: 6 },
+            { label: 'Monthly Target', data: months.map((m, idx) => calculateMonth(m, state.settings, getEffectiveMonthOhipMode(state.currentYear, idx), state.currentYear).target), type: 'line', borderColor: '#f59e0b', borderWidth: 2, tension: 0.25 }
           ]
         },
         options: {
@@ -4726,6 +4810,7 @@ function snapshotAllRecords() {
       const toggleBtn = document.getElementById('dailyLogsToggleAllBtn');
       const yearLbl = document.getElementById('dailyLogsYearLbl');
       if (yearLbl) yearLbl.textContent = state.currentYear;
+      const hideGross = isNoGrossYear(state.currentYear);
 
       const allLogs = state.dailyLogs || [];
       const yearLogsWithIdx = [];
@@ -4751,9 +4836,11 @@ function snapshotAllRecords() {
         const paidDelta = Number(log.dPaid) || 0;
         const tBadge = tDelta !== 0 ? `<span class="px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-500 font-semibold mono text-[10px]">Target ${tDelta > 0 ? '+' : ''}${fmtCurr(tDelta)}</span>` : '';
         const paidBadge = paidDelta > 0 ? `<span class="px-1.5 py-0.5 rounded bg-purple-500/15 text-purple-400 font-semibold mono text-[10px]">Paid +${fmtCurr(paidDelta)}</span>` : '';
+        const amtLbl = hideGross ? 'Acct Rec' : 'Gross';
+        const amtVal = hideGross ? (log.dReci !== undefined ? Number(log.dReci) : (Number(log.gross) || 0)) : (Number(log.gross) || 0);
         return `<div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/70 flex items-center justify-between text-xs">
           <div><div class="flex items-center gap-1.5 flex-wrap"><span class="font-bold">${log.date}</span><span class="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700 font-bold mono text-[10px]">${shiftHrs}hr</span><span class="px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-500 font-semibold mono text-[10px]">Net: ${fmtCurr(log.net)}</span>${paidBadge}${tBadge}<span class="text-slate-400 mono">${log.pts || 0} pts</span></div>
-          <div class="text-[11px] text-slate-500 mt-0.5">Gross: <span class="mono font-semibold">${fmtCurr(log.gross)}</span> ${log.note ? '• ' + log.note : ''}</div></div>
+          <div class="text-[11px] text-slate-500 mt-0.5">${amtLbl}: <span class="mono font-semibold">${fmtCurr(amtVal)}</span> ${log.note ? '• ' + log.note : ''}</div></div>
           <button onclick="window.openEditLogModal(${realIdx})" class="p-1.5 text-slate-400 hover:text-slate-900 dark:hover:text-white" title="Edit Shift & Ripple Changes">✎</button></div>`;
       }).join('');
 
@@ -4986,7 +5073,7 @@ function snapshotAllRecords() {
 
       const isFutureSyncActive = isFutureUnworkedMonth(yearStr, mIdx);
       const mLedger = state.years[yearStr]?.[mIdx];
-      const cLedger = mLedger ? calculateMonth(mLedger, state.settings, getEffectiveMonthOhipMode(yearStr, mIdx)) : null;
+      const cLedger = mLedger ? calculateMonth(mLedger, state.settings, getEffectiveMonthOhipMode(yearStr, mIdx), yearStr) : null;
 
       const { cellsHtml, stats } = buildCalendarGridCellsHtml(yearStr, mIdx, true);
       gridEl.innerHTML = cellsHtml;
@@ -5069,7 +5156,7 @@ function snapshotAllRecords() {
 
       const isFutureSyncActive = isFutureUnworkedMonth(yearStr, mIdx);
       const mLedger = state.years[yearStr]?.[mIdx];
-      const cLedger = mLedger ? calculateMonth(mLedger, state.settings, getEffectiveMonthOhipMode(yearStr, mIdx)) : null;
+      const cLedger = mLedger ? calculateMonth(mLedger, state.settings, getEffectiveMonthOhipMode(yearStr, mIdx), yearStr) : null;
 
       document.getElementById('fullCalendarSidebarStats').innerHTML = `
         <div class="flex items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-2.5">
@@ -5993,7 +6080,7 @@ function snapshotAllRecords() {
       setFormattedInputVal('setHalfRate', Math.round(480 * scale));
     };
 
-    // ================= TAX ESTIMATOR MODAL HANDLERS (14.5% TUITION CREDIT + 2027+ HIDING + COMMA-FORMATTED) =================
+    // ================= TAX ESTIMATOR MODAL HANDLERS (14.5% TUITION CREDIT + 2027+ HIDING + CONFIRMED 2027 PARAMS) =================
     let activeTaxModalMode = 'sole_prop';
 
     window.openTaxEstimatorModal = () => {
@@ -6007,7 +6094,6 @@ function snapshotAllRecords() {
       document.getElementById('taxConfirmYearLbl').textContent = yr;
       document.getElementById('taxCheckboxYrLbl').textContent = yr;
 
-      // Hide Federal Education / Tuition input starting in 2027 onwards & expand Registered Deductions across full row
       const eduWrap = document.getElementById('taxEduFieldWrap');
       const regWrap = document.getElementById('taxRegFieldWrap');
       if (eduWrap) eduWrap.classList.toggle('hidden', is2027OrLater);
@@ -6130,12 +6216,16 @@ function snapshotAllRecords() {
       document.getElementById('taxModalPreviewTakeHome').textContent = fmtCurr(calc.finalNetTakeHome);
       document.getElementById('taxModalPreviewTakeHomeSub').textContent = `${fmtCurr(calc.finalNetTakeHome / 12)} / month after tax`;
 
-      const pensionable1 = Math.max(0, Math.min(calc.netProfessionalIncome, 74600) - 3500);
-      const pensionable2 = Math.max(0, Math.min(calc.netProfessionalIncome, 85000) - 74600);
+      const ympe = calc.cppYmpe || 74600;
+      const yampe = calc.cppYampe || 85000;
+      const baseRate = calc.baseCpp1Rate || 0.0495;
+      const pensionable1 = Math.max(0, Math.min(calc.netProfessionalIncome, ympe) - 3500);
+      const pensionable2 = Math.max(0, Math.min(calc.netProfessionalIncome, yampe) - ympe);
       const cppDeductionDisplayed = calc.mode === 'sole_prop'
-        ? Number(((pensionable1 * 0.0495) + (pensionable1 * 0.02) + (pensionable2 * 0.08)).toFixed(2))
+        ? Number(((pensionable1 * baseRate) + (pensionable1 * 0.02) + (pensionable2 * 0.08)).toFixed(2))
         : 0;
       const netTaxableDisplayed = Math.max(0, calc.netProfessionalIncome + calc.totalTaxableInvestmentInclusion - calc.registeredDeductions - cppDeductionDisplayed);
+      const maxSelfEmpCppLabel = Number(state.currentYear) >= 2027 ? '$9,274.00 max' : '$9,292.90 max';
 
       const eduSaving = calc.eduAmount * (calc.eduCreditPct / 100);
       document.getElementById('taxDetailedBreakdownBox').innerHTML = `
@@ -6143,7 +6233,7 @@ function snapshotAllRecords() {
         ${calc.mode === 'sole_prop' ? `<div class="flex justify-between text-slate-500"><span>CRA Line 22200 & 22215 CPP Income Deduction:</span><span class="mono">-${fmtCurr(cppDeductionDisplayed)}</span></div>` : ''}
         <div class="flex justify-between"><span>Estimated Federal Income Tax (After Div/Tuition Credits):</span><span class="mono font-semibold text-rose-400">${fmtCurr(calc.estFederalTax)}</span></div>
         <div class="flex justify-between"><span>Estimated Ontario Tax + Surtax (${fmtCurr(calc.ontarioSurtax)}) + OHP (${fmtCurr(calc.ontarioHealthPrem)}):</span><span class="mono font-semibold text-amber-400">${fmtCurr(calc.estProvincialTaxAndCpp - calc.cppTotalContribution)}</span></div>
-        <div class="flex justify-between"><span>Self-Employed CPP1 + CPP2 Contributions ($9,292.90 max):</span><span class="mono font-semibold text-sky-400">${fmtCurr(calc.cppTotalContribution)}</span></div>
+        <div class="flex justify-between"><span>Self-Employed CPP1 + CPP2 Contributions (${maxSelfEmpCppLabel}):</span><span class="mono font-semibold text-sky-400">${fmtCurr(calc.cppTotalContribution)}</span></div>
         <div class="flex justify-between text-emerald-400"><span>Personal RRSP Contribution Room Generated (18% up to ${fmtCurr0(calc.rrspMaxCap)}):</span><span class="mono font-bold">+${fmtCurr(calc.rrspRoomCreated)}</span></div>
         ${eduSaving > 0 ? `<div class="flex justify-between text-emerald-400"><span>Tuition Carryforward Credit Applied (${calc.eduCreditPct}%):</span><span class="mono font-bold">-${fmtCurr(eduSaving)}</span></div>` : ''}
       `;
@@ -6200,16 +6290,17 @@ function snapshotAllRecords() {
       ensureLayoutsValid();
       syncRecordHighWithBaselineAndLogs();
       const snap = snapshotAllRecords();
+      const hideGross = isNoGrossYear(state.currentYear);
 
       const cardMap = {
-        rec_dailyGross: { title: 'All-Time Daily Gross Record', emoji: '🏆', val: fmtCurr(state.recordHigh.amount), sub: `Set on ${state.recordHigh.date} • ${state.recordHigh.note || ''}`, hi: true, btn: `<button onclick="window.openRecordModal()" class="mt-3 text-xs font-semibold text-amber-400 text-left hover:underline">Edit Manual Baseline (${fmtCurr(state.recordHigh.baselineAmount || 0)}) →</button>` },
+        rec_dailyGross: { title: hideGross ? 'All-Time Daily Acct Rec Record' : 'All-Time Daily Gross Record', emoji: '🏆', val: fmtCurr(state.recordHigh.amount), sub: `Set on ${state.recordHigh.date} • ${state.recordHigh.note || ''}`, hi: true, btn: `<button onclick="window.openRecordModal()" class="mt-3 text-xs font-semibold text-amber-400 text-left hover:underline">Edit Manual Baseline (${fmtCurr(state.recordHigh.baselineAmount || 0)}) →</button>` },
         rec_yrPaid: { title: 'Highest Amount Paid in a Year', emoji: '💰', val: fmtCurr(snap.yrPaid.val), sub: `Achieved in ${snap.yrPaid.label}` },
         rec_qtrNet: { title: 'Highest Quarter 24% Net', emoji: '📈', val: fmtCurr(snap.qtrNet.val), sub: `Achieved in ${snap.qtrNet.label}` },
         rec_mthPts: { title: 'Most Patients Seen in a Month', emoji: '🏥', val: snap.mthPts.val, sub: `Achieved in ${snap.mthPts.label}` },
         rec_dailyPts: { title: 'Most Patients Seen in a Day', emoji: '👥', val: snap.dailyPts.val || '—', sub: snap.dailyPts.label ? `Logged on ${snap.dailyPts.label}` : 'Log daily shifts to track' },
         rec_yrDays: { title: 'Most Days Worked in a Year', emoji: '📅', val: `${snap.yrDays.val} days`, sub: `Achieved in ${snap.yrDays.label}` },
         rec_mthDays: { title: 'Most Days Worked in a Month', emoji: '🗓️', val: `${snap.mthDays.val} days`, sub: `Achieved in ${snap.mthDays.label}` },
-        rec_mthGross: { title: 'Highest Monthly Gross Production', emoji: '🚀', val: fmtCurr(snap.mthGross.val), sub: `Achieved in ${snap.mthGross.label}` },
+        rec_mthGross: { title: hideGross ? 'Highest Monthly Acct Rec Production' : 'Highest Monthly Gross Production', emoji: '🚀', val: fmtCurr(snap.mthGross.val), sub: `Achieved in ${snap.mthGross.label}` },
         rec_mthDailyAvg: { title: 'Best Monthly Daily Net Pace', emoji: '💎', val: `${fmtCurr(snap.mthDailyAvg.val)}/day`, sub: `Achieved in ${snap.mthDailyAvg.label}` }
       };
 
@@ -6323,7 +6414,7 @@ function snapshotAllRecords() {
         sortedYears.forEach(yr => {
           const mObj = state.years[yr]?.[mIdx];
           if (!mObj) return;
-          const c = calculateMonth(mObj, state.settings, getEffectiveMonthOhipMode(yr, mIdx));
+          const c = calculateMonth(mObj, state.settings, getEffectiveMonthOhipMode(yr, mIdx), yr);
           if (c.isActive && c.daysWorked > 0 && c.dailyAvg > 0) {
             rates.push(c.dailyAvg);
           }
@@ -6364,7 +6455,7 @@ function snapshotAllRecords() {
         sortedYears.forEach(yr => {
           const mObj = state.years[yr]?.[mIdx];
           if (!mObj) return;
-          const c = calculateMonth(mObj, state.settings, getEffectiveMonthOhipMode(yr, mIdx));
+          const c = calculateMonth(mObj, state.settings, getEffectiveMonthOhipMode(yr, mIdx), yr);
           if (c.isActive && c.patients > 0) {
             ptsList.push(c.patients);
             if (c.revPerPt > 0) revPtList.push(c.revPerPt);
@@ -6394,12 +6485,12 @@ function snapshotAllRecords() {
       const curYearStr = state.currentYear;
       const months = state.years[curYearStr] || [];
       const labels = months.map(m => m.month);
-      const calcCur = months.map((m, idx) => calculateMonth(m, state.settings, getEffectiveMonthOhipMode(curYearStr, idx)));
+      const calcCur = months.map((m, idx) => calculateMonth(m, state.settings, getEffectiveMonthOhipMode(curYearStr, idx), curYearStr));
 
       let allTimeMaxDaily = 0;
       Object.keys(state.years).forEach(yr => {
         state.years[yr].forEach((m, idx) => {
-          const c = calculateMonth(m, state.settings, getEffectiveMonthOhipMode(yr, idx));
+          const c = calculateMonth(m, state.settings, getEffectiveMonthOhipMode(yr, idx), yr);
           if (c.daysWorked >= 3 && c.dailyAvg > allTimeMaxDaily) allTimeMaxDaily = c.dailyAvg;
         });
       });
@@ -7088,12 +7179,16 @@ function snapshotAllRecords() {
     window.openMonthModal = (idx) => {
       editingMonthIdx = idx;
       const m = state.years[state.currentYear][idx];
+      const hideGross = isNoGrossYear(state.currentYear);
       document.getElementById('monthModalTitle').textContent = `Edit ${m.month} ${state.currentYear}`;
+      const editGrossWrap = document.getElementById('editGrossWrap');
+      if (editGrossWrap) editGrossWrap.classList.toggle('hidden', hideGross);
+
       setFormattedInputVal('editMtDays', m.mtDays ?? 0);
       setFormattedInputVal('editFDays', m.fDays ?? 0);
       setFormattedInputVal('editDaysWorked', m.daysWorked ?? 0);
       setFormattedInputVal('editCustomTarget', m.customTarget ?? '');
-      setFormattedInputVal('editGross', m.gross ?? 0);
+      setFormattedInputVal('editGross', hideGross ? (m.reci ?? 0) : (m.gross ?? 0));
       setFormattedInputVal('editReci', m.reci ?? 0);
       setFormattedInputVal('editOhip', m.ohip ?? 0);
       setFormattedInputVal('editTotalOhip', m.totalOhip ?? 0);
@@ -7121,13 +7216,14 @@ function snapshotAllRecords() {
       createPointInTimeRollbackSnapshot('Edit Month');
       const beforeSnap = snapshotAllRecords();
       const m = state.years[state.currentYear][editingMonthIdx];
+      const hideGross = isNoGrossYear(state.currentYear);
       m.mtDays = getInputNum('editMtDays');
       m.fDays = getInputNum('editFDays');
       m.daysWorked = getInputNum('editDaysWorked');
       const ct = getRawInputStr('editCustomTarget');
       m.customTarget = ct === '' ? null : parseCommaNum(ct);
-      m.gross = getInputNum('editGross');
       m.reci = getInputNum('editReci');
+      m.gross = hideGross ? m.reci : getInputNum('editGross');
       m.ohip = getInputNum('editOhip');
       m.totalOhip = getInputNum('editTotalOhip');
       m.paid = getInputNum('editPaid');
@@ -7211,6 +7307,109 @@ function snapshotAllRecords() {
       });
     }
 
+    // ================= DAILY SHIFT LOG MODAL WITH INDEPENDENT PER-FIELD DAILY / MTD MODES =================
+    let activeDailyLogGlobalMode = 'delta';
+    let logFieldModes = { gross: 'delta', reci: 'delta', ohip: 'delta', totOhip: 'delta', paid: 'delta', pts: 'delta' };
+    let logFieldTouched = { gross: false, reci: false, ohip: false, totOhip: false, paid: false, pts: false };
+
+    const LOG_FIELD_META = {
+      gross: { inputId: 'logMtdGross', lblId: 'logLblGross', badgeId: 'logBadgeGross', prevId: 'prevGrossLbl', deltaTitle: 'Day Gross', mtdTitle: 'MTD Gross', mKey: 'gross', isCurr: true },
+      reci: { inputId: 'logMtdReci', lblId: 'logLblReci', badgeId: 'logBadgeReci', prevId: 'prevReciLbl', deltaTitle: 'Day Acct Rec', mtdTitle: 'MTD Acct Rec', mKey: 'reci', isCurr: true },
+      ohip: { inputId: 'logMtdOhip', lblId: 'logLblOhip', badgeId: 'logBadgeOhip', prevId: 'prevOhipLbl', deltaTitle: 'Day OHIP Rec', mtdTitle: 'MTD OHIP Rec', mKey: 'ohip', isCurr: true },
+      totOhip: { inputId: 'logMtdTotalOhip', lblId: 'logLblTotOhip', badgeId: 'logBadgeTotOhip', prevId: 'prevTotOhipLbl', deltaTitle: 'Day Tot OHIP', mtdTitle: 'MTD Tot OHIP', mKey: 'totalOhip', isCurr: true },
+      paid: { inputId: 'logMtdPaid', lblId: 'logLblPaid', badgeId: 'logBadgePaid', prevId: 'prevPaidLbl', deltaTitle: 'Day Paid', mtdTitle: 'MTD Paid', mKey: 'paid', isCurr: true },
+      pts: { inputId: 'logMtdPatients', lblId: 'logLblPts', badgeId: 'logBadgePts', prevId: 'prevPtsLbl', deltaTitle: 'Day Pts', mtdTitle: 'MTD Pts', mKey: 'patients', isCurr: false }
+    };
+
+    function refreshDailyLogFieldLabelsAndDefaults() {
+      const m = state.years[state.currentYear][Number(document.getElementById('logMonthIdx').value) || 0] || {};
+      Object.keys(LOG_FIELD_META).forEach(fKey => {
+        const meta = LOG_FIELD_META[fKey];
+        const fMode = logFieldModes[fKey] || 'delta';
+        const prevVal = Number(m[meta.mKey]) || 0;
+        const lblEl = document.getElementById(meta.lblId);
+        const badgeEl = document.getElementById(meta.badgeId);
+        const prevEl = document.getElementById(meta.prevId);
+        const inpEl = document.getElementById(meta.inputId);
+
+        if (lblEl) lblEl.textContent = fMode === 'mtd' ? meta.mtdTitle : meta.deltaTitle;
+        if (badgeEl) {
+          badgeEl.textContent = fMode === 'mtd' ? 'MTD' : 'Daily';
+          badgeEl.className = fMode === 'mtd'
+            ? 'px-1 py-0.2 rounded text-[9px] font-bold bg-amber-500/20 text-amber-400'
+            : 'px-1 py-0.2 rounded text-[9px] font-bold bg-brand-500/15 text-brand-400';
+        }
+        if (prevEl) {
+          prevEl.textContent = meta.isCurr ? `MTD: ${fmtCurr(prevVal)}` : `MTD: ${prevVal}`;
+        }
+        if (inpEl && !logFieldTouched[fKey]) {
+          if (fMode === 'mtd') {
+            setFormattedInputVal(meta.inputId, prevVal);
+          } else {
+            inpEl.value = '';
+            inpEl.placeholder = '0';
+          }
+        }
+      });
+      window.updateDailyDeltaPreview();
+    }
+
+    window.setDailyLogInputMode = (mode) => {
+      activeDailyLogGlobalMode = mode;
+      const deltaBtn = document.getElementById('logModeDeltaBtn');
+      const mtdBtn = document.getElementById('logModeMtdBtn');
+      if (deltaBtn && mtdBtn) {
+        deltaBtn.className = mode === 'delta' ? 'px-2.5 py-1 rounded-md bg-brand-600 text-white shadow-sm transition' : 'px-2.5 py-1 rounded-md text-slate-500 dark:text-slate-400 transition';
+        mtdBtn.className = mode === 'mtd' ? 'px-2.5 py-1 rounded-md bg-brand-600 text-white shadow-sm transition' : 'px-2.5 py-1 rounded-md text-slate-500 dark:text-slate-400 transition';
+      }
+
+      // Only switch untouched fields (or blank fields) to the newly selected mode so already-entered categories stay in their chosen mode!
+      Object.keys(LOG_FIELD_META).forEach(fKey => {
+        const raw = getRawInputStr(LOG_FIELD_META[fKey].inputId);
+        if (!logFieldTouched[fKey] || raw === '') {
+          logFieldTouched[fKey] = false;
+          logFieldModes[fKey] = mode;
+        }
+      });
+      refreshDailyLogFieldLabelsAndDefaults();
+    };
+
+    window.onDailyLogFieldInput = (fKey) => {
+      const raw = getRawInputStr(LOG_FIELD_META[fKey].inputId);
+      if (raw === '') {
+        logFieldTouched[fKey] = false;
+        logFieldModes[fKey] = activeDailyLogGlobalMode;
+      } else {
+        logFieldTouched[fKey] = true;
+        logFieldModes[fKey] = activeDailyLogGlobalMode;
+      }
+      const badgeEl = document.getElementById(LOG_FIELD_META[fKey].badgeId);
+      const lblEl = document.getElementById(LOG_FIELD_META[fKey].lblId);
+      if (lblEl) lblEl.textContent = logFieldModes[fKey] === 'mtd' ? LOG_FIELD_META[fKey].mtdTitle : LOG_FIELD_META[fKey].deltaTitle;
+      if (badgeEl) {
+        badgeEl.textContent = logFieldModes[fKey] === 'mtd' ? 'MTD' : 'Daily';
+        badgeEl.className = logFieldModes[fKey] === 'mtd'
+          ? 'px-1 py-0.2 rounded text-[9px] font-bold bg-amber-500/20 text-amber-400'
+          : 'px-1 py-0.2 rounded text-[9px] font-bold bg-brand-500/15 text-brand-400';
+      }
+      window.updateDailyDeltaPreview();
+    };
+
+    function resolveDailyLogFieldDeltaAndMtd(fKey, m) {
+      const meta = LOG_FIELD_META[fKey];
+      const prevVal = Number(m[meta.mKey]) || 0;
+      const rawStr = getRawInputStr(meta.inputId);
+      const mode = logFieldModes[fKey] || 'delta';
+      if (rawStr === '') {
+        return { delta: 0, newMtd: prevVal };
+      }
+      const entered = parseCommaNum(rawStr);
+      if (mode === 'mtd') {
+        return { delta: entered - prevVal, newMtd: entered };
+      }
+      return { delta: entered, newMtd: prevVal + entered };
+    }
+
     window.onLogDateChange = () => {
       const dateVal = document.getElementById('logDate').value;
       if (dateVal && dateVal.includes('-')) {
@@ -7221,6 +7420,10 @@ function snapshotAllRecords() {
         if (state.years[yStr] && state.currentYear !== yStr) {
           state.currentYear = yStr;
         }
+        const hideGross = isNoGrossYear(state.currentYear);
+        document.getElementById('logGrossFieldWrap')?.classList.toggle('hidden', hideGross);
+        document.getElementById('logPreviewGrossCell')?.classList.toggle('hidden', hideGross);
+
         document.getElementById('logMonthIdx').value = String(mIdx);
         const monthNamesFull = ['January','February','March','April','May','June','July','August','September','October','November','December'];
         const subEl = document.getElementById('logModalTargetMonthSub');
@@ -7236,38 +7439,36 @@ function snapshotAllRecords() {
 
     window.openDailyLogModal = () => {
       populateShiftDropdownLabels();
+      activeDailyLogGlobalMode = 'delta';
+      logFieldModes = { gross: 'delta', reci: 'delta', ohip: 'delta', totOhip: 'delta', paid: 'delta', pts: 'delta' };
+      logFieldTouched = { gross: false, reci: false, ohip: false, totOhip: false, paid: false, pts: false };
+
       const prevWorkDateStr = getMostRecentScheduledWorkDateStr();
       document.getElementById('logDate').value = prevWorkDateStr;
       document.getElementById('logNote').value = '';
+      window.setDailyLogInputMode('delta');
       window.onLogDateChange();
       document.getElementById('dailyLogModal').classList.remove('hidden');
       syncBodyModalLock();
     };
 
     window.onLogMonthChange = () => {
-      const m = state.years[state.currentYear][Number(document.getElementById('logMonthIdx').value) || 0];
-      document.getElementById('prevGrossLbl').textContent = `Prev: ${fmtCurr(m.gross)}`;
-      document.getElementById('prevReciLbl').textContent = `Prev: ${fmtCurr(m.reci)}`;
-      document.getElementById('prevOhipLbl').textContent = `Prev: ${fmtCurr(m.ohip)}`;
-      document.getElementById('prevTotOhipLbl').textContent = `Prev: ${fmtCurr(m.totalOhip)}`;
-      document.getElementById('prevPaidLbl').textContent = `Prev: ${fmtCurr(m.paid)}`;
-      document.getElementById('prevPtsLbl').textContent = `Prev: ${m.patients || 0}`;
-      setFormattedInputVal('logMtdGross', m.gross || 0);
-      setFormattedInputVal('logMtdReci', m.reci || 0);
-      setFormattedInputVal('logMtdOhip', m.ohip || 0);
-      setFormattedInputVal('logMtdTotalOhip', m.totalOhip || 0);
-      setFormattedInputVal('logMtdPaid', m.paid || 0);
-      setFormattedInputVal('logMtdPatients', m.patients || 0);
-      window.updateDailyDeltaPreview();
+      refreshDailyLogFieldLabelsAndDefaults();
     };
 
     window.updateDailyDeltaPreview = () => {
-      const m = state.years[state.currentYear][Number(document.getElementById('logMonthIdx').value) || 0];
-      const dGross = getInputNum('logMtdGross') - (m.gross || 0);
-      const dRecd = (getInputNum('logMtdReci') - (m.reci || 0)) + (getInputNum('logMtdOhip') - (m.ohip || 0));
-      const dNet = dRecd * ((state.settings.netPct || 24) / 100);
-      const dPts = Math.round(getInputNum('logMtdPatients')) - (m.patients || 0);
-      const dOhip = getInputNum('logMtdTotalOhip') - (m.totalOhip || 0);
+      const m = state.years[state.currentYear][Number(document.getElementById('logMonthIdx').value) || 0] || {};
+      const hideGross = isNoGrossYear(state.currentYear);
+      const reciRes = resolveDailyLogFieldDeltaAndMtd('reci', m);
+      const totOhipRes = resolveDailyLogFieldDeltaAndMtd('totOhip', m);
+      const grossRes = hideGross ? reciRes : resolveDailyLogFieldDeltaAndMtd('gross', m);
+      const ptsRes = resolveDailyLogFieldDeltaAndMtd('pts', m);
+
+      const dGross = grossRes.delta;
+      // Daily Net = (Day Acct Rec'd + Day Total OHIP) * Net %
+      const dNet = (reciRes.delta + totOhipRes.delta) * ((state.settings.netPct || 24) / 100);
+      const dPts = Math.round(ptsRes.delta);
+      const dOhip = totOhipRes.delta;
 
       const shiftHrs = Number(document.getElementById('logShiftHours').value) || 0;
       const schedHrs = Number(document.getElementById('logScheduledHours').value) || 0;
@@ -7282,7 +7483,8 @@ function snapshotAllRecords() {
       document.getElementById('deltaNetVal').textContent = fmtCurr(dNet);
       document.getElementById('deltaPtsVal').textContent = dPts;
       document.getElementById('deltaOhipVal').textContent = fmtCurr(dOhip);
-      document.getElementById('deltaRecordAlert').classList.toggle('hidden', dGross <= (state.recordHigh?.amount || 0));
+      const recordCompareVal = hideGross ? reciRes.delta : dGross;
+      document.getElementById('deltaRecordAlert').classList.toggle('hidden', recordCompareVal <= (state.recordHigh?.amount || 0));
     };
 
     window.closeDailyLogModal = () => {
@@ -7296,42 +7498,37 @@ function snapshotAllRecords() {
       const beforeSnap = snapshotAllRecords();
       const monthIdx = Number(document.getElementById('logMonthIdx').value) || 0;
       const m = state.years[state.currentYear][monthIdx];
+      const hideGross = isNoGrossYear(state.currentYear);
 
       const shiftHours = Number(document.getElementById('logShiftHours').value) || 0;
       const scheduledHours = Number(document.getElementById('logScheduledHours').value) || 0;
       const dayInc = shiftHours === 8 ? 1 : (shiftHours === 6 ? 1 : (shiftHours === 4 ? 0.5 : 0));
       const targetDelta = shiftHours === 0 ? 0 : (getRateForShiftHours(shiftHours) - getRateForShiftHours(scheduledHours));
 
-      const prevGross = Number(m.gross) || 0;
-      const prevReci = Number(m.reci) || 0;
-      const prevOhip = Number(m.ohip) || 0;
-      const prevTotOhip = Number(m.totalOhip) || 0;
-      const prevPaid = Number(m.paid) || 0;
-      const prevPts = Number(m.patients) || 0;
+      const reciRes = resolveDailyLogFieldDeltaAndMtd('reci', m);
+      const ohipRes = resolveDailyLogFieldDeltaAndMtd('ohip', m);
+      const totOhipRes = resolveDailyLogFieldDeltaAndMtd('totOhip', m);
+      const paidRes = resolveDailyLogFieldDeltaAndMtd('paid', m);
+      const ptsRes = resolveDailyLogFieldDeltaAndMtd('pts', m);
+      const grossRes = hideGross ? reciRes : resolveDailyLogFieldDeltaAndMtd('gross', m);
 
-      const newGross = getInputNum('logMtdGross');
-      const newReci = getInputNum('logMtdReci');
-      const newOhip = getInputNum('logMtdOhip');
-      const newTotOhip = getInputNum('logMtdTotalOhip');
-      const newPaid = getInputNum('logMtdPaid');
-      const newPts = Math.round(getInputNum('logMtdPatients'));
-
-      const dGross = newGross - prevGross;
-      const dReci = newReci - prevReci;
-      const dOhip = newOhip - prevOhip;
-      const dTotOhip = newTotOhip - prevTotOhip;
-      const dPaid = newPaid - prevPaid;
-      const dPts = newPts - prevPts;
-      const dNet = (dReci + dOhip) * ((state.settings.netPct || 24) / 100);
+      const dGross = grossRes.delta;
+      const dReci = reciRes.delta;
+      const dOhip = ohipRes.delta;
+      const dTotOhip = totOhipRes.delta;
+      const dPaid = paidRes.delta;
+      const dPts = Math.round(ptsRes.delta);
+      // Daily Net = (Day Acct Rec'd + Day Total OHIP) * Net %
+      const dNet = (dReci + dTotOhip) * ((state.settings.netPct || 24) / 100);
 
       m.daysWorked = Number(((Number(m.daysWorked) || 0) + dayInc).toFixed(2));
       m.shiftTargetAdj = Number(((Number(m.shiftTargetAdj) || 0) + targetDelta).toFixed(2));
-      m.gross = newGross;
-      m.reci = newReci;
-      m.ohip = newOhip;
-      m.totalOhip = newTotOhip;
-      m.paid = newPaid;
-      m.patients = newPts;
+      m.gross = Number(grossRes.newMtd.toFixed(2));
+      m.reci = Number(reciRes.newMtd.toFixed(2));
+      m.ohip = Number(ohipRes.newMtd.toFixed(2));
+      m.totalOhip = Number(totOhipRes.newMtd.toFixed(2));
+      m.paid = Number(paidRes.newMtd.toFixed(2));
+      m.patients = Math.round(ptsRes.newMtd);
 
       state.dailyLogs.push({
         date: document.getElementById('logDate').value,
@@ -7350,12 +7547,12 @@ function snapshotAllRecords() {
         dOhip: Number(dOhip.toFixed(2)),
         dTotOhip: Number(dTotOhip.toFixed(2)),
         dPaid: Number(dPaid.toFixed(2)),
-        mtdGross: Number(newGross.toFixed(2)),
-        mtdReci: Number(newReci.toFixed(2)),
-        mtdOhip: Number(newOhip.toFixed(2)),
-        mtdTotalOhip: Number(newTotOhip.toFixed(2)),
-        mtdPaid: Number(newPaid.toFixed(2)),
-        mtdPts: newPts,
+        mtdGross: Number(grossRes.newMtd.toFixed(2)),
+        mtdReci: Number(reciRes.newMtd.toFixed(2)),
+        mtdOhip: Number(ohipRes.newMtd.toFixed(2)),
+        mtdTotalOhip: Number(totOhipRes.newMtd.toFixed(2)),
+        mtdPaid: Number(paidRes.newMtd.toFixed(2)),
+        mtdPts: Math.round(ptsRes.newMtd),
         note: document.getElementById('logNote').value.trim()
       });
 
@@ -7401,8 +7598,8 @@ function snapshotAllRecords() {
       const getLogDeltas = (entry) => {
         const dG = entry.dGross !== undefined ? Number(entry.dGross) : (Number(entry.gross) || 0);
         const dO = entry.dOhip !== undefined ? Number(entry.dOhip) : 0;
-        const dR = entry.dReci !== undefined ? Number(entry.dReci) : (netRate > 0 ? ((Number(entry.net) || 0) / netRate) - dO : 0);
         const dTO = entry.dTotOhip !== undefined ? Number(entry.dTotOhip) : 0;
+        const dR = entry.dReci !== undefined ? Number(entry.dReci) : (netRate > 0 ? ((Number(entry.net) || 0) / netRate) - dTO : 0);
         const dP = entry.dPaid !== undefined ? Number(entry.dPaid) : 0;
         const dPt = Number(entry.pts) || 0;
         return { dG, dR, dO, dTO, dP, dPt };
@@ -7524,6 +7721,10 @@ function snapshotAllRecords() {
       populateShiftDropdownLabels();
       const l = state.dailyLogs[idx];
       currentEditLogCtx = computeLogMtdContext(idx);
+      const hideGross = currentEditLogCtx ? isNoGrossYear(currentEditLogCtx.yr) : isNoGrossYear(state.currentYear);
+
+      document.getElementById('editLogGrossFieldWrap')?.classList.toggle('hidden', hideGross);
+      document.getElementById('editPreviewGrossCell')?.classList.toggle('hidden', hideGross);
 
       document.getElementById('editLogDate').value = l.date || '';
       document.getElementById('editLogNote').value = l.note || '';
@@ -7549,6 +7750,7 @@ function snapshotAllRecords() {
     window.updateEditLogDeltaPreview = () => {
       if (!currentEditLogCtx) return;
       const pre = currentEditLogCtx.preMtd;
+      const hideGross = isNoGrossYear(currentEditLogCtx.yr);
       const inG = getInputNum('editLogInputGross');
       const inR = getInputNum('editLogInputReci');
       const inO = getInputNum('editLogInputOhip');
@@ -7556,13 +7758,14 @@ function snapshotAllRecords() {
       const inP = getInputNum('editLogInputPaid');
       const inPt = getInputNum('editLogInputPts');
 
-      const dGross = editLogInputMode === 'mtd' ? (inG - pre.gross) : inG;
       const dReci = editLogInputMode === 'mtd' ? (inR - pre.reci) : inR;
+      const dGross = hideGross ? dReci : (editLogInputMode === 'mtd' ? (inG - pre.gross) : inG);
       const dOhip = editLogInputMode === 'mtd' ? (inO - pre.ohip) : inO;
       const dTotOhip = editLogInputMode === 'mtd' ? (inTO - pre.totOhip) : inTO;
       const dPaid = editLogInputMode === 'mtd' ? (inP - pre.paid) : inP;
       const dPts = editLogInputMode === 'mtd' ? (inPt - pre.pts) : inPt;
-      const dNet = (dReci + dOhip) * ((Number(state.settings.netPct) || 24) / 100);
+      // Daily Net = (Day Acct Rec'd + Day Total OHIP) * Net %
+      const dNet = (dReci + dTotOhip) * ((Number(state.settings.netPct) || 24) / 100);
 
       const shiftHrs = Number(document.getElementById('editLogShiftHours').value) || 0;
       const schedHrs = Number(document.getElementById('editLogScheduledHours').value) || 0;
@@ -7580,7 +7783,7 @@ function snapshotAllRecords() {
       document.getElementById('editDeltaOhipVal').textContent = fmtCurr(dTotOhip);
 
       const diffFromOldPaid = dPaid - currentEditLogCtx.curDeltas.dP;
-      const diffFromOldNet = dNet - ((currentEditLogCtx.curDeltas.dR + currentEditLogCtx.curDeltas.dO) * ((Number(state.settings.netPct) || 24) / 100));
+      const diffFromOldNet = dNet - ((currentEditLogCtx.curDeltas.dR + currentEditLogCtx.curDeltas.dTO) * ((Number(state.settings.netPct) || 24) / 100));
       const noticeEl = document.getElementById('editLogCascadeNotice');
       if (noticeEl) {
         const parts = [];
@@ -7606,6 +7809,7 @@ function snapshotAllRecords() {
       const ctx = currentEditLogCtx;
       const pre = ctx.preMtd;
       const oldDl = ctx.curDeltas;
+      const hideGross = isNoGrossYear(ctx.yr);
 
       const newDate = document.getElementById('editLogDate').value;
       const newNote = document.getElementById('editLogNote').value.trim();
@@ -7621,13 +7825,14 @@ function snapshotAllRecords() {
       const inP = getInputNum('editLogInputPaid');
       const inPt = getInputNum('editLogInputPts');
 
-      const newDGross = editLogInputMode === 'mtd' ? (inG - pre.gross) : inG;
       const newDReci = editLogInputMode === 'mtd' ? (inR - pre.reci) : inR;
+      const newDGross = hideGross ? newDReci : (editLogInputMode === 'mtd' ? (inG - pre.gross) : inG);
       const newDOhip = editLogInputMode === 'mtd' ? (inO - pre.ohip) : inO;
       const newDTotOhip = editLogInputMode === 'mtd' ? (inTO - pre.totOhip) : inTO;
       const newDPaid = editLogInputMode === 'mtd' ? (inP - pre.paid) : inP;
       const newDPts = Math.round(editLogInputMode === 'mtd' ? (inPt - pre.pts) : inPt);
-      const newDNet = (newDReci + newDOhip) * ((Number(state.settings.netPct) || 24) / 100);
+      // Daily Net = (Day Acct Rec'd + Day Total OHIP) * Net %
+      const newDNet = (newDReci + newDTotOhip) * ((Number(state.settings.netPct) || 24) / 100);
 
       const rippleGross = newDGross - oldDl.dG;
       const rippleReci = newDReci - oldDl.dR;
@@ -7924,43 +8129,58 @@ function snapshotAllRecords() {
       const sortedYears = Object.keys(state.years || {}).sort();
 
       sortedYears.forEach(yearStr => {
+        const hideGross = isNoGrossYear(yearStr);
         const months = state.years[yearStr] || [];
         const cur = getYearMetrics(yearStr);
         const sheetData = [
-          ['Month', '# M-T', '# F', 'Days Worked', 'Gross', "Acct Rec'd", 'OHIP Recon', 'Total OHIP', 'Received', '24% Net', 'Paid', 'Target', 'Diff', 'Daily Avg', 'Rev/Pt', 'Total Pts', 'Pts/Day']
+          hideGross
+            ? ['Month', '# M-T', '# F', 'Days Worked', "Acct Rec'd", 'OHIP Recon', 'Total OHIP', 'Received', '24% Net', 'Paid', 'Target', 'Diff', 'Daily Avg', 'Rev/Pt', 'Total Pts', 'Pts/Day']
+            : ['Month', '# M-T', '# F', 'Days Worked', 'Gross', "Acct Rec'd", 'OHIP Recon', 'Total OHIP', 'Received', '24% Net', 'Paid', 'Target', 'Diff', 'Daily Avg', 'Rev/Pt', 'Total Pts', 'Pts/Day']
         ];
 
         months.forEach((m, idx) => {
-          const c = calculateMonth(m, state.settings, getEffectiveMonthOhipMode(yearStr, idx));
-          sheetData.push([
-            c.month, c.mtDays, c.fDays, c.daysWorked,
-            Number(c.gross.toFixed(2)), Number(c.reci.toFixed(2)), Number(c.ohip.toFixed(2)), Number(c.totalOhip.toFixed(2)),
+          const c = calculateMonth(m, state.settings, getEffectiveMonthOhipMode(yearStr, idx), yearStr);
+          const baseRow = [c.month, c.mtDays, c.fDays, c.daysWorked];
+          if (!hideGross) baseRow.push(Number(c.gross.toFixed(2)));
+          baseRow.push(
+            Number(c.reci.toFixed(2)), Number(c.ohip.toFixed(2)), Number(c.totalOhip.toFixed(2)),
             Number(c.totalRecd.toFixed(2)), Number(c.net.toFixed(2)), Number(c.paid.toFixed(2)), Number(c.target.toFixed(2)),
             Number(c.diff.toFixed(2)), Number(c.dailyAvg.toFixed(2)), Number(c.revPerPt.toFixed(2)), c.patients, Number(c.ptsPerDay.toFixed(2))
-          ]);
+          );
+          sheetData.push(baseRow);
         });
 
         if (state.settings?.enableHsa !== false) {
-          sheetData.push(['Health Reimbursement Claimed', '', '', '', '', '', '', '', '', '', Number(cur.healthPaid.toFixed(2)), '', '', '', '', '', '']);
+          sheetData.push(hideGross
+            ? ['Health Reimbursement Claimed', '', '', '', '', '', '', '', '', Number(cur.healthPaid.toFixed(2)), '', '', '', '', '', '']
+            : ['Health Reimbursement Claimed', '', '', '', '', '', '', '', '', '', Number(cur.healthPaid.toFixed(2)), '', '', '', '', '', '']
+          );
         }
-        sheetData.push(['Confirmed Bonus Paid YTD', '', '', '', '', '', '', '', '', '', Number(cur.bonusPaid.toFixed(2)), '', '', '', '', '', '']);
+        sheetData.push(hideGross
+          ? ['Confirmed Bonus Paid YTD', '', '', '', '', '', '', '', '', Number(cur.bonusPaid.toFixed(2)), '', '', '', '', '', '']
+          : ['Confirmed Bonus Paid YTD', '', '', '', '', '', '', '', '', '', Number(cur.bonusPaid.toFixed(2)), '', '', '', '', '', '']
+        );
 
         const totalMt = months.reduce((a, m) => a + (Number(m.mtDays) || 0), 0);
         const totalF = months.reduce((a, m) => a + (Number(m.fDays) || 0), 0);
 
-        sheetData.push([
-          'Total (YTD)', totalMt, totalF, cur.ytdDaysWorked,
-          Number(cur.ytdGross.toFixed(2)), Number(cur.ytdReci.toFixed(2)), Number(cur.ytdOhip.toFixed(2)), Number(cur.ytdTotalOhip.toFixed(2)),
+        const totRow = ['Total (YTD)', totalMt, totalF, cur.ytdDaysWorked];
+        if (!hideGross) totRow.push(Number(cur.ytdGross.toFixed(2)));
+        totRow.push(
+          Number(cur.ytdReci.toFixed(2)), Number(cur.ytdOhip.toFixed(2)), Number(cur.ytdTotalOhip.toFixed(2)),
           Number(cur.ytdRecd.toFixed(2)), Number(cur.ytdNet.toFixed(2)), Number(cur.ytdTotalPaid.toFixed(2)), Number(cur.ytdTarget.toFixed(2)),
           Number(cur.ytdDiff.toFixed(2)), '', '', cur.ytdPatients, ''
-        ]);
+        );
+        sheetData.push(totRow);
 
-        sheetData.push([
-          'Average', '', '', Number(cur.avgDaysPerMth.toFixed(1)),
-          Number(cur.avgGross.toFixed(2)), Number(cur.avgReci.toFixed(2)), Number(cur.avgOhip.toFixed(2)), Number(cur.avgTotalOhip.toFixed(2)),
+        const avgRow = ['Average', '', '', Number(cur.avgDaysPerMth.toFixed(1))];
+        if (!hideGross) avgRow.push(Number(cur.avgGross.toFixed(2)));
+        avgRow.push(
+          Number(cur.avgReci.toFixed(2)), Number(cur.avgOhip.toFixed(2)), Number(cur.avgTotalOhip.toFixed(2)),
           Number(cur.avgRecd.toFixed(2)), Number(cur.avgNet.toFixed(2)), Number(cur.avgPaid.toFixed(2)), Number(cur.avgTarget.toFixed(2)),
           Number(cur.avgDiff.toFixed(2)), Number(cur.avgDailyNet.toFixed(2)), Number(cur.avgRevPerPt.toFixed(2)), Number(cur.avgPtsPerMth.toFixed(1)), Number(cur.avgPtsPerDay.toFixed(2))
-        ]);
+        );
+        sheetData.push(avgRow);
 
         const ws = XLSX.utils.aoa_to_sheet(sheetData);
         XLSX.utils.book_append_sheet(wb, ws, yearStr);
@@ -8135,36 +8355,52 @@ function snapshotAllRecords() {
     };
 
     window.exportCSV = () => {
+      const hideGross = isNoGrossYear(state.currentYear);
       const months = state.years[state.currentYear] || [];
       const cur = getYearMetrics(state.currentYear);
-      const header = ['Month','# M-T','# F','Days Worked','Gross','Acct Recd','OHIP Recon','Total OHIP','Received','24% Net','Paid','Target','Diff','Daily Avg','Rev/Pt','Total Pts','Pts/Day'];
+      const header = hideGross
+        ? ['Month','# M-T','# F','Days Worked','Acct Recd','OHIP Recon','Total OHIP','Received','24% Net','Paid','Target','Diff','Daily Avg','Rev/Pt','Total Pts','Pts/Day']
+        : ['Month','# M-T','# F','Days Worked','Gross','Acct Recd','OHIP Recon','Total OHIP','Received','24% Net','Paid','Target','Diff','Daily Avg','Rev/Pt','Total Pts','Pts/Day'];
       const rows = months.map((m, idx) => {
-        const c = calculateMonth(m, state.settings, getEffectiveMonthOhipMode(state.currentYear, idx));
-        return [
-          c.month, c.mtDays, c.fDays, c.daysWorked,
-          c.gross.toFixed(2), c.reci.toFixed(2), c.ohip.toFixed(2), c.totalOhip.toFixed(2),
+        const c = calculateMonth(m, state.settings, getEffectiveMonthOhipMode(state.currentYear, idx), state.currentYear);
+        const r = [c.month, c.mtDays, c.fDays, c.daysWorked];
+        if (!hideGross) r.push(c.gross.toFixed(2));
+        r.push(
+          c.reci.toFixed(2), c.ohip.toFixed(2), c.totalOhip.toFixed(2),
           c.totalRecd.toFixed(2), c.net.toFixed(2), c.paid.toFixed(2), c.target.toFixed(2),
           c.diff.toFixed(2), c.dailyAvg.toFixed(2), c.revPerPt.toFixed(2), c.patients, c.ptsPerDay.toFixed(2)
-        ];
+        );
+        return r;
       });
       const totalMt = months.reduce((a, m) => a + (Number(m.mtDays) || 0), 0);
       const totalF = months.reduce((a, m) => a + (Number(m.fDays) || 0), 0);
       if (state.settings?.enableHsa !== false) {
-        rows.push(['Health Reimbursement','','','','','','','','','',cur.healthPaid.toFixed(2),'','','','','','']);
+        rows.push(hideGross
+          ? ['Health Reimbursement','','','','','','','','',cur.healthPaid.toFixed(2),'','','','','','']
+          : ['Health Reimbursement','','','','','','','','','',cur.healthPaid.toFixed(2),'','','','','','']
+        );
       }
-      rows.push(['Confirmed Bonus Paid','','','','','','','','','',cur.bonusPaid.toFixed(2),'','','','','','']);
-      rows.push([
-        'Total (YTD)', totalMt, totalF, cur.ytdDaysWorked,
-        cur.ytdGross.toFixed(2), cur.ytdReci.toFixed(2), cur.ytdOhip.toFixed(2), cur.ytdTotalOhip.toFixed(2),
+      rows.push(hideGross
+        ? ['Confirmed Bonus Paid','','','','','','','','',cur.bonusPaid.toFixed(2),'','','','','','']
+        : ['Confirmed Bonus Paid','','','','','','','','','',cur.bonusPaid.toFixed(2),'','','','','','']
+      );
+      const totCsv = ['Total (YTD)', totalMt, totalF, cur.ytdDaysWorked];
+      if (!hideGross) totCsv.push(cur.ytdGross.toFixed(2));
+      totCsv.push(
+        cur.ytdReci.toFixed(2), cur.ytdOhip.toFixed(2), cur.ytdTotalOhip.toFixed(2),
         cur.ytdRecd.toFixed(2), cur.ytdNet.toFixed(2), cur.ytdTotalPaid.toFixed(2), cur.ytdTarget.toFixed(2),
         cur.ytdDiff.toFixed(2), '', '', cur.ytdPatients, ''
-      ]);
-      rows.push([
-        'Average', '', '', cur.avgDaysPerMth.toFixed(1),
-        cur.avgGross.toFixed(2), cur.avgReci.toFixed(2), cur.avgOhip.toFixed(2), cur.avgTotalOhip.toFixed(2),
+      );
+      rows.push(totCsv);
+
+      const avgCsv = ['Average', '', '', cur.avgDaysPerMth.toFixed(1)];
+      if (!hideGross) avgCsv.push(cur.avgGross.toFixed(2));
+      avgCsv.push(
+        cur.avgReci.toFixed(2), cur.avgOhip.toFixed(2), cur.avgTotalOhip.toFixed(2),
         cur.avgRecd.toFixed(2), cur.avgNet.toFixed(2), cur.avgPaid.toFixed(2), cur.avgTarget.toFixed(2),
         cur.avgDiff.toFixed(2), cur.avgDailyNet.toFixed(2), cur.avgRevPerPt.toFixed(2), cur.avgPtsPerMth.toFixed(1), cur.avgPtsPerDay.toFixed(2)
-      ]);
+      );
+      rows.push(avgCsv);
 
       const csvLines = [header.join(','), ...rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))].join('\r\n');
       const blob = new Blob(['\uFEFF' + csvLines], { type: 'text/csv;charset=utf-8;' });
