@@ -309,7 +309,7 @@
           <span class="sidebar-label hidden truncate">Tax Estimator</span>
         </button>
 
-        <button onclick="window.openExpensesModal()" title="Expenses, HSA & CRA Slip Export" class="w-full flex items-center gap-3.5 p-2.5 rounded-xl text-xs font-semibold text-sky-400 hover:text-white hover:bg-sky-500/15 transition">
+        <button onclick="window.openExpensesModal()" title="Expenses, HSA & Accounting Ledger" class="w-full flex items-center gap-3.5 p-2.5 rounded-xl text-xs font-semibold text-sky-400 hover:text-white hover:bg-sky-500/15 transition">
           <svg class="w-5 h-5 shrink-0 mx-auto md:mx-0" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
           </svg>
@@ -1243,21 +1243,21 @@
     </div>
   </div>
 
-  <!-- ITEMIZED PROFESSIONAL EXPENSES, MULTI-INSURER HSA TRACKER & PDF REPORT VAULT (3-WAY AUTO CALC) -->
+  <!-- ITEMIZED PROFESSIONAL EXPENSES, MULTI-INSURER HSA TRACKER & ACCOUNTING LEDGER VAULT -->
   <div id="expensesModal" onclick="if(event.target===this) window.closeExpensesModal()" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center px-3 sm:px-4 safe-top-modal">
     <div class="modal-scroll-pane bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-4xl w-full p-4 sm:p-6 space-y-5 max-h-[90vh] overflow-y-auto shadow-2xl">
       <div class="flex items-start justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-3.5">
         <div>
           <div class="flex items-center gap-2">
             <span class="text-xl">🧾</span>
-            <h3 class="font-extrabold text-lg sm:text-xl">Practice Expenses, HSA Tracker & PDF Report (<span id="expModalYearLbl">2026</span>)</h3>
+            <h3 class="font-extrabold text-lg sm:text-xl">Expenses, HSA & Accounting Ledger (<span id="expModalYearLbl">2026</span>)</h3>
           </div>
-          <p class="text-xs text-slate-500 mt-0.5">Categorize CRA Form T2125/T2 deductions and log HSA medical receipts with per-insurer reimbursements ready for direct PDF export.</p>
+          <p class="text-xs text-slate-500 mt-0.5">Merchant-first expense ledger, editable entries, tax-year assignment, automated pay-to-ledger tracking, and category or full-year PDF reports.</p>
         </div>
         <button type="button" onclick="window.closeExpensesModal()" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center font-bold shrink-0">✕</button>
       </div>
 
-      <!-- HSA Progress Bar & Direct PDF Export -->
+      <!-- HSA Progress Bar & Direct HSA PDF Export -->
       <div id="hsaProgressBannerWrap" class="p-4 rounded-2xl bg-sky-500/10 border border-sky-500/30 space-y-2.5 text-xs">
         <div class="flex flex-wrap items-center justify-between gap-2">
           <div>
@@ -1275,33 +1275,88 @@
         </div>
       </div>
 
-      <!-- Add New Expense / Health Receipt Form -->
+      <!-- Flexible PDF Report Generator Bar (All Expenses incl. Health/HSA or Specific Category + Optional Income Paid) -->
+      <div class="p-3.5 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 space-y-2.5 text-xs">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <span class="font-extrabold text-indigo-500 uppercase text-[11px]">Custom Expense & Accounting PDF Report Generator</span>
+          <span class="text-[11px] text-slate-400">Generates print-ready report for Tax Year <span id="expPdfYearBadge" class="mono font-bold text-indigo-400">2026</span></span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-center">
+          <div class="sm:col-span-5 min-w-0">
+            <select id="expPdfCategoryScope" class="w-full px-2.5 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 font-semibold">
+              <option value="ALL">All Expenses (Business + Health/HSA)</option>
+              <option value="BUSINESS_ONLY">Business Expenses Only (Excl. Health)</option>
+              <option value="dues_8760">Line 8760 — College (CCO), OAOO & CAO Dues</option>
+              <option value="ins_8690">Line 8690 — Malpractice / CMPA / Liability Ins.</option>
+              <option value="ce_8860">Line 8860 — Continuing Education (CE) & Travel</option>
+              <option value="equip_8810">Line 8810 — Clinical Loupes, Tools & Software</option>
+              <option value="auto_9281">Line 9281 — Vehicle, Mileage & Parking</option>
+              <option value="office_8811">Line 8811 — Home Office, Phone, Tech & Accounting</option>
+              <option value="health_hsa">🏥 Health / Dental Receipts (HSA)</option>
+            </select>
+          </div>
+          <div class="sm:col-span-4 min-w-0">
+            <label class="inline-flex items-center gap-2 cursor-pointer select-none font-semibold text-slate-700 dark:text-slate-200 px-2.5 py-2 rounded-lg bg-white/70 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700 w-full">
+              <input type="checkbox" id="expPdfIncludeIncomeToggle" checked class="rounded text-indigo-600" />
+              <span class="truncate">Include Income Paid for Year</span>
+            </label>
+          </div>
+          <div class="sm:col-span-3 min-w-0">
+            <button type="button" onclick="window.exportFlexibleAccountingPDF()" class="w-full h-[2.375rem] px-3 rounded-lg font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm transition">📄 Generate PDF</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add / Edit Expense or Health Receipt Form (Merchant-First + Popover Tax Year Grid) -->
       <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 space-y-3 text-xs">
-        <h4 class="font-bold uppercase tracking-wider text-[11px] text-brand-500">Log Professional Expense or Health Receipt</h4>
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <h4 id="expFormHeaderTitle" class="font-bold uppercase tracking-wider text-[11px] text-brand-500">Log Professional Expense or Health Receipt</h4>
+          <button type="button" id="expCancelEditBtn" onclick="window.cancelEditExpenseEntry()" class="hidden px-2.5 py-1 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-200 font-bold text-[11px]">Cancel Edit</button>
+        </div>
         <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
           <div class="sm:col-span-3 min-w-0">
             <label class="block font-semibold mb-1.5 text-slate-500">Date</label>
             <input type="date" id="expInputDate" autocomplete="off" class="w-full px-2.5 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono font-semibold" />
           </div>
-          <div class="sm:col-span-5 min-w-0">
+          <div class="sm:col-span-3 min-w-0 relative">
+            <label class="block font-semibold mb-1.5 text-slate-500">Tax Year</label>
+            <input type="hidden" id="expInputTaxYear" value="2026" />
+            <button type="button" id="expTaxYearToggleBtn" onclick="window.toggleExpenseTaxYearPopover(event)" class="w-full h-[2.375rem] px-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono font-bold flex items-center justify-between hover:border-brand-500 transition">
+              <span id="expTaxYearSelectedLbl">2026</span>
+              <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div id="expTaxYearPopover" class="hidden absolute left-0 top-full mt-1.5 z-50 w-52 p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl">
+              <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-1 pb-1.5">Select Tax Year</div>
+              <div id="expTaxYearGrid" class="grid grid-cols-3 gap-1.5"></div>
+            </div>
+          </div>
+          <div class="sm:col-span-6 min-w-0">
             <label class="block font-semibold mb-1.5 text-slate-500">CRA Category & Line Code</label>
             <select id="expInputCategory" onchange="window.onExpenseCategoryChange()" class="w-full px-2.5 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 font-semibold">
               <option value="dues_8760">Line 8760 — College (CCO), OAOO & CAO Dues</option>
               <option value="ins_8690">Line 8690 — Malpractice / CMPA / Liability Ins.</option>
               <option value="ce_8860">Line 8860 — Continuing Education (CE) & Travel</option>
               <option value="equip_8810">Line 8810 — Clinical Loupes, Tools & Software</option>
-              <option value="auto_9281">Line 9281 — Vehicle / Clinic Mileage & Parking</option>
-              <option value="office_8811">Line 8811 — Home Office, Phone & Accounting</option>
-              <option value="health_hsa">🏥 Health / Dental Receipt (HSA & PDF Report)</option>
+              <option value="auto_9281">Line 9281 — Vehicle, Mileage & Parking</option>
+              <option value="office_8811">Line 8811 — Home Office, Phone, Tech & Accounting</option>
+              <option value="health_hsa">🏥 Health / Dental Receipts (HSA)</option>
             </select>
           </div>
-          <div id="expStdAmountWrap" class="sm:col-span-2 min-w-0">
+        </div>
+
+        <!-- Standard Business Expense Row (Merchant First) -->
+        <div id="expStdFieldsRow" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+          <div class="sm:col-span-5 min-w-0">
+            <label class="block font-semibold mb-1.5 text-slate-500">Merchant / Vendor</label>
+            <input type="text" id="expInputMerchant" autocomplete="off" placeholder="e.g. College of Optometrists, Bell, Petro-Canada..." class="w-full px-2.5 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 font-semibold" />
+          </div>
+          <div class="sm:col-span-3 min-w-0">
             <label class="block font-semibold mb-1.5 text-slate-500">Amount ($)</label>
             <input type="text" inputmode="decimal" autocomplete="off" data-comma-format="true" id="expInputAmount" placeholder="0.00" class="w-full px-2.5 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono font-semibold" />
           </div>
-          <div id="expStdNoteWrap" class="sm:col-span-2 min-w-0">
-            <label class="block font-semibold mb-1.5 text-slate-500">Vendor / Note</label>
-            <input type="text" id="expInputNote" autocomplete="off" placeholder="e.g. CCO..." class="w-full px-2.5 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700" />
+          <div class="sm:col-span-4 min-w-0">
+            <label class="block font-semibold mb-1.5 text-slate-500">Note (Optional)</label>
+            <input type="text" id="expInputNote" autocomplete="off" placeholder="e.g. Annual renewal, invoice #..." class="w-full px-2.5 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700" />
           </div>
         </div>
 
@@ -1309,7 +1364,7 @@
         <div id="expHsaFieldsWrap" class="hidden pt-3 border-t border-slate-200 dark:border-slate-700 space-y-3">
           <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
             <div class="sm:col-span-4 min-w-0">
-              <label class="block font-semibold mb-1.5 text-slate-500">Provider Name</label>
+              <label class="block font-semibold mb-1.5 text-slate-500">Provider / Merchant Name</label>
               <input type="text" id="expHsaProvider" autocomplete="off" placeholder="e.g. Movewell Physio, Dr. Dentistry..." class="w-full px-2.5 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 font-semibold" />
             </div>
             <div class="sm:col-span-4 min-w-0">
@@ -1340,18 +1395,74 @@
           <div id="expCategoryTotalsSummary" class="text-[11px] text-slate-500 font-medium"></div>
           <div class="flex items-center gap-2">
             <button type="button" onclick="window.exportCraTaxSlipCSV()" class="px-3 py-2 rounded-xl font-bold bg-emerald-600/15 text-emerald-500 hover:bg-emerald-600 hover:text-white border border-emerald-500/30 transition">📄 Export CRA T2125 CSV</button>
-            <button type="button" onclick="window.addExpenseEntry()" class="px-4 py-2 rounded-xl font-bold bg-brand-600 hover:bg-brand-500 text-white shadow-sm transition">+ Add Receipt</button>
+            <button type="button" id="expSubmitBtn" onclick="window.addExpenseEntry()" class="px-4 py-2 rounded-xl font-bold bg-brand-600 hover:bg-brand-500 text-white shadow-sm transition">+ Add Receipt</button>
           </div>
         </div>
       </div>
 
-      <!-- Logged Expenses List -->
+      <!-- Logged Expenses List (Merchant-First + Search/Filter + Edit Button) -->
       <div class="space-y-2 text-xs">
         <div class="flex items-center justify-between">
-          <span class="font-bold text-slate-500 uppercase text-[11px]">Recorded Receipts for <span id="expListYearLbl">2026</span></span>
+          <span class="font-bold text-slate-500 uppercase text-[11px]">Recorded Receipts for Tax Year <span id="expListYearLbl">2026</span></span>
           <button type="button" onclick="window.syncExpensesToTaxProfileAndOpen()" class="text-[11px] font-bold text-brand-500 hover:underline">Sync Totals to Tax Estimator →</button>
         </div>
-        <div id="expensesListContainer" class="space-y-1.5 max-h-64 overflow-y-auto pr-1"></div>
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center">
+          <div class="sm:col-span-6 min-w-0">
+            <input type="text" id="expSearchInput" autocomplete="off" oninput="window.onExpenseFilterChange()" placeholder="🔍 Search merchant, note, or date..." class="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700" />
+          </div>
+          <div class="sm:col-span-6 min-w-0">
+            <select id="expFilterCategory" onchange="window.onExpenseFilterChange()" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-semibold">
+              <option value="ALL">All Categories</option>
+              <option value="dues_8760">Line 8760 — College (CCO), OAOO & CAO Dues</option>
+              <option value="ins_8690">Line 8690 — Malpractice / CMPA / Liability Ins.</option>
+              <option value="ce_8860">Line 8860 — Continuing Education (CE) & Travel</option>
+              <option value="equip_8810">Line 8810 — Clinical Loupes, Tools & Software</option>
+              <option value="auto_9281">Line 9281 — Vehicle, Mileage & Parking</option>
+              <option value="office_8811">Line 8811 — Home Office, Phone, Tech & Accounting</option>
+              <option value="health_hsa">🏥 Health / Dental Receipts (HSA)</option>
+            </select>
+          </div>
+        </div>
+        <div id="expensesListContainer" class="space-y-1.5 max-h-60 overflow-y-auto pr-1"></div>
+      </div>
+
+      <!-- Accounting Income Paid Ledger (Automated from Daily Log + Manual/Edit Entry + Tax Year Reassignment) -->
+      <div class="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-2.5 text-xs">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <span class="font-bold text-emerald-500 uppercase text-[11px] block">Accounting Income Paid Ledger (Tax Year <span id="incomeLedgerYearLbl">2026</span>)</span>
+            <span class="text-[11px] text-slate-500">Auto-logged when you enter Day Paid on a shift. Add or edit entries below, or reassign January payouts to the previous tax year anytime.</span>
+          </div>
+          <span id="incomeLedgerTotalBadge" class="px-2.5 py-1 rounded-full font-bold mono text-[11px] bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">Total Paid: $0.00</span>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 space-y-2">
+          <div class="flex items-center justify-between">
+            <span id="incFormHeaderTitle" class="font-bold uppercase tracking-wider text-[10px] text-emerald-500">Add Manual Pay / Bonus Entry</span>
+            <button type="button" id="incCancelEditBtn" onclick="window.cancelEditIncomeEntry()" class="hidden px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-200 font-bold text-[10px]">Cancel Edit</button>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-end">
+            <div class="sm:col-span-3 min-w-0">
+              <label class="block font-semibold mb-1 text-[10px] text-slate-500">Pay Date</label>
+              <input type="date" id="incInputDate" autocomplete="off" class="w-full px-2 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono font-semibold" />
+            </div>
+            <div class="sm:col-span-3 min-w-0">
+              <label class="block font-semibold mb-1 text-[10px] text-slate-500">Source / Payer</label>
+              <input type="text" id="incInputMerchant" autocomplete="off" value="Brockville Optometric Centre" placeholder="Clinic / Bonus..." class="w-full px-2 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 font-semibold" />
+            </div>
+            <div class="sm:col-span-2 min-w-0">
+              <label class="block font-semibold mb-1 text-[10px] text-slate-500">Amount ($)</label>
+              <input type="text" inputmode="decimal" autocomplete="off" data-comma-format="true" id="incInputAmount" placeholder="0.00" class="w-full px-2 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono font-semibold" />
+            </div>
+            <div class="sm:col-span-2 min-w-0">
+              <label class="block font-semibold mb-1 text-[10px] text-slate-500">Note</label>
+              <input type="text" id="incInputNote" autocomplete="off" placeholder="e.g. Q3 Bonus" class="w-full px-2 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700" />
+            </div>
+            <div class="sm:col-span-2 min-w-0">
+              <button type="button" id="incSubmitBtn" onclick="window.addManualIncomeEntry()" class="w-full h-[2.375rem] px-2.5 rounded-lg font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition">+ Add Pay</button>
+            </div>
+          </div>
+        </div>
+        <div id="incomeLedgerListContainer" class="space-y-1.5 max-h-48 overflow-y-auto pr-1"></div>
       </div>
 
       <div class="flex justify-end pt-3 border-t border-slate-200 dark:border-slate-800">
@@ -1508,7 +1619,7 @@
           <span>→</span>
         </button>
         <button onclick="window.closeMobileMoreSheet(); window.openExpensesModal();" class="w-full p-3.5 rounded-xl bg-sky-500/10 border border-sky-500/30 text-sky-500 flex items-center justify-between font-bold">
-          <span class="flex items-center gap-3"><span class="text-base">🧾</span><span>Expenses, HSA Tracker & PDF Report</span></span>
+          <span class="flex items-center gap-3"><span class="text-base">🧾</span><span>Expenses, HSA & Accounting Ledger</span></span>
           <span>→</span>
         </button>
         <button onclick="window.closeMobileMoreSheet(); window.openSettingsModal();" class="w-full p-3.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center justify-between font-semibold">
@@ -1651,7 +1762,7 @@
     </div>
   </div>
 
-  <!-- DAILY LOG MODAL -->
+  <!-- DAILY LOG MODAL (WITH AUTOMATED PAY-TO-LEDGER TAX YEAR SELECTOR) -->
   <div id="dailyLogModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center px-3 sm:px-4 safe-top-modal">
     <div class="modal-scroll-pane bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-lg w-full p-4 sm:p-5 space-y-4 max-h-[88vh] overflow-y-auto shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
@@ -1763,6 +1874,12 @@
         </div>
       </div>
 
+      <!-- Pay Tax-Year Assignment (Auto-Logs to Accounting Ledger when Day Paid > 0) -->
+      <div class="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-xs">
+        <span class="font-semibold text-emerald-600 dark:text-emerald-400">Accounting Tax Year for Pay Entered:</span>
+        <select id="logPaidTaxYear" class="w-40 px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono font-bold text-xs"></select>
+      </div>
+
       <div class="p-3 rounded-xl bg-brand-500/10 border border-brand-500/20 text-xs">
         <div class="flex justify-between mb-1"><span class="font-bold text-brand-400 uppercase text-[11px]">Today's Clinic Delta (Gross = Acct Rec + Tot OHIP)</span><span id="deltaRecordAlert" class="hidden px-2 py-0.5 rounded-full bg-amber-500 text-white font-bold text-[10px]">★ New All-Time High!</span></div>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -1870,6 +1987,11 @@
           </div>
           <input type="text" inputmode="numeric" autocomplete="off" data-comma-format="true" id="editLogInputPts" oninput="window.updateEditLogDeltaPreview()" class="w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 mono font-semibold" />
         </div>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-xs">
+        <span class="font-semibold text-emerald-600 dark:text-emerald-400">Accounting Tax Year for Pay:</span>
+        <select id="editLogPaidTaxYear" class="w-40 px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 mono font-bold text-xs"></select>
       </div>
 
       <div class="p-3 rounded-xl bg-brand-500/10 border border-brand-500/20 text-xs">
@@ -2324,7 +2446,8 @@
           dailyLogs: state.dailyLogs,
           recordHigh: state.recordHigh,
           quarterConfirmations: state.quarterConfirmations,
-          yearPaidExtras: state.yearPaidExtras
+          yearPaidExtras: state.yearPaidExtras,
+          incomeLedger: state.incomeLedger
         }))
       };
       const undoBtn = document.getElementById('undoCascadeBtn');
@@ -2343,6 +2466,7 @@
       state.recordHigh = snap.recordHigh;
       state.quarterConfirmations = snap.quarterConfirmations;
       state.yearPaidExtras = snap.yearPaidExtras;
+      if (snap.incomeLedger) state.incomeLedger = snap.incomeLedger;
       stateSnapshotPriorEdit = null;
       const undoBtn = document.getElementById('undoCascadeBtn');
       if (undoBtn) {
@@ -2558,7 +2682,6 @@
       patientMix: { ohipFull: 0, ohipSeniorPed: 0, ohipPartial: 0, privateExam: 0 }
     }));
 
-    // Gross column stays visible; from Nov 2026 onward it automatically reports Acct Rec'd + Total OHIP
     function isAutoGrossMonth(yearStr, monthIdx) {
       const y = Number(yearStr);
       const m = Number(monthIdx);
@@ -2716,6 +2839,7 @@
           '2026': [],
           '2027': []
         },
+        incomeLedger: [],
         dailyLogs: [],
         calendarDays: {},
         gcalSyncedEvents: {}
@@ -2815,6 +2939,7 @@
       if (!state.gcalSyncedEvents || typeof state.gcalSyncedEvents !== 'object') state.gcalSyncedEvents = {};
       if (!state.taxProfiles || typeof state.taxProfiles !== 'object') state.taxProfiles = {};
       if (!state.expensesVault || typeof state.expensesVault !== 'object') state.expensesVault = {};
+      if (!Array.isArray(state.incomeLedger)) state.incomeLedger = [];
 
       Object.keys(state.years || {}).forEach(yr => {
         if (!state.expensesVault[yr]) state.expensesVault[yr] = [];
@@ -6088,18 +6213,110 @@ function snapshotAllRecords() {
         showGcalSyncBanner(`Authorization required to sync CRA deadlines: ${e.message}`, true);
       }
     };
-// ================= MULTI-INSURER SETTINGS & HSA PDF REPORT ENGINE (3-WAY AUTO-CALC) =================
+// ================= MULTI-INSURER SETTINGS, MERCHANT-FIRST EXPENSE VAULT, ACCOUNTING LEDGER & PDF REPORTS =================
     const EXPENSE_CATEGORY_LABELS = {
-      dues_8760: { name: 'Line 8760 — College & Association Dues', line: '8760' },
-      ins_8690: { name: 'Line 8690 — Malpractice / CMPA Insurance', line: '8690' },
-      ce_8860: { name: 'Line 8860 — Continuing Education (CE)', line: '8860' },
-      equip_8810: { name: 'Line 8810 — Clinical Loupes & Tools', line: '8810' },
-      auto_9281: { name: 'Line 9281 — Vehicle & Mileage Expenses', line: '9281' },
-      office_8811: { name: 'Line 8811 — Office Supplies & Tech', line: '8811' },
-      health_hsa: { name: '🏥 Health / Dental Receipt (HSA)', line: 'HSA' }
+      dues_8760: { name: 'Line 8760 — College (CCO), OAOO & CAO Dues', line: '8760' },
+      ins_8690: { name: 'Line 8690 — Malpractice / CMPA / Liability Ins.', line: '8690' },
+      ce_8860: { name: 'Line 8860 — Continuing Education (CE) & Travel', line: '8860' },
+      equip_8810: { name: 'Line 8810 — Clinical Loupes, Tools & Software', line: '8810' },
+      auto_9281: { name: 'Line 9281 — Vehicle, Mileage & Parking', line: '9281' },
+      office_8811: { name: 'Line 8811 — Home Office, Phone, Tech & Accounting', line: '8811' },
+      health_hsa: { name: '🏥 Health / Dental Receipts (HSA)', line: 'HSA' }
     };
 
     let hsaLastEditedFields = [];
+    let editingExpenseState = null; // { taxYear, id }
+    let editingIncomeEntryId = null;
+
+    function getAvailableTaxYearsList(extraYear = null) {
+      const curNum = Number(state.currentYear) || new Date().getFullYear();
+      const yrs = new Set(Object.keys(state.years || {}));
+      yrs.add(String(curNum));
+      yrs.add(String(curNum - 1));
+      if (extraYear) yrs.add(String(extraYear));
+      return Array.from(yrs).sort((a, b) => Number(b) - Number(a));
+    }
+
+    function populateTaxYearSelect(selectId, selectedYear) {
+      const sel = document.getElementById(selectId);
+      if (!sel) return;
+      const curNum = Number(state.currentYear) || new Date().getFullYear();
+      const sorted = getAvailableTaxYearsList(selectedYear);
+      if (sel.tagName === 'INPUT') {
+        sel.value = String(selectedYear || state.currentYear);
+        renderExpenseTaxYearGrid(sel.value);
+        return;
+      }
+      sel.innerHTML = sorted.map(y => {
+        const tag = y === String(curNum) ? ' (Current)' : (y === String(curNum - 1) ? ' (Prev)' : '');
+        return `<option value="${y}">${y}${tag}</option>`;
+      }).join('');
+      sel.value = String(selectedYear || state.currentYear);
+    }
+
+    function renderExpenseTaxYearGrid(selectedYear) {
+      const grid = document.getElementById('expTaxYearGrid');
+      const hiddenInp = document.getElementById('expInputTaxYear');
+      const lbl = document.getElementById('expTaxYearSelectedLbl');
+      if (!grid || !hiddenInp) return;
+      const activeYr = String(selectedYear || hiddenInp.value || state.currentYear);
+      hiddenInp.value = activeYr;
+      if (lbl) lbl.textContent = activeYr;
+      const sorted = getAvailableTaxYearsList(activeYr);
+      grid.innerHTML = sorted.map(y => {
+        const isSel = y === activeYr;
+        return `<button type="button" onclick="window.selectExpenseTaxYear('${y}')" class="py-1.5 px-1 rounded-lg mono text-[11px] font-bold transition border ${isSel ? 'bg-brand-600 text-white border-brand-500 shadow-sm' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-brand-500/10'}">${y}</button>`;
+      }).join('');
+    }
+
+    window.toggleExpenseTaxYearPopover = (ev) => {
+      if (ev) ev.stopPropagation();
+      const pop = document.getElementById('expTaxYearPopover');
+      if (!pop) return;
+      renderExpenseTaxYearGrid(document.getElementById('expInputTaxYear')?.value || state.currentYear);
+      pop.classList.toggle('hidden');
+    };
+
+    window.selectExpenseTaxYear = (yr) => {
+      renderExpenseTaxYearGrid(yr);
+      document.getElementById('expTaxYearPopover')?.classList.add('hidden');
+    };
+
+    document.addEventListener('click', (e) => {
+      const pop = document.getElementById('expTaxYearPopover');
+      const btn = document.getElementById('expTaxYearToggleBtn');
+      if (pop && !pop.classList.contains('hidden') && !pop.contains(e.target) && (!btn || !btn.contains(e.target))) {
+        pop.classList.add('hidden');
+      }
+    });
+
+    function backfillIncomeLedgerFromDailyLogs() {
+      ensureLayoutsValid();
+      let changed = false;
+      (state.dailyLogs || []).forEach((log, idx) => {
+        const paidAmt = Number(log.dPaid) || 0;
+        if (paidAmt <= 0 || log.incomeLedgerDismissed) return;
+        if (!log.logId) {
+          log.logId = `log_legacy_${log.date || 'd'}_${idx}`;
+          changed = true;
+        }
+        const exists = state.incomeLedger.some(item => item.sourceLogId === log.logId);
+        if (!exists) {
+          const defaultTaxYr = String(log.paidTaxYear || log.year || (log.date ? log.date.substring(0, 4) : state.currentYear));
+          state.incomeLedger.push({
+            id: Date.now() + idx + Math.floor(Math.random() * 1000),
+            sourceLogId: log.logId,
+            date: log.date || `${defaultTaxYr}-01-01`,
+            taxYear: defaultTaxYr,
+            amount: Number(paidAmt.toFixed(2)),
+            merchant: 'Brockville Optometric Centre',
+            note: log.note || `Clinic Pay (${log.month || ''})`
+          });
+          changed = true;
+        }
+      });
+      if (changed) pushStateToCloud();
+    }
 
     function renderSettingsInsurersList() {
       const container = document.getElementById('settingsInsurersList');
@@ -6230,8 +6447,7 @@ function snapshotAllRecords() {
     window.onExpenseCategoryChange = () => {
       const cat = document.getElementById('expInputCategory')?.value || 'dues_8760';
       const isHsa = cat === 'health_hsa';
-      document.getElementById('expStdAmountWrap')?.classList.toggle('hidden', isHsa);
-      document.getElementById('expStdNoteWrap')?.classList.toggle('hidden', isHsa);
+      document.getElementById('expStdFieldsRow')?.classList.toggle('hidden', isHsa);
       document.getElementById('expHsaFieldsWrap')?.classList.toggle('hidden', !isHsa);
       if (isHsa) {
         hsaLastEditedFields = [];
@@ -6239,14 +6455,122 @@ function snapshotAllRecords() {
       }
     };
 
+    function resetExpenseFormInputs() {
+      editingExpenseState = null;
+      const hdr = document.getElementById('expFormHeaderTitle');
+      const cancelBtn = document.getElementById('expCancelEditBtn');
+      const submitBtn = document.getElementById('expSubmitBtn');
+      if (hdr) hdr.textContent = 'Log Professional Expense or Health Receipt';
+      if (cancelBtn) cancelBtn.classList.add('hidden');
+      if (submitBtn) submitBtn.textContent = '+ Add Receipt';
+
+      const dateEl = document.getElementById('expInputDate');
+      if (dateEl) dateEl.value = new Date().toISOString().split('T')[0];
+      populateTaxYearSelect('expInputTaxYear', state.currentYear);
+      document.getElementById('expTaxYearPopover')?.classList.add('hidden');
+
+      const mEl = document.getElementById('expInputMerchant');
+      const aEl = document.getElementById('expInputAmount');
+      const nEl = document.getElementById('expInputNote');
+      if (mEl) mEl.value = '';
+      if (aEl) aEl.value = '';
+      if (nEl) nEl.value = '';
+
+      const hp = document.getElementById('expHsaProvider');
+      const hc = document.getElementById('expHsaCoverageNote');
+      const hh = document.getElementById('expHsaHst');
+      const ht = document.getElementById('expHsaTotal');
+      const hl = document.getElementById('expHsaLeftOver');
+      if (hp) hp.value = '';
+      if (hc) hc.value = '';
+      if (hh) hh.value = '';
+      if (ht) ht.value = '';
+      if (hl) hl.value = '';
+      document.querySelectorAll('[data-hsa-insurer]').forEach(inp => { inp.value = ''; });
+      hsaLastEditedFields = [];
+    }
+
+    function resetIncomeFormInputs() {
+      editingIncomeEntryId = null;
+      const hdr = document.getElementById('incFormHeaderTitle');
+      const cancelBtn = document.getElementById('incCancelEditBtn');
+      const submitBtn = document.getElementById('incSubmitBtn');
+      if (hdr) hdr.textContent = 'Add Manual Pay / Bonus Entry';
+      if (cancelBtn) cancelBtn.classList.add('hidden');
+      if (submitBtn) submitBtn.textContent = '+ Add Pay';
+
+      const incDateEl = document.getElementById('incInputDate');
+      const incMerchEl = document.getElementById('incInputMerchant');
+      const incAmtEl = document.getElementById('incInputAmount');
+      const incNoteEl = document.getElementById('incInputNote');
+      if (incDateEl) incDateEl.value = new Date().toISOString().split('T')[0];
+      if (incMerchEl) incMerchEl.value = 'Brockville Optometric Centre';
+      if (incAmtEl) incAmtEl.value = '';
+      if (incNoteEl) incNoteEl.value = '';
+    }
+
+    window.cancelEditExpenseEntry = () => {
+      resetExpenseFormInputs();
+      window.onExpenseCategoryChange();
+    };
+
+    window.cancelEditIncomeEntry = () => {
+      resetIncomeFormInputs();
+    };
+
+    window.editExpenseEntry = (id) => {
+      ensureLayoutsValid();
+      const yr = state.currentYear;
+      const entry = (state.expensesVault[yr] || []).find(e => e.id === id);
+      if (!entry) return;
+
+      editingExpenseState = { taxYear: yr, id };
+      const hdr = document.getElementById('expFormHeaderTitle');
+      const cancelBtn = document.getElementById('expCancelEditBtn');
+      const submitBtn = document.getElementById('expSubmitBtn');
+      if (hdr) hdr.textContent = `Editing Receipt (${entry.date})`;
+      if (cancelBtn) cancelBtn.classList.remove('hidden');
+      if (submitBtn) submitBtn.textContent = 'Save Changes';
+
+      document.getElementById('expInputDate').value = entry.date || new Date().toISOString().split('T')[0];
+      populateTaxYearSelect('expInputTaxYear', entry.taxYear || yr);
+      document.getElementById('expInputCategory').value = entry.category || 'dues_8760';
+      window.onExpenseCategoryChange();
+
+      if (entry.category === 'health_hsa') {
+        const norm = getHsaEntryNormalized(entry);
+        document.getElementById('expHsaProvider').value = norm.provider || '';
+        document.getElementById('expHsaCoverageNote').value = norm.coverageNote || '';
+        setFormattedInputVal('expHsaHst', norm.hst || '');
+        setFormattedInputVal('expHsaTotal', norm.totalExpense || '');
+        setFormattedInputVal('expHsaLeftOver', norm.leftOver ?? '');
+        document.querySelectorAll('[data-hsa-insurer]').forEach(inp => {
+          const insName = inp.getAttribute('data-hsa-insurer');
+          const val = norm.insurerReimbursements?.[insName] || '';
+          inp.value = val ? formatValWithCommas(val, 2) : '';
+        });
+      } else {
+        document.getElementById('expInputMerchant').value = entry.merchant || entry.note || '';
+        setFormattedInputVal('expInputAmount', entry.amount || '');
+        document.getElementById('expInputNote').value = entry.merchant ? (entry.note || '') : '';
+      }
+
+      document.getElementById('expFormHeaderTitle')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    };
+
     window.openExpensesModal = () => {
       ensureLayoutsValid();
+      backfillIncomeLedgerFromDailyLogs();
       const yr = state.currentYear;
       document.getElementById('expModalYearLbl').textContent = yr;
       document.getElementById('expListYearLbl').textContent = yr;
+      const pdfYr = document.getElementById('expPdfYearBadge');
+      if (pdfYr) pdfYr.textContent = yr;
+      const incYr = document.getElementById('incomeLedgerYearLbl');
+      if (incYr) incYr.textContent = yr;
       if (!state.expensesVault[yr]) state.expensesVault[yr] = [];
-      const dateEl = document.getElementById('expInputDate');
-      if (dateEl && !dateEl.value) dateEl.value = new Date().toISOString().split('T')[0];
+      resetExpenseFormInputs();
+      resetIncomeFormInputs();
       window.onExpenseCategoryChange();
       renderExpensesVaultModal();
       document.getElementById('expensesModal').classList.remove('hidden');
@@ -6254,16 +6578,21 @@ function snapshotAllRecords() {
     };
 
     window.closeExpensesModal = () => {
+      resetExpenseFormInputs();
+      resetIncomeFormInputs();
       document.getElementById('expensesModal').classList.add('hidden');
       syncBodyModalLock();
     };
 
     window.addExpenseEntry = () => {
       ensureLayoutsValid();
-      const yr = state.currentYear;
       const date = document.getElementById('expInputDate').value || new Date().toISOString().split('T')[0];
+      const targetTaxYear = String(document.getElementById('expInputTaxYear')?.value || state.currentYear);
       const category = document.getElementById('expInputCategory').value || 'dues_8760';
-      if (!state.expensesVault[yr]) state.expensesVault[yr] = [];
+      if (!state.expensesVault[targetTaxYear]) state.expensesVault[targetTaxYear] = [];
+
+      let newEntry = null;
+      const entryId = editingExpenseState ? editingExpenseState.id : Date.now();
 
       if (category === 'health_hsa') {
         const provider = (document.getElementById('expHsaProvider')?.value || '').trim() || 'Medical & Health';
@@ -6279,7 +6608,6 @@ function snapshotAllRecords() {
           const val = parseCommaNum(inp.value);
           insurerReimbursements[insName] = Number(val.toFixed(2));
           totalInsurerPaid += val;
-          inp.value = '';
         });
 
         if (totalExpense <= 0 && leftOverInput !== null) {
@@ -6291,10 +6619,12 @@ function snapshotAllRecords() {
           ? Math.max(0, Number(leftOverInput.toFixed(2)))
           : Math.max(0, Number((totalExpense - totalInsurerPaid).toFixed(2)));
 
-        state.expensesVault[yr].push({
-          id: Date.now(),
+        newEntry = {
+          id: entryId,
           date,
+          taxYear: targetTaxYear,
           category: 'health_hsa',
+          merchant: provider,
           provider,
           coverageNote,
           hst: Number(hst.toFixed(2)),
@@ -6303,23 +6633,33 @@ function snapshotAllRecords() {
           leftOver,
           amount: leftOver,
           note: coverageNote ? `${provider} — ${coverageNote}` : provider
-        });
-
-        document.getElementById('expHsaProvider').value = '';
-        document.getElementById('expHsaCoverageNote').value = '';
-        document.getElementById('expHsaHst').value = '';
-        document.getElementById('expHsaTotal').value = '';
-        document.getElementById('expHsaLeftOver').value = '';
-        hsaLastEditedFields = [];
+        };
       } else {
+        const merchant = (document.getElementById('expInputMerchant')?.value || '').trim() || 'General Expense';
         const amount = getInputNum('expInputAmount');
-        const note = document.getElementById('expInputNote').value.trim();
+        const note = (document.getElementById('expInputNote')?.value || '').trim();
         if (amount <= 0) return;
-        state.expensesVault[yr].push({ id: Date.now(), date, category, amount, note });
-        document.getElementById('expInputAmount').value = '';
-        document.getElementById('expInputNote').value = '';
+        newEntry = {
+          id: entryId,
+          date,
+          taxYear: targetTaxYear,
+          category,
+          merchant,
+          amount: Number(amount.toFixed(2)),
+          note
+        };
       }
 
+      if (editingExpenseState) {
+        const oldYr = editingExpenseState.taxYear;
+        if (state.expensesVault[oldYr]) {
+          state.expensesVault[oldYr] = state.expensesVault[oldYr].filter(e => e.id !== editingExpenseState.id);
+        }
+      }
+      state.expensesVault[targetTaxYear].push(newEntry);
+
+      resetExpenseFormInputs();
+      window.onExpenseCategoryChange();
       renderExpensesVaultModal();
       saveAndRender();
     };
@@ -6329,9 +6669,138 @@ function snapshotAllRecords() {
       const yr = state.currentYear;
       if (!state.expensesVault[yr]) return;
       state.expensesVault[yr] = state.expensesVault[yr].filter(e => e.id !== id);
+      if (editingExpenseState && editingExpenseState.id === id) {
+        resetExpenseFormInputs();
+      }
       renderExpensesVaultModal();
       saveAndRender();
     };
+
+    // ================= ACCOUNTING INCOME LEDGER (AUTO-SYNCED FROM DAILY LOGS + MANUAL/EDIT + TAX YEAR REASSIGNMENT) =================
+    function upsertIncomeLedgerForShiftLog(logId, dateStr, amount, taxYear, note = '') {
+      ensureLayoutsValid();
+      const idx = state.incomeLedger.findIndex(item => item.sourceLogId === logId);
+      const amt = Number((Number(amount) || 0).toFixed(2));
+      if (amt <= 0) {
+        if (idx !== -1) state.incomeLedger.splice(idx, 1);
+        return;
+      }
+      const entry = {
+        id: idx !== -1 ? state.incomeLedger[idx].id : Date.now() + Math.floor(Math.random() * 1000),
+        sourceLogId: logId,
+        date: dateStr,
+        taxYear: String(taxYear || (dateStr ? dateStr.substring(0, 4) : state.currentYear)),
+        amount: amt,
+        merchant: idx !== -1 ? (state.incomeLedger[idx].merchant || 'Brockville Optometric Centre') : 'Brockville Optometric Centre',
+        note: note || 'Clinic Draw / Pay'
+      };
+      if (idx !== -1) {
+        state.incomeLedger[idx] = entry;
+      } else {
+        state.incomeLedger.push(entry);
+      }
+    }
+
+    function removeIncomeLedgerForShiftLog(logId) {
+      ensureLayoutsValid();
+      state.incomeLedger = state.incomeLedger.filter(item => item.sourceLogId !== logId);
+    }
+
+    window.reassignIncomeLedgerTaxYear = (entryId, newTaxYear) => {
+      ensureLayoutsValid();
+      const item = state.incomeLedger.find(x => x.id === entryId);
+      if (!item) return;
+      item.taxYear = String(newTaxYear);
+      if (item.sourceLogId) {
+        const linkedLog = (state.dailyLogs || []).find(l => l.logId === item.sourceLogId);
+        if (linkedLog) linkedLog.paidTaxYear = String(newTaxYear);
+      }
+      renderExpensesVaultModal();
+      saveAndRender();
+    };
+
+    window.editIncomeLedgerEntry = (entryId) => {
+      ensureLayoutsValid();
+      const item = state.incomeLedger.find(x => x.id === entryId);
+      if (!item) return;
+      editingIncomeEntryId = entryId;
+      const hdr = document.getElementById('incFormHeaderTitle');
+      const cancelBtn = document.getElementById('incCancelEditBtn');
+      const submitBtn = document.getElementById('incSubmitBtn');
+      if (hdr) hdr.textContent = `Editing Pay Entry (${item.date})`;
+      if (cancelBtn) cancelBtn.classList.remove('hidden');
+      if (submitBtn) submitBtn.textContent = 'Save Pay';
+
+      document.getElementById('incInputDate').value = item.date || new Date().toISOString().split('T')[0];
+      document.getElementById('incInputMerchant').value = item.merchant || 'Brockville Optometric Centre';
+      setFormattedInputVal('incInputAmount', item.amount || '');
+      document.getElementById('incInputNote').value = item.note || '';
+      document.getElementById('incFormHeaderTitle')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    };
+
+    window.addManualIncomeEntry = () => {
+      ensureLayoutsValid();
+      const date = document.getElementById('incInputDate')?.value || new Date().toISOString().split('T')[0];
+      const merchant = (document.getElementById('incInputMerchant')?.value || '').trim() || 'Brockville Optometric Centre';
+      const amount = getInputNum('incInputAmount');
+      const note = (document.getElementById('incInputNote')?.value || '').trim() || 'Manual Pay / Bonus';
+      if (amount <= 0) return;
+
+      if (editingIncomeEntryId !== null) {
+        const existing = state.incomeLedger.find(x => x.id === editingIncomeEntryId);
+        if (existing) {
+          existing.date = date;
+          existing.merchant = merchant;
+          existing.amount = Number(amount.toFixed(2));
+          existing.note = note;
+        }
+      } else {
+        state.incomeLedger.push({
+          id: Date.now() + Math.floor(Math.random() * 1000),
+          sourceLogId: null,
+          date,
+          taxYear: String(state.currentYear),
+          amount: Number(amount.toFixed(2)),
+          merchant,
+          note
+        });
+      }
+
+      resetIncomeFormInputs();
+      renderExpensesVaultModal();
+      saveAndRender();
+    };
+
+    window.deleteIncomeLedgerEntry = (entryId) => {
+      ensureLayoutsValid();
+      const target = state.incomeLedger.find(x => x.id === entryId);
+      if (target && target.sourceLogId) {
+        const linkedLog = (state.dailyLogs || []).find(l => l.logId === target.sourceLogId);
+        if (linkedLog) linkedLog.incomeLedgerDismissed = true;
+      }
+      state.incomeLedger = state.incomeLedger.filter(x => x.id !== entryId);
+      if (editingIncomeEntryId === entryId) {
+        resetIncomeFormInputs();
+      }
+      renderExpensesVaultModal();
+      saveAndRender();
+    };
+
+    function getAccountingIncomePaidForTaxYear(taxYear) {
+      ensureLayoutsValid();
+      const yrStr = String(taxYear);
+      const entries = (state.incomeLedger || [])
+        .filter(item => String(item.taxYear) === yrStr)
+        .sort((a, b) => String(a.date).localeCompare(String(b.date)));
+      const totalFromLedger = entries.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+      const ym = getYearMetrics(yrStr, 11);
+      return {
+        entries,
+        totalFromLedger,
+        totalFallbackYtdPaid: ym.ytdTotalPaid,
+        effectiveTotalPaid: entries.length > 0 ? totalFromLedger : ym.ytdTotalPaid
+      };
+    }
 
     function getHsaEntryNormalized(e) {
       const totalExpense = e.totalExpense !== undefined ? Number(e.totalExpense) : (Number(e.amount) || 0);
@@ -6339,9 +6808,9 @@ function snapshotAllRecords() {
       const insurerReimbursements = (e.insurerReimbursements && typeof e.insurerReimbursements === 'object') ? e.insurerReimbursements : {};
       const totalReimb = Object.values(insurerReimbursements).reduce((a, v) => a + (Number(v) || 0), 0);
       const leftOver = e.leftOver !== undefined ? Number(e.leftOver) : Math.max(0, Number((totalExpense - totalReimb).toFixed(2)));
-      const provider = e.provider || e.note || 'Medical & Health';
+      const provider = e.provider || e.merchant || e.note || 'Medical & Health';
       const coverageNote = e.coverageNote || 'Medical & Health';
-      return { ...e, provider, coverageNote, hst, totalExpense, insurerReimbursements, totalReimb, leftOver };
+      return { ...e, merchant: provider, provider, coverageNote, hst, totalExpense, insurerReimbursements, totalReimb, leftOver };
     }
 
     function computeYearExpensesTotals(yr) {
@@ -6368,6 +6837,10 @@ function snapshotAllRecords() {
       return { totalDues, totalIns, totalCe, totalEquip, totalAuto, totalOffice, totalBizDuesAndOverhead, totalHsa: totalHsaOutOfPocket, hsaCap, enableHsa, hsaClaimed, hsaMetcExcess };
     }
 
+    window.onExpenseFilterChange = () => {
+      renderExpensesVaultModal();
+    };
+
     function renderExpensesVaultModal() {
       const yr = state.currentYear;
       const list = state.expensesVault[yr] || [];
@@ -6388,48 +6861,324 @@ function snapshotAllRecords() {
         Dues: <span class="mono font-bold">${fmtCurr(totals.totalDues)}</span> • Ins: <span class="mono font-bold">${fmtCurr(totals.totalIns)}</span> • CE: <span class="mono font-bold">${fmtCurr(totals.totalCe)}</span> • Overhead: <span class="mono font-bold">${fmtCurr(totals.totalBizDuesAndOverhead)}</span>
       `;
 
-      const container = document.getElementById('expensesListContainer');
-      if (!list.length) {
-        container.innerHTML = `<div class="text-xs text-slate-400 py-6 text-center border border-dashed border-slate-300 dark:border-slate-800 rounded-xl">No professional expenses or health receipts logged for ${yr}.</div>`;
-        return;
-      }
+      const searchQ = (document.getElementById('expSearchInput')?.value || '').trim().toLowerCase();
+      const catFilter = document.getElementById('expFilterCategory')?.value || 'ALL';
+      const filteredList = list.filter(e => {
+        if (catFilter !== 'ALL' && e.category !== catFilter) return false;
+        if (!searchQ) return true;
+        const meta = EXPENSE_CATEGORY_LABELS[e.category] || { name: '' };
+        const haystack = [e.date, e.merchant, e.provider, e.note, e.coverageNote, meta.name].filter(Boolean).join(' ').toLowerCase();
+        return haystack.includes(searchQ);
+      });
 
-      const sorted = list.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
-      container.innerHTML = sorted.map(e => {
-        const meta = EXPENSE_CATEGORY_LABELS[e.category] || { name: e.category, line: '—' };
-        const isHsa = e.category === 'health_hsa';
-        if (isHsa) {
-          const norm = getHsaEntryNormalized(e);
-          const reimbBadges = Object.entries(norm.insurerReimbursements || {})
-            .filter(([, v]) => Number(v) > 0)
-            .map(([k, v]) => `<span class="text-[10px] text-sky-400 mono">${k}: ${fmtCurr(v)}</span>`)
-            .join(' • ');
+      const container = document.getElementById('expensesListContainer');
+      if (!filteredList.length) {
+        container.innerHTML = `<div class="text-xs text-slate-400 py-6 text-center border border-dashed border-slate-300 dark:border-slate-800 rounded-xl">${list.length ? 'No receipts match your search or category filter.' : `No professional expenses or health receipts logged for Tax Year ${yr}.`}</div>`;
+      } else {
+        const sorted = filteredList.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+        container.innerHTML = sorted.map(e => {
+          const meta = EXPENSE_CATEGORY_LABELS[e.category] || { name: e.category, line: '—' };
+          const isHsa = e.category === 'health_hsa';
+          if (isHsa) {
+            const norm = getHsaEntryNormalized(e);
+            const reimbBadges = Object.entries(norm.insurerReimbursements || {})
+              .filter(([, v]) => Number(v) > 0)
+              .map(([k, v]) => `<span class="text-[10px] text-sky-400 mono">${k}: ${fmtCurr(v)}</span>`)
+              .join(' • ');
+            return `
+              <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs">
+                <div class="min-w-0 flex items-center gap-2 flex-wrap">
+                  <span class="mono font-bold text-slate-400">${norm.date}</span>
+                  <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-sky-500/20 text-sky-400">🏥 ${norm.provider}</span>
+                  <span class="mono text-slate-400">Total: ${fmtCurr(norm.totalExpense)}</span>
+                  ${reimbBadges ? `<span>(${reimbBadges})</span>` : ''}
+                  <span class="font-bold mono text-emerald-500">Left Over: ${fmtCurr(norm.leftOver)}</span>
+                </div>
+                <div class="flex items-center gap-1 shrink-0">
+                  <button type="button" onclick="window.editExpenseEntry(${e.id})" class="text-brand-400 hover:text-brand-500 font-bold px-1.5" title="Edit Receipt">✎</button>
+                  <button type="button" onclick="window.deleteExpenseEntry(${e.id})" class="text-rose-400 hover:text-rose-500 font-bold px-1.5" title="Delete Receipt">✕</button>
+                </div>
+              </div>
+            `;
+          }
+          const merchantLabel = e.merchant || e.note || 'General Expense';
+          const noteSuffix = (e.merchant && e.note) ? `<span class="text-slate-500 truncate">• ${e.note}</span>` : '';
           return `
             <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs">
               <div class="min-w-0 flex items-center gap-2 flex-wrap">
-                <span class="mono font-bold text-slate-400">${norm.date}</span>
-                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-sky-500/20 text-sky-400">🏥 ${norm.provider}</span>
-                <span class="mono text-slate-400">Total: ${fmtCurr(norm.totalExpense)}</span>
-                ${reimbBadges ? `<span>(${reimbBadges})</span>` : ''}
-                <span class="font-bold mono text-emerald-500">Left Over: ${fmtCurr(norm.leftOver)}</span>
+                <span class="mono font-bold text-slate-400">${e.date}</span>
+                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-brand-500/15 text-brand-400">${merchantLabel}</span>
+                <span class="text-[10px] text-slate-400 font-semibold">Line ${meta.line}</span>
+                <span class="font-bold mono text-slate-800 dark:text-slate-100">${fmtCurr(e.amount)}</span>
+                ${noteSuffix}
               </div>
-              <button type="button" onclick="window.deleteExpenseEntry(${e.id})" class="text-rose-400 hover:text-rose-500 font-bold px-1.5 shrink-0" title="Delete Receipt">✕</button>
+              <div class="flex items-center gap-1 shrink-0">
+                <button type="button" onclick="window.editExpenseEntry(${e.id})" class="text-brand-400 hover:text-brand-500 font-bold px-1.5" title="Edit Receipt">✎</button>
+                <button type="button" onclick="window.deleteExpenseEntry(${e.id})" class="text-rose-400 hover:text-rose-500 font-bold px-1.5" title="Delete Receipt">✕</button>
+              </div>
             </div>
           `;
-        }
-        return `
-          <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs">
-            <div class="min-w-0 flex items-center gap-2 flex-wrap">
-              <span class="mono font-bold text-slate-400">${e.date}</span>
-              <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-brand-500/15 text-brand-400">${meta.name}</span>
-              <span class="font-bold mono text-slate-800 dark:text-slate-100">${fmtCurr(e.amount)}</span>
-              ${e.note ? `<span class="text-slate-500 truncate">• ${e.note}</span>` : ''}
+        }).join('');
+      }
+
+      // Render Accounting Income Paid Ledger for Selected Tax Year (With Edit + Tax Year Reassignment)
+      const incInfo = getAccountingIncomePaidForTaxYear(yr);
+      const incBadge = document.getElementById('incomeLedgerTotalBadge');
+      if (incBadge) incBadge.textContent = `Total Paid: ${fmtCurr(incInfo.effectiveTotalPaid)}`;
+
+      const incContainer = document.getElementById('incomeLedgerListContainer');
+      if (incContainer) {
+        if (!incInfo.entries.length) {
+          incContainer.innerHTML = `<div class="text-xs text-slate-400 py-4 text-center border border-dashed border-slate-300 dark:border-slate-800 rounded-xl">No individual pay entries auto-logged for ${yr} yet. (PDF report will use your ${yr} YTD Total Paid of ${fmtCurr(incInfo.totalFallbackYtdPaid)} if checked.)</div>`;
+        } else {
+          const yrOpts = getAvailableTaxYearsList(yr);
+          incContainer.innerHTML = incInfo.entries.slice().reverse().map(item => `
+            <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs">
+              <div class="min-w-0 flex items-center gap-2 flex-wrap">
+                <span class="mono font-bold text-slate-400">${item.date}</span>
+                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/15 text-emerald-500">${item.merchant || 'Clinic Pay'}</span>
+                <span class="font-bold mono text-emerald-500">${fmtCurr(item.amount)}</span>
+                ${item.note ? `<span class="text-slate-500 truncate">• ${item.note}</span>` : ''}
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <select onchange="window.reassignIncomeLedgerTaxYear(${item.id}, this.value)" title="Reassign Tax Year" class="w-20 px-1.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 mono text-[10px] font-bold" style="height: 1.75rem;">
+                  ${yrOpts.map(yOpt => `<option value="${yOpt}" ${String(item.taxYear) === yOpt ? 'selected' : ''}>${yOpt}</option>`).join('')}
+                </select>
+                <button type="button" onclick="window.editIncomeLedgerEntry(${item.id})" class="text-brand-400 hover:text-brand-500 font-bold px-1" title="Edit Pay Entry">✎</button>
+                <button type="button" onclick="window.deleteIncomeLedgerEntry(${item.id})" class="text-rose-400 hover:text-rose-500 font-bold px-1" title="Remove Entry">✕</button>
+              </div>
             </div>
-            <button type="button" onclick="window.deleteExpenseEntry(${e.id})" class="text-rose-400 hover:text-rose-500 font-bold px-1.5 shrink-0" title="Delete Receipt">✕</button>
-          </div>
+          `).join('');
+        }
+      }
+    }
+
+    // Flexible Category or Full-Year Accounting PDF Report (Category Summary + Overall Totals, No Income Deduction)
+    window.exportFlexibleAccountingPDF = () => {
+      const yr = state.currentYear;
+      const scope = document.getElementById('expPdfCategoryScope')?.value || 'ALL';
+      const includeIncome = !!document.getElementById('expPdfIncludeIncomeToggle')?.checked;
+
+      if (scope === 'health_hsa' && !includeIncome) {
+        window.exportHsaReportPDF();
+        return;
+      }
+
+      const allYearItems = (state.expensesVault[yr] || []).slice().sort((a, b) => String(a.date).localeCompare(String(b.date)));
+      let filtered = [];
+      let scopeTitle = `All Expenses (Business + Health/HSA) — Tax Year ${yr}`;
+
+      if (scope === 'ALL') {
+        filtered = allYearItems;
+        scopeTitle = `All Expenses (Business + Health/HSA) — Tax Year ${yr}`;
+      } else if (scope === 'BUSINESS_ONLY') {
+        filtered = allYearItems.filter(e => e.category !== 'health_hsa');
+        scopeTitle = `Business Expenses Only — Tax Year ${yr}`;
+      } else {
+        filtered = allYearItems.filter(e => e.category === scope);
+        const meta = EXPENSE_CATEGORY_LABELS[scope] || { name: scope };
+        scopeTitle = `${meta.name} — Tax Year ${yr}`;
+      }
+
+      const incInfo = getAccountingIncomePaidForTaxYear(yr);
+      if (!filtered.length && !includeIncome) {
+        alert(`No expense entries found for "${scopeTitle}".`);
+        return;
+      }
+
+      let totalExpensesSum = 0;
+      const categoryTotalsMap = {};
+      const expenseRowsHtml = filtered.map((e, idx) => {
+        const meta = EXPENSE_CATEGORY_LABELS[e.category] || { name: e.category, line: '—' };
+        const isHsa = e.category === 'health_hsa';
+        const norm = isHsa ? getHsaEntryNormalized(e) : null;
+        const merchant = isHsa ? norm.provider : (e.merchant || e.note || 'General Expense');
+        const noteText = isHsa ? (norm.coverageNote || 'HSA Out-of-Pocket') : (e.merchant ? (e.note || '') : '');
+        const amt = isHsa ? norm.leftOver : (Number(e.amount) || 0);
+        totalExpensesSum += amt;
+        if (!categoryTotalsMap[e.category]) {
+          categoryTotalsMap[e.category] = { name: meta.name, count: 0, total: 0 };
+        }
+        categoryTotalsMap[e.category].count += 1;
+        categoryTotalsMap[e.category].total += amt;
+        return `
+          <tr>
+            <td class="idx">${idx + 1}</td>
+            <td class="mono">${e.date}</td>
+            <td>
+              <div class="prov">${merchant}</div>
+              ${noteText ? `<div class="sub">${noteText}</div>` : ''}
+            </td>
+            <td>${meta.name}</td>
+            <td class="num bold">${fmtCurr(amt)}</td>
+          </tr>
         `;
       }).join('');
-    }
+
+      let incomeSectionHtml = '';
+      if (includeIncome) {
+        const incRows = incInfo.entries.length > 0
+          ? incInfo.entries.map((item, idx) => `
+              <tr>
+                <td class="idx">${idx + 1}</td>
+                <td class="mono">${item.date}</td>
+                <td><div class="prov">${item.merchant || 'Brockville Optometric Centre'}</div><div class="sub">${item.note || 'Pay / Draw'}</div></td>
+                <td class="num bold">${fmtCurr(item.amount)}</td>
+              </tr>
+            `).join('')
+          : `<tr><td colspan="3"><strong>${yr} Annual Total Paid (From OptoTrack Production Ledger)</strong></td><td class="num bold">${fmtCurr(incInfo.totalFallbackYtdPaid)}</td></tr>`;
+
+        incomeSectionHtml = `
+          <div class="sec-title">Itemized Income Paid — Tax Year ${yr}</div>
+          <table>
+            <thead>
+              <tr>
+                <th class="idx">#</th>
+                <th>Date</th>
+                <th>Source &amp; Description</th>
+                <th class="num">Amount Paid (CAD)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${incRows}
+              <tr class="totals-row">
+                <td colspan="3">Total Income Paid (Tax Year ${yr})</td>
+                <td class="num">${fmtCurr(incInfo.effectiveTotalPaid)}</td>
+              </tr>
+            </tbody>
+          </table>
+        `;
+      }
+
+      const categoryOrder = Object.keys(EXPENSE_CATEGORY_LABELS);
+      const catSummaryRowsHtml = Object.keys(categoryTotalsMap)
+        .sort((a, b) => categoryOrder.indexOf(a) - categoryOrder.indexOf(b))
+        .map(catKey => {
+          const row = categoryTotalsMap[catKey];
+          return `
+            <tr>
+              <td>${row.name} <span class="sub">(${row.count} ${row.count === 1 ? 'entry' : 'entries'})</span></td>
+              <td class="num bold">${fmtCurr(row.total)}</td>
+            </tr>
+          `;
+        }).join('');
+
+      const overallTotalsHtml = `
+        <div style="page-break-inside: avoid;">
+          <div class="sec-title">Summary by Category (${yr})</div>
+          <table class="summary-table">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th class="num">Total (CAD)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${catSummaryRowsHtml || '<tr><td colspan="2" style="text-align:center;color:#64748b;">No expense categories recorded.</td></tr>'}
+              <tr class="totals-row">
+                <td>Overall Total Expenses (${yr})</td>
+                <td class="num">${fmtCurr(totalExpensesSum)}</td>
+              </tr>
+              ${includeIncome ? `
+              <tr class="summary-final">
+                <td>Overall Total Income Paid (${yr})</td>
+                <td class="num">${fmtCurr(incInfo.effectiveTotalPaid)}</td>
+              </tr>
+              ` : ''}
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      const printWin = window.open('', '_blank', 'width=920,height=1080');
+      if (!printWin) {
+        alert('Please allow pop-ups to generate the PDF report.');
+        return;
+      }
+
+      printWin.document.write(`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>OptoTrack Accounting Report — ${yr}</title>
+  <style>
+    @page { size: letter; margin: 14mm 14mm 16mm 14mm; }
+    * { box-sizing: border-box; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; margin: 0; padding: 0; font-size: 11px; line-height: 1.4; }
+    .brand-bar { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #0f172a; padding-bottom: 10px; margin-bottom: 14px; }
+    .brand-left { display: flex; align-items: center; gap: 10px; }
+    .brand-left img { width: 42px; height: 42px; object-fit: contain; background: #e6e6e6; border-radius: 8px; padding: 3px; border: 1px solid #cbd5e1; }
+    .app-name { font-size: 16px; font-weight: 800; color: #0f172a; }
+    .clinic-sub { font-size: 10px; color: #64748b; font-weight: 600; }
+    .report-title { font-size: 18px; font-weight: 800; color: #0f172a; margin: 0 0 2px 0; }
+    .report-sub { font-size: 11px; color: #475569; margin: 0 0 12px 0; }
+    .sec-title { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: #334155; margin: 14px 0 6px 0; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 14px; }
+    thead { display: table-header-group; }
+    tr { page-break-inside: avoid; }
+    th { background: #1e293b; color: #ffffff; font-size: 10px; font-weight: 700; text-align: left; padding: 7px 6px; border: 1px solid #1e293b; }
+    td { padding: 6px; border-bottom: 1px solid #e2e8f0; vertical-align: top; font-size: 10.5px; }
+    .idx { width: 24px; text-align: center; color: #64748b; font-weight: 600; }
+    .mono { font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+    .num { text-align: right; font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+    .bold { font-weight: 700; color: #0f172a; }
+    .prov { font-weight: 700; color: #0f172a; }
+    .sub { font-size: 9.5px; color: #64748b; }
+    .totals-row td { background: #f1f5f9; border-top: 2px solid #0f172a; border-bottom: 2px solid #0f172a; font-weight: 800; padding: 8px 6px; }
+    .summary-table th { background: #334155; color: #fff; padding: 7px 8px; font-size: 10.5px; }
+    .summary-table td { padding: 7px 8px; border-bottom: 1px solid #e2e8f0; font-size: 11px; }
+    .summary-final td { background: #ecfdf5; border-top: 2px solid #059669; border-bottom: 2px solid #059669; font-weight: 800; color: #065f46; font-size: 12px; }
+    .footer-note { margin-top: 16px; text-align: right; font-size: 9.5px; color: #64748b; }
+  </style>
+</head>
+<body>
+  <div class="brand-bar">
+    <div class="brand-left">
+      <img src="${CLINIC_LOGO_B64}" alt="Brockville Optometric Centre" />
+      <div>
+        <div class="app-name">OptoTrack</div>
+        <div class="clinic-sub">Brockville Optometric Centre</div>
+      </div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:11px;font-weight:700;color:#0f172a;">Tax Year ${yr} Accounting Report</div>
+      <div style="font-size:10px;color:#64748b;">Generated ${new Date().toLocaleDateString('en-CA')}</div>
+    </div>
+  </div>
+
+  <h1 class="report-title">${scopeTitle}</h1>
+  <p class="report-sub">Itemized Merchant Ledger${includeIncome ? ' &amp; Annual Income Paid Summary' : ''} • Currency: CAD ($)</p>
+
+  ${incomeSectionHtml}
+
+  <div class="sec-title">Itemized Expenses (${filtered.length} ${filtered.length === 1 ? 'Entry' : 'Entries'})</div>
+  <table>
+    <thead>
+      <tr>
+        <th class="idx">#</th>
+        <th>Date</th>
+        <th>Merchant &amp; Notes</th>
+        <th>CRA Category</th>
+        <th class="num">Amount (CAD)</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${expenseRowsHtml || '<tr><td colspan="5" style="text-align:center;color:#64748b;">No expense entries recorded for this selection.</td></tr>'}
+      <tr class="totals-row">
+        <td colspan="4">Total Selected Expenses (${yr})</td>
+        <td class="num">${fmtCurr(totalExpensesSum)}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  ${overallTotalsHtml}
+
+  <div class="footer-note">OptoTrack Accounting Report (Tax Year ${yr})</div>
+  <script>window.onload = () => { setTimeout(() => { window.print(); }, 250); };<\/script>
+</body>
+</html>`);
+      printWin.document.close();
+    };
 
     window.exportHsaReportPDF = () => {
       const yr = state.currentYear;
@@ -6657,10 +7406,10 @@ function snapshotAllRecords() {
     window.exportCraTaxSlipCSV = () => {
       const yr = state.currentYear;
       const list = (state.expensesVault[yr] || []).filter(e => e.category !== 'health_hsa');
-      const header = ['Date', 'CRA Line Code', 'Category Name', 'Amount', 'Vendor / Note'];
+      const header = ['Date', 'Tax Year', 'Merchant', 'CRA Line Code', 'Category Name', 'Amount', 'Note'];
       const rows = list.map(e => {
         const meta = EXPENSE_CATEGORY_LABELS[e.category] || { name: e.category, line: '—' };
-        return [e.date, meta.line, meta.name, Number(e.amount).toFixed(2), e.note || ''];
+        return [e.date, e.taxYear || yr, e.merchant || e.note || '', meta.line, meta.name, Number(e.amount).toFixed(2), e.merchant ? (e.note || '') : ''];
       });
       const csvLines = [header.join(','), ...rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))].join('\r\n');
       const blob = new Blob(['\uFEFF' + csvLines], { type: 'text/csv;charset=utf-8;' });
@@ -7806,7 +8555,7 @@ function snapshotAllRecords() {
       });
     }
 
-    // ================= DAILY SHIFT LOG MODAL =================
+    // ================= DAILY SHIFT LOG MODAL (AUTO-LOGS PAY TO ACCOUNTING LEDGER) =================
     let activeDailyLogGlobalMode = 'delta';
     let logFieldModes = { reci: 'delta', ohip: 'delta', totOhip: 'delta', paid: 'delta', pts: 'delta' };
     let logFieldTouched = { reci: false, ohip: false, totOhip: false, paid: false, pts: false };
@@ -7924,6 +8673,7 @@ function snapshotAllRecords() {
         const monthNamesFull = ['January','February','March','April','May','June','July','August','September','October','November','December'];
         const subEl = document.getElementById('logModalTargetMonthSub');
         if (subEl) subEl.textContent = `Updates Ledger Month: ${monthNamesFull[mIdx]} ${state.currentYear}`;
+        populateTaxYearSelect('logPaidTaxYear', yStr);
 
         const calInfo = getEffectiveCalendarDayInfo(yStr, mIdx, dNum);
         const defaultHrs = calInfo.payHours > 0 ? String(calInfo.payHours) : (calInfo.isFriday ? '6' : '8');
@@ -8023,9 +8773,16 @@ function snapshotAllRecords() {
       m.paid = Number(paidRes.newMtd.toFixed(2));
       m.patients = Math.round(ptsRes.newMtd);
 
+      const logId = `log_${Date.now()}`;
+      const logDateStr = document.getElementById('logDate').value;
+      const paidTaxYear = String(document.getElementById('logPaidTaxYear')?.value || state.currentYear);
+      const logNoteStr = document.getElementById('logNote').value.trim();
+
       state.dailyLogs.push({
-        date: document.getElementById('logDate').value,
+        logId,
+        date: logDateStr,
         year: state.currentYear,
+        paidTaxYear,
         monthIdx,
         month: m.month,
         dayInc,
@@ -8046,8 +8803,12 @@ function snapshotAllRecords() {
         mtdTotalOhip: Number(totOhipRes.newMtd.toFixed(2)),
         mtdPaid: Number(paidRes.newMtd.toFixed(2)),
         mtdPts: Math.round(ptsRes.newMtd),
-        note: document.getElementById('logNote').value.trim()
+        note: logNoteStr
       });
+
+      if (dPaid > 0) {
+        upsertIncomeLedgerForShiftLog(logId, logDateStr, dPaid, paidTaxYear, logNoteStr || `Clinic Pay (${m.month})`);
+      }
 
       syncRecordHighWithBaselineAndLogs();
       window.closeDailyLogModal();
@@ -8220,6 +8981,8 @@ function snapshotAllRecords() {
 
       document.getElementById('editLogDate').value = l.date || '';
       document.getElementById('editLogNote').value = l.note || '';
+      populateTaxYearSelect('editLogPaidTaxYear', l.paidTaxYear || l.year || state.currentYear);
+
       const sHrs = l.shiftHours !== undefined ? String(l.shiftHours) : (l.dayInc === 0.5 ? '4' : (l.dayInc === 0 ? '0' : '8'));
       const schedHrs = l.scheduledHours !== undefined ? String(l.scheduledHours) : sHrs;
       document.getElementById('editLogShiftHours').value = sHrs;
@@ -8301,6 +9064,7 @@ function snapshotAllRecords() {
 
       const newDate = document.getElementById('editLogDate').value;
       const newNote = document.getElementById('editLogNote').value.trim();
+      const newPaidTaxYear = String(document.getElementById('editLogPaidTaxYear')?.value || l.year || state.currentYear);
       const newShiftHours = Number(document.getElementById('editLogShiftHours').value) || 0;
       const newScheduledHours = Number(document.getElementById('editLogScheduledHours').value) || 0;
       const newDayInc = newShiftHours === 8 ? 1 : (newShiftHours === 6 ? 1 : (newShiftHours === 4 ? 0.5 : 0));
@@ -8332,7 +9096,9 @@ function snapshotAllRecords() {
       const diffDays = newDayInc - oldDayInc;
       const diffTargetDelta = newTargetDelta - oldTargetDelta;
 
+      if (!l.logId) l.logId = `log_${Date.now()}_${editingLogIdx}`;
       l.date = newDate;
+      l.paidTaxYear = newPaidTaxYear;
       l.dayInc = newDayInc;
       l.shiftHours = newShiftHours;
       l.scheduledHours = newScheduledHours;
@@ -8352,6 +9118,8 @@ function snapshotAllRecords() {
       l.mtdPaid = Number((pre.paid + newDPaid).toFixed(2));
       l.mtdPts = Math.round(pre.pts + newDPts);
       l.note = newNote;
+
+      upsertIncomeLedgerForShiftLog(l.logId, newDate, newDPaid, newPaidTaxYear, newNote || `Clinic Pay (${l.month || ''})`);
 
       for (let i = ctx.posInMonth + 1; i < ctx.sameMonthIdxs.length; i++) {
         const subLog = state.dailyLogs[ctx.sameMonthIdxs[i]];
@@ -8389,6 +9157,7 @@ function snapshotAllRecords() {
       const ctx = currentEditLogCtx || computeLogMtdContext(editingLogIdx);
       const l = state.dailyLogs[editingLogIdx];
       if (l && ctx) {
+        if (l.logId) removeIncomeLedgerForShiftLog(l.logId);
         const dayInc = l.dayInc !== undefined ? Number(l.dayInc) : 1;
         const tDelta = Number(l.targetDelta) || 0;
         const dl = ctx.curDeltas;
